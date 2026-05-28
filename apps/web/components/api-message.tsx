@@ -1,7 +1,7 @@
 "use client";
 
+import { fetchApiMessage } from "@/app/lib/api";
 import { useQuery } from "@tanstack/react-query";
-import { fetchApiMessage } from "../lib/api";
 
 export default function ApiMessage() {
   const { data, isLoading, isError, error } = useQuery({

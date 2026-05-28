@@ -11,13 +11,17 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "@payable-turborepo-starter/ui": "*",
     "@tanstack/react-query": "^5.90.21",
     "autoprefixer": "^10.4.21",
     "next": "^15.5.0",
+    "next-themes": "^0.4.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "tailwindcss": "^4.1.14"
+    "tailwindcss": "^4.1.14",
+    "uuid": "^14.0.0",
+    "zustand": "^5.0.13"
   },
   "devDependencies": {
     "@payable-turborepo-starter/eslint-config": "*",
