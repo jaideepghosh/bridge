@@ -117,10 +117,6 @@ export function useHealthCheck<TData = Awaited<ReturnType<typeof healthCheck>>, 
 
 
 export const getExecuteRequestUrl = () => {
-
-
-
-
   return `/api/proxy/execute`
 }
 

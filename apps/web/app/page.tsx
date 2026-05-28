@@ -14,11 +14,17 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "@payable-turborepo-starter/ui/tooltip";
 import { Sidebar } from "@/components/Sidebar";
+import { useEffect } from "react";
 
 const queryClient = new QueryClient();
 
 export default function Home() {
   const selectedSidebarItem = useStore(state => state.selectedSidebarItem);
+  const loadStorage = useStore(state => state.loadStorage);
+
+  useEffect(() => {
+    loadStorage();
+  }, []);
 
   return (
     <ThemeProvider defaultTheme="light" attribute="class">
