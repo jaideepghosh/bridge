@@ -1,0 +1,40 @@
+{
+  "name": "@payable-turborepo-starter/ui",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./globals.css": "./src/styles/globals.css"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "generate:component": "turbo gen react-component",
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@payable-turborepo-starter/eslint-config": "*",
+    "@payable-turborepo-starter/typescript-config": "*",
+    "@tailwindcss/postcss": "^4.1.14",
+    "@types/node": "^22.15.3",
+    "@types/react": "19.1.0",
+    "@types/react-dom": "19.1.1",
+    "eslint": "^9.34.0",
+    "typescript": "5.9.2"
+  },
+  "dependencies": {
+    "@radix-ui/react-scroll-area": "^1.2.10",
+    "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-separator": "^1.1.7",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-tabs": "^1.1.13",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.545.0",
+    "postcss": "^8.5.6",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss": "^4.1.14",
+    "tw-animate-css": "^1.4.0"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "extends": "@payable-turborepo-starter/typescript-config/react-library.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@payable-turborepo-starter/ui/*": ["src/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}

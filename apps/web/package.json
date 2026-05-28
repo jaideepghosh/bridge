@@ -1,0 +1,32 @@
+{
+  "name": "@payable-turborepo-starter/web",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack --port 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint --max-warnings 0",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payable-turborepo-starter/ui": "*",
+    "@tanstack/react-query": "^5.90.21",
+    "autoprefixer": "^10.4.21",
+    "next": "^15.5.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tailwindcss": "^4.1.14"
+  },
+  "devDependencies": {
+    "@payable-turborepo-starter/eslint-config": "*",
+    "@payable-turborepo-starter/typescript-config": "*",
+    "@tailwindcss/postcss": "^4.1.14",
+    "@types/node": "^22.15.3",
+    "@types/react": "19.1.0",
+    "@types/react-dom": "19.1.1",
+    "eslint": "^9.34.0",
+    "typescript": "5.9.2"
+  }
+}
