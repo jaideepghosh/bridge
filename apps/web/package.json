@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
+    "@payable-turborepo-starter/components": "*",
     "@payable-turborepo-starter/ui": "*",
     "@tanstack/react-query": "^5.90.21",
     "autoprefixer": "^10.4.21",

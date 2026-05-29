@@ -1,0 +1,28 @@
+{
+  "name": "@payable-turborepo-starter/components",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
+    "@payable-turborepo-starter/ui": "*",
+    "@tanstack/react-query": "^5.90.21",
+    "lucide-react": "^0.511.0",
+    "next-themes": "^0.4.6",
+    "uuid": "^14.0.0",
+    "zustand": "^5.0.13"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@payable-turborepo-starter/eslint-config": "*",
+    "@payable-turborepo-starter/typescript-config": "*",
+    "@types/react": "19.1.0",
+    "@types/react-dom": "19.1.1",
+    "typescript": "5.9.2"
+  }
+}

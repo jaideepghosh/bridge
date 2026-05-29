@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 
-import { cn } from "@payable-turborepo-starter/ui/";
+import { cn } from "../../lib/utils";
 
 function Tabs({
   className,

@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "desktop",
+  "productName": "Bridge",
   "version": "0.1.0",
   "identifier": "com.jaideepghosh.bridge",
   "build": {
@@ -12,9 +12,8 @@
   "app": {
     "windows": [
       {
-        "title": "desktop",
-        "width": 800,
-        "height": 600
+        "title": "Bridge",
+        "fullscreen": true
       }
     ],
     "security": {
@@ -30,6 +29,9 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+  "copyright": "Copyright © 2026 Jaideep Ghosh",
+  "shortDescription": "Lightweight REST API client for testing and documenting local and remote APIs without CORS limits.",
+  "longDescription": "Lightweight REST API testing and documentation workbench built for developers. Test local and remote APIs without CORS issues using a fast desktop-grade client with collections, environments, auth, cURL import, and reusable examples."
   }
 }

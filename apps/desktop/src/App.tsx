@@ -1,51 +1,73 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { TooltipProvider } from "@payable-turborepo-starter/ui/tooltip";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@payable-turborepo-starter/ui/resizable";
+import {
+  AppStoreProvider,
+  HttpExecutorProvider,
+  ThemeProvider,
+  Sidebar,
+  TopBar,
+  RequestBuilder,
+  ResponseViewer,
+  ConfigPanel,
+  useStore,
+} from "@payable-turborepo-starter/components";
+import { TauriStorageProvider } from "./services/storage";
+import { tauriHttpExecutor } from "./services/http-executor";
 
-function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+const queryClient = new QueryClient();
+const storage = new TauriStorageProvider();
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
-  }
+function AppLayout() {
+  const selectedSidebarItem = useStore(s => s.selectedSidebarItem);
 
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
-
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="flex flex-col h-screen w-full bg-background text-foreground overflow-hidden">
+      <TopBar />
+      <div className="flex-1 min-h-0">
+        <ResizablePanelGroup direction="horizontal">
+          <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className="border-r">
+            <Sidebar />
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel defaultSize={80}>
+            {selectedSidebarItem ? (
+              <ConfigPanel />
+            ) : (
+              <ResizablePanelGroup direction="vertical">
+                <ResizablePanel defaultSize={60} minSize={20}>
+                  <RequestBuilder />
+                </ResizablePanel>
+                <ResizableHandle />
+                <ResizablePanel defaultSize={40} minSize={20} className="border-t bg-card">
+                  <ResponseViewer />
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            )}
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
+    </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <ThemeProvider defaultTheme="light" attribute="class">
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <AppStoreProvider storage={storage}>
+            <HttpExecutorProvider execute={tauriHttpExecutor}>
+              <AppLayout />
+            </HttpExecutorProvider>
+          </AppStoreProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
+  );
+}
+
