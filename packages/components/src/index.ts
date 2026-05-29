@@ -9,6 +9,8 @@ export * from "./services/resolver";
 export * from "./services/http-client";
 export * from "./services/storage/types";
 export { LocalStorageProvider } from "./services/storage/localStorage";
+export { BrowserFileSystemStorageProvider } from "./services/storage/browserFileSystem";
+export { ApiStorageProvider } from "./services/storage/apiStorage";
 
 // Context + Store
 export { AppStoreProvider, useStore, createAppStore } from "./context/app-store";
@@ -21,6 +23,7 @@ export { ThemeProvider } from "./components/theme-provider";
 export { MonacoEditor } from "./components/MonacoEditor";
 export { EnvironmentManager } from "./components/EnvironmentManager";
 export { ImportDialog } from "./components/ImportDialog";
+export { StorageDirectoryModal } from "./components/StorageDirectoryModal";
 export { NewCollectionDialog } from "./components/NewCollectionDialog";
 export { NewFolderDialog } from "./components/NewFolderDialog";
 export { Sidebar } from "./components/Sidebar";

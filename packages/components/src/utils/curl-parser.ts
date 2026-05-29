@@ -14,32 +14,36 @@ function tokenize(input: string): string[] {
   const tokens: string[] = [];
   let i = 0;
   while (i < input.length) {
-    while (i < input.length && /\s/.test(input[i])) i++;
+    while (i < input.length && /\s/.test(input[i] ?? "")) i++;
     if (i >= input.length) break;
-    if (input[i] === "'" || input[i] === '"') {
-      const quote = input[i++];
+    const char = input[i] ?? "";
+    if (char === "'" || char === '"') {
+      const quote = char;
+      i++;
       let str = "";
-      while (i < input.length && input[i] !== quote) {
-        if (input[i] === "\\" && i + 1 < input.length) {
+      while (i < input.length && (input[i] ?? "") !== quote) {
+        const nextChar = input[i] ?? "";
+        if (nextChar === "\\" && i + 1 < input.length) {
           i++;
-          str += input[i];
+          str += input[i] ?? "";
         } else {
-          str += input[i];
+          str += nextChar;
         }
         i++;
       }
       i++;
       tokens.push(str);
-    } else if (input[i] === "$" && input[i + 1] === "'") {
+    } else if (char === "$" && (input[i + 1] ?? "") === "'") {
       i += 2;
       let str = "";
-      while (i < input.length && input[i] !== "'") {
-        if (input[i] === "\\" && i + 1 < input.length) {
+      while (i < input.length && (input[i] ?? "") !== "'") {
+        const nextChar = input[i] ?? "";
+        if (nextChar === "\\" && i + 1 < input.length) {
           i++;
           const esc: Record<string, string> = { n: "\n", t: "\t", r: "\r", "\\": "\\" };
-          str += esc[input[i]] ?? input[i];
+          str += esc[input[i] ?? ""] ?? (input[i] ?? "");
         } else {
-          str += input[i];
+          str += nextChar;
         }
         i++;
       }
@@ -47,8 +51,8 @@ function tokenize(input: string): string[] {
       tokens.push(str);
     } else {
       let token = "";
-      while (i < input.length && !/\s/.test(input[i])) {
-        token += input[i++];
+      while (i < input.length && !/\s/.test(input[i] ?? "")) {
+        token += input[i++] ?? "";
       }
       tokens.push(token);
     }
@@ -81,7 +85,7 @@ export function parseCurl(input: string): ParsedCurl | null {
   const cleaned = input.trim().replace(/\\\n/g, " ").replace(/\\\r\n/g, " ");
   const tokens = tokenize(cleaned);
 
-  if (!tokens.length || tokens[0].toLowerCase() !== "curl") return null;
+  if (!tokens.length || tokens[0]?.toLowerCase() !== "curl") return null;
 
   let method: HttpMethod | null = null;
   let rawUrl = "";
@@ -92,6 +96,7 @@ export function parseCurl(input: string): ParsedCurl | null {
 
   for (let i = 1; i < tokens.length; i++) {
     const tok = tokens[i];
+    if (tok === undefined) continue;
 
     if (tok === "-X" || tok === "--request") {
       method = (tokens[++i]?.toUpperCase() as HttpMethod) || "GET";

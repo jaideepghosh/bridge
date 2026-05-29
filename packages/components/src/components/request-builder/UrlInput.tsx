@@ -12,7 +12,7 @@ function parseSegments(url: string): Segment[] {
     if (match.index > lastIndex) {
       segments.push({ text: url.slice(lastIndex, match.index), isVar: false, varName: "" });
     }
-    segments.push({ text: match[0], isVar: true, varName: match[1] });
+    segments.push({ text: match[0], isVar: true, varName: match[1] ?? "" });
     lastIndex = match.index + match[0].length;
   }
   if (lastIndex < url.length) {

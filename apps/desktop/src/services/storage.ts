@@ -1,4 +1,4 @@
-import { appDataDir } from "@tauri-apps/api/path";
+import { appDataDir, documentDir } from "@tauri-apps/api/path";
 import { readTextFile, writeTextFile, mkdir, exists } from "@tauri-apps/plugin-fs";
 import {
   LocalStorageProvider,
@@ -29,12 +29,35 @@ const EMPTY: StorageData = {
 };
 
 export class TauriStorageProvider implements StorageProvider {
+  isNative = true;
   private data: StorageData = { ...EMPTY };
   private filePath: string | null = null;
   private fallback: LocalStorageProvider | null = null;
 
   private isTauri(): boolean {
-    return typeof window !== "undefined" && (window as any).__TAURI_IPC__ !== undefined;
+    if (typeof window === "undefined") return false;
+    return (
+      (window as any).__TAURI_IPC__ !== undefined ||
+      (window as any).__TAURI_INTERNALS__ !== undefined ||
+      (window as any).__TAURI__ !== undefined
+    );
+  }
+
+  async getDefaultDirectory(): Promise<string> {
+    if (!this.isTauri()) {
+      return "default-workspace";
+    }
+    try {
+      const doc = await documentDir();
+      return `${doc}/Bridge`;
+    } catch (err) {
+      console.error("[TauriStorageProvider] Failed to get documentDir, trying appDataDir:", err);
+      try {
+        return await appDataDir();
+      } catch {
+        return "BridgeWorkspace";
+      }
+    }
   }
 
   async initialize(): Promise<void> {
@@ -46,7 +69,11 @@ export class TauriStorageProvider implements StorageProvider {
     }
 
     try {
-      const dir = await appDataDir();
+      let dir = typeof window !== "undefined" ? localStorage.getItem("bridge_storage_directory") : null;
+      if (!dir) {
+        dir = await appDataDir();
+      }
+      console.info("[TauriStorageProvider] running in Tauri environment. App Data Location:", dir);
       this.filePath = `${dir}/bridge-data.json`;
 
       const dirExists = await exists(dir);

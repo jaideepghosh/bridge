@@ -1,8 +1,14 @@
 import { Collection, Folder, SavedRequest, ApiExample, Environment } from "../../types";
 
 export interface StorageProvider {
+  isNative?: boolean;
   /** Async initialization — load data from persistent storage into memory. No-op for synchronous stores. */
   initialize(): Promise<void>;
+
+  getDefaultDirectory?(): Promise<string>;
+
+  requiresPermissionGesture?: boolean;
+  requestPermissionGesture?(): Promise<boolean>;
 
   getCollections(): Collection[];
   saveCollection(collection: Collection): void;

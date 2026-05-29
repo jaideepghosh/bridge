@@ -9,7 +9,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   AppStoreProvider,
   HttpExecutorProvider,
-  LocalStorageProvider,
+  BrowserFileSystemStorageProvider,
   ThemeProvider,
   Sidebar,
   TopBar,
@@ -21,7 +21,7 @@ import {
 import { webProxyExecutor } from "@/services/proxy-executor";
 
 const queryClient = new QueryClient();
-const storage = new LocalStorageProvider();
+const storage = new BrowserFileSystemStorageProvider();
 
 function AppLayout() {
   const selectedSidebarItem = useStore(s => s.selectedSidebarItem);

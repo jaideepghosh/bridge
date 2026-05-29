@@ -151,7 +151,7 @@ export class LocalStorageProvider {
       localStorage.setItem(STORAGE_KEYS.FOLDERS, JSON.stringify(folders));
       localStorage.setItem(STORAGE_KEYS.REQUESTS, JSON.stringify(requests));
       localStorage.setItem(STORAGE_KEYS.ENVIRONMENTS, JSON.stringify(environments));
-      localStorage.setItem(STORAGE_KEYS.ACTIVE_ENV, environments[0].id);
+      localStorage.setItem(STORAGE_KEYS.ACTIVE_ENV, environments[0]?.id || "");
       localStorage.setItem(STORAGE_KEYS.EXAMPLES, JSON.stringify([]));
     }
   }

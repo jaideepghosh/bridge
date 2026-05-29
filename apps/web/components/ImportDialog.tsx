@@ -31,7 +31,7 @@ function detectEnvCandidates(curl: string): EnvVarCandidate[] {
   while ((m = re.exec(curl)) !== null) {
     const name = m[1] ?? m[2];
     const raw = m[0];
-    if (!seen.has(name)) {
+    if (name && !seen.has(name)) {
       seen.add(name);
       candidates.push({ raw, name, convert: true });
     }
@@ -161,7 +161,7 @@ export function ImportDialog({ open, onClose }: Props) {
     }
 
     openTab(undefined, {
-      name: `Imported: ${finalParsed.method} ${finalParsed.url.replace(/^https?:\/\//, "").split("?")[0].slice(0, 40)}`,
+      name: `Imported: ${finalParsed.method} ${finalParsed.url.replace(/^https?:\/\//, "").split("?")[0]?.slice(0, 40) || ""}`,
       method: finalParsed.method,
       url: finalParsed.url,
       headers: finalParsed.headers,

@@ -6,9 +6,13 @@
   "permissions": [
     "core:default",
     "opener:default",
-    "fs:allow-app-read",
-    "fs:allow-app-write",
-    "fs:allow-app-meta",
+    "fs:default",
+    "fs:read-all",
+    "fs:write-all",
+    "fs:scope-document-recursive",
+    "fs:scope-home-recursive",
+    "fs:scope-desktop-recursive",
+    "dialog:default",
     "http:default"
   ]
 }

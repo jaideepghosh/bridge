@@ -92,7 +92,7 @@ export const useStore = create<AppState>((set, get) => ({
     });
     const state = get();
     if (state.activeTabs.length > 0 && !state.selectedTabId) {
-      set({ selectedTabId: state.activeTabs[0].id });
+      set({ selectedTabId: state.activeTabs[0]?.id || null });
     }
   },
 
@@ -152,7 +152,7 @@ export const useStore = create<AppState>((set, get) => ({
       let nextSelected = state.selectedTabId;
       if (state.selectedTabId === tabId) {
         const idx = state.activeTabs.findIndex(t => t.id === tabId);
-        nextSelected = filtered[Math.max(0, idx - 1)].id;
+        nextSelected = filtered[Math.max(0, idx - 1)]?.id || null;
       }
       return { activeTabs: filtered, selectedTabId: nextSelected };
     });

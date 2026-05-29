@@ -16,8 +16,8 @@ import {
   ConfigPanel,
   useStore,
 } from "@payable-turborepo-starter/components";
-import { TauriStorageProvider } from "./services/storage";
 import { tauriHttpExecutor } from "./services/http-executor";
+import { TauriStorageProvider } from "./services/storage";
 
 const queryClient = new QueryClient();
 const storage = new TauriStorageProvider();

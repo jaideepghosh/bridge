@@ -1,11 +1,14 @@
 import { createStore, StoreApi, useStore as useZustandStore } from "zustand";
 import { useShallow } from "zustand/react/shallow";
-import { createContext, useContext, useEffect, useRef, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { v4 as uuidv4 } from "uuid";
 import {
   ActiveTab, Collection, Folder, SavedRequest, Environment, HttpMethod, ApiExample,
 } from "../types";
 import { StorageProvider } from "../services/storage/types";
+import { StorageDirectoryModal } from "../components/StorageDirectoryModal";
+import { Folder as FolderIcon } from "lucide-react";
+import { Button } from "@payable-turborepo-starter/ui";
 
 // ─── State shape ─────────────────────────────────────────────────────────────
 
@@ -101,7 +104,7 @@ export function createAppStore(storage: StorageProvider): StoreApi<AppState> {
       });
       const state = get();
       if (state.activeTabs.length > 0 && !state.selectedTabId) {
-        set({ selectedTabId: state.activeTabs[0].id });
+        set({ selectedTabId: state.activeTabs[0]?.id || null });
       }
     },
 
@@ -161,7 +164,7 @@ export function createAppStore(storage: StorageProvider): StoreApi<AppState> {
         let nextSelected = state.selectedTabId;
         if (state.selectedTabId === tabId) {
           const idx = state.activeTabs.findIndex(t => t.id === tabId);
-          nextSelected = filtered[Math.max(0, idx - 1)].id;
+          nextSelected = filtered[Math.max(0, idx - 1)]?.id || null;
         }
         return { activeTabs: filtered, selectedTabId: nextSelected };
       });
@@ -245,17 +248,32 @@ export function AppStoreProvider({
   children: ReactNode;
 }) {
   const storeRef = useRef<StoreApi<AppState>>(null);
+  const [showPrompt, setShowPrompt] = useState(false);
+  const [needsPermission, setNeedsPermission] = useState(false);
 
   if (!storeRef.current) {
     storeRef.current = createAppStore(storage);
   }
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hasDir = localStorage.getItem("bridge_storage_directory");
+      if (!hasDir) {
+        setShowPrompt(true);
+      }
+    }
+  }, []);
 
   // After storage.initialize() completes, load data into the store.
   // For localStorage this resolves immediately; for file-based storage it awaits the file read.
   useEffect(() => {
     storage.initialize()
       .then(() => {
-        storeRef.current!.getState().loadStorage();
+        if (storage.requiresPermissionGesture) {
+          setNeedsPermission(true);
+        } else {
+          storeRef.current!.getState().loadStorage();
+        }
       })
       .catch((err) => {
         console.error("[AppStoreProvider] storage.initialize() failed:", err);
@@ -263,9 +281,75 @@ export function AppStoreProvider({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  if (needsPermission) {
+    const workspaceName = typeof window !== "undefined" ? localStorage.getItem("bridge_storage_directory") : "";
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-md">
+        <div className="max-w-md w-full p-8 rounded-2xl border border-border/80 bg-card/95 shadow-2xl space-y-6 animate-in fade-in zoom-in duration-200">
+          <div className="flex flex-col items-center text-center space-y-3">
+            <div className="p-3 rounded-2xl bg-primary/10 text-primary">
+              <FolderIcon className="h-8 w-8 animate-bounce" />
+            </div>
+            <h2 className="text-xl font-bold tracking-tight text-foreground">
+              Authorize Folder Access
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Bridge is configured to save all REST collections, environments, folders, and request histories inside your local folder:
+            </p>
+            <div className="px-4 py-2 rounded-lg bg-muted text-foreground font-semibold text-xs border truncate max-w-full">
+              {workspaceName || "Selected Folder"}
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed pt-1">
+              To respect your privacy, the browser requires you to re-authorize read/write access to this folder for this session.
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            <Button
+              onClick={async () => {
+                if (storage.requestPermissionGesture) {
+                  const granted = await storage.requestPermissionGesture();
+                  if (granted) {
+                    setNeedsPermission(false);
+                    storeRef.current!.getState().loadStorage();
+                  }
+                }
+              }}
+              className="w-full h-11 flex items-center justify-center gap-2 font-semibold text-sm shadow-lg transition-all active:scale-95 cursor-pointer animate-pulse hover:animate-none"
+            >
+              <FolderIcon className="h-4.5 w-4.5" />
+              Grant Folder Access
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  localStorage.removeItem("bridge_storage_directory");
+                  import("../services/storage/indexedDb").then(({ clearDirectoryHandle }) => {
+                    clearDirectoryHandle().then(() => {
+                      window.location.reload();
+                    });
+                  });
+                }
+              }}
+              className="w-full h-10 text-xs text-muted-foreground border-border/60 hover:text-foreground cursor-pointer"
+            >
+              Reset Workspace Folder
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <AppStoreContext.Provider value={storeRef.current}>
       {children}
+      <StorageDirectoryModal
+        open={showPrompt}
+        forcePrompt={true}
+        storage={storage}
+      />
     </AppStoreContext.Provider>
   );
 }

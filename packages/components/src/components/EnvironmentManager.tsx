@@ -14,7 +14,7 @@ export function EnvironmentManager() {
     deleteEnvironment: s.deleteEnvironment,
   }));
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedEnvId, setSelectedEnvId] = useState<string | null>(activeEnvironmentId || (environments.length > 0 ? environments[0].id : null));
+  const [selectedEnvId, setSelectedEnvId] = useState<string | null>(activeEnvironmentId || (environments.length > 0 ? environments[0]?.id || null : null));
 
   const selectedEnv = environments.find(e => e.id === selectedEnvId);
 
