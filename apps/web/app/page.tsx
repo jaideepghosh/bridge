@@ -13,6 +13,7 @@ import {
   ThemeProvider,
   Sidebar,
   TopBar,
+  Footer,
   RequestBuilder,
   ResponseViewer,
   ConfigPanel,
@@ -52,6 +53,7 @@ function AppLayout() {
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
+      <Footer />
     </div>
   );
 }

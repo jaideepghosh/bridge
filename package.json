@@ -1,8 +1,12 @@
 {
   "name": "payable-turborepo-starter",
+  "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
+    "prebuild": "node scripts/sync-version.js",
     "build": "turbo run build",
+    "predev": "node scripts/sync-version.js",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",

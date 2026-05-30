@@ -1,9 +1,12 @@
 {
   "name": "@payable-turborepo-starter/components",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "exports": {
     ".": "./src/index.ts"
+  },
+  "scripts": {
+    "prebuild": "node ../../scripts/sync-version.js"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",

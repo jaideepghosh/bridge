@@ -28,6 +28,7 @@ export { NewCollectionDialog } from "./components/NewCollectionDialog";
 export { NewFolderDialog } from "./components/NewFolderDialog";
 export { Sidebar } from "./components/Sidebar";
 export { TopBar } from "./components/layout/TopBar";
+export { Footer } from "./components/layout/Footer";
 export { ConfigPanel } from "./components/config-panel/ConfigPanel";
 export { RequestBuilder } from "./components/request-builder/RequestBuilder";
 export { UrlInput } from "./components/request-builder/UrlInput";
@@ -35,3 +36,8 @@ export { VariableInput } from "./components/request-builder/VariableInput";
 export { SaveRequestDialog } from "./components/request-builder/SaveRequestDialog";
 export { SaveExampleDialog } from "./components/request-builder/SaveExampleDialog";
 export { ResponseViewer } from "./components/response-viewer/ResponseViewer";
+
+// Versioning exports
+export { useAppVersion } from "./hooks/useAppVersion";
+export { AppVersion } from "./components/AppVersion";
+export { AboutDialog } from "./components/AboutDialog";

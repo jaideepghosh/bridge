@@ -4,6 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "prebuild": "node ../../scripts/sync-version.js",
     "dev": "next dev --turbopack --port 3000",
     "build": "next build",
     "start": "next start",
