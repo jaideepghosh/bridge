@@ -111,16 +111,18 @@ export class TauriStorageProvider implements StorageProvider {
   // Collections
   getCollections(): Collection[] {
     if (this.fallback) return this.fallback.getCollections();
-    return this.data.collections;
+    return [...this.data.collections];
   }
   saveCollection(c: Collection): void {
     if (this.fallback) {
       this.fallback.saveCollection(c);
       return;
     }
-    const idx = this.data.collections.findIndex(x => x.id === c.id);
-    if (idx >= 0) this.data.collections[idx] = c;
-    else this.data.collections.push(c);
+    const items = [...this.data.collections];
+    const idx = items.findIndex(x => x.id === c.id);
+    if (idx >= 0) items[idx] = c;
+    else items.push(c);
+    this.data.collections = items;
     this.flush();
   }
   deleteCollection(id: string): void {
@@ -135,16 +137,18 @@ export class TauriStorageProvider implements StorageProvider {
   // Folders
   getFolders(): Folder[] {
     if (this.fallback) return this.fallback.getFolders();
-    return this.data.folders;
+    return [...this.data.folders];
   }
   saveFolder(f: Folder): void {
     if (this.fallback) {
       this.fallback.saveFolder(f);
       return;
     }
-    const idx = this.data.folders.findIndex(x => x.id === f.id);
-    if (idx >= 0) this.data.folders[idx] = f;
-    else this.data.folders.push(f);
+    const items = [...this.data.folders];
+    const idx = items.findIndex(x => x.id === f.id);
+    if (idx >= 0) items[idx] = f;
+    else items.push(f);
+    this.data.folders = items;
     this.flush();
   }
   deleteFolder(id: string): void {
@@ -159,16 +163,18 @@ export class TauriStorageProvider implements StorageProvider {
   // Requests
   getRequests(): SavedRequest[] {
     if (this.fallback) return this.fallback.getRequests();
-    return this.data.requests;
+    return [...this.data.requests];
   }
   saveRequest(r: SavedRequest): void {
     if (this.fallback) {
       this.fallback.saveRequest(r);
       return;
     }
-    const idx = this.data.requests.findIndex(x => x.id === r.id);
-    if (idx >= 0) this.data.requests[idx] = r;
-    else this.data.requests.push(r);
+    const items = [...this.data.requests];
+    const idx = items.findIndex(x => x.id === r.id);
+    if (idx >= 0) items[idx] = r;
+    else items.push(r);
+    this.data.requests = items;
     this.flush();
   }
   deleteRequest(id: string): void {
@@ -183,16 +189,18 @@ export class TauriStorageProvider implements StorageProvider {
   // Examples
   getExamples(): ApiExample[] {
     if (this.fallback) return this.fallback.getExamples();
-    return this.data.examples;
+    return [...this.data.examples];
   }
   saveExample(e: ApiExample): void {
     if (this.fallback) {
       this.fallback.saveExample(e);
       return;
     }
-    const idx = this.data.examples.findIndex(x => x.id === e.id);
-    if (idx >= 0) this.data.examples[idx] = e;
-    else this.data.examples.push(e);
+    const items = [...this.data.examples];
+    const idx = items.findIndex(x => x.id === e.id);
+    if (idx >= 0) items[idx] = e;
+    else items.push(e);
+    this.data.examples = items;
     this.flush();
   }
   deleteExample(id: string): void {
@@ -207,16 +215,18 @@ export class TauriStorageProvider implements StorageProvider {
   // Environments
   getEnvironments(): Environment[] {
     if (this.fallback) return this.fallback.getEnvironments();
-    return this.data.environments;
+    return [...this.data.environments];
   }
   saveEnvironment(e: Environment): void {
     if (this.fallback) {
       this.fallback.saveEnvironment(e);
       return;
     }
-    const idx = this.data.environments.findIndex(x => x.id === e.id);
-    if (idx >= 0) this.data.environments[idx] = e;
-    else this.data.environments.push(e);
+    const items = [...this.data.environments];
+    const idx = items.findIndex(x => x.id === e.id);
+    if (idx >= 0) items[idx] = e;
+    else items.push(e);
+    this.data.environments = items;
     this.flush();
   }
   deleteEnvironment(id: string): void {

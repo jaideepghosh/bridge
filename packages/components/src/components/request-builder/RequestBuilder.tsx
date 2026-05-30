@@ -1,12 +1,13 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useStore } from "../../context/app-store";
 import { useHttpExecutor } from "../../context/http-executor";
-import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tabs, TabsContent, TabsList, TabsTrigger } from "@payable-turborepo-starter/ui";
+import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tabs, TabsContent, TabsList, TabsTrigger } from "@payable-turborepo-starter/ui";
 import { Plus, X, Play, Save } from "lucide-react";
-import { HttpMethod, KeyValuePair } from "../../types";
+import { HttpMethod, KeyValuePair, Environment } from "../../types";
 import { prepareProxyRequest, resolveInheritedConfig } from "../../services/http-client";
 import { MonacoEditor } from "../MonacoEditor";
 import { UrlInput } from "./UrlInput";
+import { VariableInput } from "./VariableInput";
 import { SaveRequestDialog } from "./SaveRequestDialog";
 import { v4 as uuidv4 } from "uuid";
 
@@ -239,10 +240,10 @@ export function RequestBuilder() {
 
           <div className="flex-1 overflow-y-auto">
             <TabsContent value="params" className="p-4 m-0 h-full border-0">
-              <KeyValueTable items={draft.queryParams} onChange={(items) => updateDraft({ queryParams: items })} placeholderKey="Query Parameter" />
+              <KeyValueTable items={draft.queryParams} onChange={(items) => updateDraft({ queryParams: items })} env={activeEnv} placeholderKey="Query Parameter" />
             </TabsContent>
             <TabsContent value="headers" className="p-4 m-0 h-full border-0">
-              <KeyValueTable items={draft.headers} onChange={(items) => updateDraft({ headers: items })} placeholderKey="Header" />
+              <KeyValueTable items={draft.headers} onChange={(items) => updateDraft({ headers: items })} env={activeEnv} placeholderKey="Header" />
             </TabsContent>
             <TabsContent value="auth" className="p-4 m-0 h-full border-0">
               <div className="max-w-md space-y-4">
@@ -269,34 +270,43 @@ export function RequestBuilder() {
                 {draft.auth.type === "bearer" && (
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-muted-foreground">Token</label>
-                    <Input
-                      value={draft.auth.token}
-                      onChange={(e) => updateDraft({ auth: { type: "bearer", token: e.target.value } })}
-                      className="font-mono text-sm"
-                      placeholder="eyJ..."
-                    />
+                    <div className="flex h-9 rounded-md border border-input bg-background focus-within:ring-1 focus-within:ring-ring focus-within:border-primary overflow-hidden">
+                      <VariableInput
+                        value={draft.auth.token || ""}
+                        onChange={(v) => updateDraft({ auth: { type: "bearer", token: v } })}
+                        env={activeEnv}
+                        placeholder="eyJ..."
+                        className="font-mono text-xs"
+                      />
+                    </div>
                   </div>
                 )}
                 {draft.auth.type === "basic" && (
                   <div className="space-y-2">
                     <div>
                       <label className="text-xs font-semibold text-muted-foreground">Username</label>
-                      <Input
-                        value={draft.auth.username}
-                        onChange={(e) => updateDraft({ auth: { type: "basic", username: e.target.value, password: (draft.auth as { type: "basic"; username: string; password: string }).password } })}
-                        className="font-mono text-sm mt-1"
-                        placeholder="username"
-                      />
+                      <div className="flex h-9 rounded-md border border-input bg-background focus-within:ring-1 focus-within:ring-ring focus-within:border-primary overflow-hidden mt-1">
+                        <VariableInput
+                          value={draft.auth.username}
+                          onChange={(v) => updateDraft({ auth: { type: "basic", username: v, password: (draft.auth as { type: "basic"; username: string; password: string }).password } })}
+                          env={activeEnv}
+                          placeholder="username"
+                          className="font-mono text-xs"
+                        />
+                      </div>
                     </div>
                     <div>
                       <label className="text-xs font-semibold text-muted-foreground">Password</label>
-                      <Input
-                        type="password"
-                        value={draft.auth.password}
-                        onChange={(e) => updateDraft({ auth: { type: "basic", username: (draft.auth as { type: "basic"; username: string; password: string }).username, password: e.target.value } })}
-                        className="font-mono text-sm mt-1"
-                        placeholder="password"
-                      />
+                      <div className="flex h-9 rounded-md border border-input bg-background focus-within:ring-1 focus-within:ring-ring focus-within:border-primary overflow-hidden mt-1">
+                        <VariableInput
+                          type="password"
+                          value={draft.auth.password}
+                          onChange={(v) => updateDraft({ auth: { type: "basic", username: (draft.auth as { type: "basic"; username: string; password: string }).username, password: v } })}
+                          env={activeEnv}
+                          placeholder="password"
+                          className="font-mono text-xs"
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
@@ -304,21 +314,27 @@ export function RequestBuilder() {
                   <div className="space-y-2">
                     <div>
                       <label className="text-xs font-semibold text-muted-foreground">Key Name</label>
-                      <Input
-                        value={draft.auth.key}
-                        onChange={(e) => { const a = draft.auth as { type: "apiKey"; key: string; value: string; in: "header" | "query" }; updateDraft({ auth: { type: "apiKey", key: e.target.value, value: a.value, in: a.in } }); }}
-                        className="font-mono text-sm mt-1"
-                        placeholder="X-API-Key"
-                      />
+                      <div className="flex h-9 rounded-md border border-input bg-background focus-within:ring-1 focus-within:ring-ring focus-within:border-primary overflow-hidden mt-1">
+                        <VariableInput
+                          value={draft.auth.key}
+                          onChange={(v) => { const a = draft.auth as { type: "apiKey"; key: string; value: string; in: "header" | "query" }; updateDraft({ auth: { type: "apiKey", key: v, value: a.value, in: a.in } }); }}
+                          env={activeEnv}
+                          placeholder="X-API-Key"
+                          className="font-mono text-xs"
+                        />
+                      </div>
                     </div>
                     <div>
                       <label className="text-xs font-semibold text-muted-foreground">Value</label>
-                      <Input
-                        value={draft.auth.value}
-                        onChange={(e) => { const a = draft.auth as { type: "apiKey"; key: string; value: string; in: "header" | "query" }; updateDraft({ auth: { type: "apiKey", key: a.key, value: e.target.value, in: a.in } }); }}
-                        className="font-mono text-sm mt-1"
-                        placeholder="api_key_value"
-                      />
+                      <div className="flex h-9 rounded-md border border-input bg-background focus-within:ring-1 focus-within:ring-ring focus-within:border-primary overflow-hidden mt-1">
+                        <VariableInput
+                          value={draft.auth.value}
+                          onChange={(v) => { const a = draft.auth as { type: "apiKey"; key: string; value: string; in: "header" | "query" }; updateDraft({ auth: { type: "apiKey", key: a.key, value: v, in: a.in } }); }}
+                          env={activeEnv}
+                          placeholder="api_key_value"
+                          className="font-mono text-xs"
+                        />
+                      </div>
                     </div>
                     <div>
                       <label className="text-xs font-semibold text-muted-foreground">Add to</label>
@@ -372,6 +388,7 @@ export function RequestBuilder() {
                     <KeyValueTable
                       items={draft.body.pairs || []}
                       onChange={(items) => updateDraft({ body: { type: draft.body.type as "form-urlencoded" | "form-data", pairs: items } })}
+                      env={activeEnv}
                     />
                   </div>
                 ) : (
@@ -401,11 +418,13 @@ function KeyValueTable({
   onChange,
   placeholderKey = "Key",
   placeholderValue = "Value",
+  env,
 }: {
   items: KeyValuePair[];
   onChange: (items: KeyValuePair[]) => void;
   placeholderKey?: string;
   placeholderValue?: string;
+  env: Environment | null;
 }) {
   const displayItems = [...items];
   const lastItem = displayItems[displayItems.length - 1];
@@ -445,20 +464,22 @@ function KeyValueTable({
                 />
               )}
             </div>
-            <div className="border-l">
-              <Input
+            <div className="border-l h-8 flex items-center">
+              <VariableInput
                 value={item.key}
-                onChange={(e) => updateItem(item.id, { key: e.target.value })}
+                onChange={(v) => updateItem(item.id, { key: v })}
                 placeholder={placeholderKey}
-                className="h-8 border-0 rounded-none bg-transparent focus-visible:ring-1 focus-visible:ring-inset shadow-none font-mono text-xs"
+                env={env}
+                className="h-full border-0 rounded-none bg-transparent shadow-none"
               />
             </div>
-            <div className="border-l">
-              <Input
+            <div className="border-l h-8 flex items-center">
+              <VariableInput
                 value={item.value}
-                onChange={(e) => updateItem(item.id, { value: e.target.value })}
+                onChange={(v) => updateItem(item.id, { value: v })}
                 placeholder={placeholderValue}
-                className="h-8 border-0 rounded-none bg-transparent focus-visible:ring-1 focus-visible:ring-inset shadow-none font-mono text-xs"
+                env={env}
+                className="h-full border-0 rounded-none bg-transparent shadow-none"
               />
             </div>
             <div className="border-l flex items-center justify-center">

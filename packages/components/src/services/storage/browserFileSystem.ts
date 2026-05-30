@@ -134,12 +134,13 @@ export class BrowserFileSystemStorageProvider implements StorageProvider {
 
   // Collections
   getCollections(): Collection[] {
-    return this.data.collections;
+    return [...this.data.collections];
   }
   saveCollection(collection: Collection): void {
-    const items = this.getCollections();
+    const items = [...this.data.collections];
     const index = items.findIndex(i => i.id === collection.id);
     if (index >= 0) items[index] = collection; else items.push(collection);
+    this.data.collections = items;
     this.flush();
   }
   deleteCollection(id: string): void {
@@ -149,12 +150,13 @@ export class BrowserFileSystemStorageProvider implements StorageProvider {
 
   // Folders
   getFolders(): Folder[] {
-    return this.data.folders;
+    return [...this.data.folders];
   }
   saveFolder(folder: Folder): void {
-    const items = this.getFolders();
+    const items = [...this.data.folders];
     const index = items.findIndex(i => i.id === folder.id);
     if (index >= 0) items[index] = folder; else items.push(folder);
+    this.data.folders = items;
     this.flush();
   }
   deleteFolder(id: string): void {
@@ -164,12 +166,13 @@ export class BrowserFileSystemStorageProvider implements StorageProvider {
 
   // Requests
   getRequests(): SavedRequest[] {
-    return this.data.requests;
+    return [...this.data.requests];
   }
   saveRequest(request: SavedRequest): void {
-    const items = this.getRequests();
+    const items = [...this.data.requests];
     const index = items.findIndex(i => i.id === request.id);
     if (index >= 0) items[index] = request; else items.push(request);
+    this.data.requests = items;
     this.flush();
   }
   deleteRequest(id: string): void {
@@ -179,12 +182,13 @@ export class BrowserFileSystemStorageProvider implements StorageProvider {
 
   // Examples
   getExamples(): ApiExample[] {
-    return this.data.examples;
+    return [...this.data.examples];
   }
   saveExample(example: ApiExample): void {
-    const items = this.getExamples();
+    const items = [...this.data.examples];
     const index = items.findIndex(i => i.id === example.id);
     if (index >= 0) items[index] = example; else items.push(example);
+    this.data.examples = items;
     this.flush();
   }
   deleteExample(id: string): void {
@@ -194,12 +198,13 @@ export class BrowserFileSystemStorageProvider implements StorageProvider {
 
   // Environments
   getEnvironments(): Environment[] {
-    return this.data.environments;
+    return [...this.data.environments];
   }
   saveEnvironment(env: Environment): void {
-    const items = this.getEnvironments();
+    const items = [...this.data.environments];
     const index = items.findIndex(i => i.id === env.id);
     if (index >= 0) items[index] = env; else items.push(env);
+    this.data.environments = items;
     this.flush();
   }
   deleteEnvironment(id: string): void {

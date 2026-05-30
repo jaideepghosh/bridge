@@ -31,6 +31,7 @@ export { TopBar } from "./components/layout/TopBar";
 export { ConfigPanel } from "./components/config-panel/ConfigPanel";
 export { RequestBuilder } from "./components/request-builder/RequestBuilder";
 export { UrlInput } from "./components/request-builder/UrlInput";
+export { VariableInput } from "./components/request-builder/VariableInput";
 export { SaveRequestDialog } from "./components/request-builder/SaveRequestDialog";
 export { SaveExampleDialog } from "./components/request-builder/SaveExampleDialog";
 export { ResponseViewer } from "./components/response-viewer/ResponseViewer";

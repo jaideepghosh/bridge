@@ -1,22 +1,22 @@
 import { useRef, useState, useCallback } from "react";
-import { Environment } from "../../types";
+import { Environment } from "@/types";
 
 type Segment = { text: string; isVar: boolean; varName: string };
 
-function parseSegments(url: string): Segment[] {
+function parseSegments(text: string): Segment[] {
   const segments: Segment[] = [];
   const regex = /\{\{([^}]+)\}\}/g;
   let lastIndex = 0;
   let match;
-  while ((match = regex.exec(url)) !== null) {
+  while ((match = regex.exec(text)) !== null) {
     if (match.index > lastIndex) {
-      segments.push({ text: url.slice(lastIndex, match.index), isVar: false, varName: "" });
+      segments.push({ text: text.slice(lastIndex, match.index), isVar: false, varName: "" });
     }
     segments.push({ text: match[0], isVar: true, varName: match[1] ?? "" });
     lastIndex = match.index + match[0].length;
   }
-  if (lastIndex < url.length) {
-    segments.push({ text: url.slice(lastIndex), isVar: false, varName: "" });
+  if (lastIndex < text.length) {
+    segments.push({ text: text.slice(lastIndex), isVar: false, varName: "" });
   }
   return segments;
 }
@@ -34,9 +34,11 @@ type Props = {
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   env: Environment | null;
   placeholder?: string;
+  className?: string;
+  type?: string;
 };
 
-export function UrlInput({ value, onChange, onKeyDown, env, placeholder }: Props) {
+export function VariableInput({ value, onChange, onKeyDown, env, placeholder, className, type = "text" }: Props) {
   const [focused, setFocused] = useState(false);
   const [hoveredVar, setHoveredVar] = useState<{ name: string; resolvedValue: string | null; x: number; y: number } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -84,10 +86,11 @@ export function UrlInput({ value, onChange, onKeyDown, env, placeholder }: Props
   const handleMouseLeave = () => setHoveredVar(null);
 
   return (
-    <div ref={containerRef} className="relative flex-1">
+    <div ref={containerRef} className="relative flex-1 w-full h-full flex items-center">
+      {/* Highlight overlay — sits behind the input, pointer-events-none */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 flex items-center px-3 pointer-events-none overflow-hidden font-mono text-sm select-none"
+        className="absolute inset-0 flex items-center px-3 pointer-events-none overflow-hidden font-mono text-xs select-none"
       >
         {segments.map((seg, i) =>
           seg.isVar ? (
@@ -103,8 +106,10 @@ export function UrlInput({ value, onChange, onKeyDown, env, placeholder }: Props
         )}
       </div>
 
+      {/* Actual input */}
       <input
         ref={inputRef}
+        type={type}
         value={value}
         onChange={e => onChange(e.target.value)}
         onKeyDown={onKeyDown}
@@ -117,15 +122,14 @@ export function UrlInput({ value, onChange, onKeyDown, env, placeholder }: Props
         autoComplete="off"
         autoCorrect="off"
         className={[
-          "w-full h-9 px-3 font-mono text-sm rounded-md border border-input",
-          "bg-muted/20 focus:bg-background",
-          "focus:outline-none focus:ring-1 focus:ring-ring",
-          "transition-colors",
-          hasVars ? "text-transparent" : "",
+          "w-full h-full px-3 font-mono text-xs focus:outline-none",
+          hasVars ? "text-transparent bg-transparent" : "text-foreground bg-transparent",
+          className,
         ].join(" ")}
         style={{ caretColor: "hsl(var(--foreground))" }}
       />
 
+      {/* Variable hover tooltip */}
       {hoveredVar && (
         <div
           className="fixed z-[100] pointer-events-none"
@@ -147,9 +151,10 @@ export function UrlInput({ value, onChange, onKeyDown, env, placeholder }: Props
         </div>
       )}
 
+      {/* Variable summary popover on focus */}
       {focused && hasVars && segments.filter(s => s.isVar).length > 0 && (
         <div className="absolute top-full left-0 mt-1 z-50 bg-popover border border-border rounded-md shadow-lg px-3 py-2 text-xs flex flex-col gap-1 min-w-[240px]">
-          <div className="text-muted-foreground font-semibold mb-0.5 text-[10px] uppercase tracking-wide">Variables in request</div>
+          <div className="text-muted-foreground font-semibold mb-0.5 text-[10px] uppercase tracking-wide">Variables in field</div>
           {segments.filter(s => s.isVar).map((seg, i) => {
             const resolved = resolveVar(seg.varName, env);
             return (

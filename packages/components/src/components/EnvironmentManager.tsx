@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useStore } from "../context/app-store";
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@payable-turborepo-starter/ui";
 import { Plus, Trash2, Eye, EyeOff } from "lucide-react";
@@ -6,15 +6,41 @@ import { v4 as uuidv4 } from "uuid";
 import { Environment, EnvironmentVariable } from "../types";
 
 export function EnvironmentManager() {
-  const { environments, activeEnvironmentId, setActiveEnvironmentId, saveEnvironment, deleteEnvironment } = useStore(s => ({
-    environments: s.environments,
-    activeEnvironmentId: s.activeEnvironmentId,
-    setActiveEnvironmentId: s.setActiveEnvironmentId,
-    saveEnvironment: s.saveEnvironment,
-    deleteEnvironment: s.deleteEnvironment,
-  }));
+  const environments = useStore(s => s.environments);
+  const activeEnvironmentId = useStore(s => s.activeEnvironmentId);
+  const setActiveEnvironmentId = useStore(s => s.setActiveEnvironmentId);
+  const saveEnvironment = useStore(s => s.saveEnvironment);
+  const deleteEnvironment = useStore(s => s.deleteEnvironment);
+
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedEnvId, setSelectedEnvId] = useState<string | null>(activeEnvironmentId || (environments.length > 0 ? environments[0]?.id || null : null));
+  const [selectedEnvId, setSelectedEnvId] = useState<string | null>(null);
+  const wasOpenRef = useRef(false);
+
+  // Sync selectedEnvId to the active environment or first environment when the dialog is opened
+  useEffect(() => {
+    if (isOpen && !wasOpenRef.current) {
+      if (activeEnvironmentId && environments.some(e => e.id === activeEnvironmentId)) {
+        setSelectedEnvId(activeEnvironmentId);
+      } else if (environments.length > 0) {
+        setSelectedEnvId(environments[0]?.id || null);
+      }
+    }
+    wasOpenRef.current = isOpen;
+  }, [isOpen, activeEnvironmentId, environments]);
+
+  // Keep selectedEnvId valid (e.g. if the selected environment gets deleted or list loads)
+  useEffect(() => {
+    const envExists = environments.some(e => e.id === selectedEnvId);
+    if (!selectedEnvId || !envExists) {
+      if (activeEnvironmentId && environments.some(e => e.id === activeEnvironmentId)) {
+        setSelectedEnvId(activeEnvironmentId);
+      } else if (environments.length > 0) {
+        setSelectedEnvId(environments[0]?.id || null);
+      } else {
+        setSelectedEnvId(null);
+      }
+    }
+  }, [environments, activeEnvironmentId, selectedEnvId]);
 
   const selectedEnv = environments.find(e => e.id === selectedEnvId);
 
@@ -81,7 +107,7 @@ export function EnvironmentManager() {
             Manage
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 overflow-hidden">
+        <DialogContent className="max-w-full lg:max-w-4xl h-[80vh] flex flex-col p-0 overflow-hidden">
           <DialogHeader className="p-4 border-b">
             <DialogTitle>Manage Environments</DialogTitle>
           </DialogHeader>

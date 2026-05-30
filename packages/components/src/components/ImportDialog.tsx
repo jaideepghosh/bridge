@@ -195,7 +195,7 @@ export function ImportDialog({ open, onClose }: Props) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
-        className="max-w-3xl h-[80vh] flex flex-col p-0 overflow-hidden gap-0"
+        className="max-w-full lg:max-w-2xl h-[80vh] flex flex-col p-0 overflow-hidden gap-0"
         onKeyDown={handleKeyDown}
       >
         <DialogHeader className="px-5 pt-5 pb-3 shrink-0 border-b">
