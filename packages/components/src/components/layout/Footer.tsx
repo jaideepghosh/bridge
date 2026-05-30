@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { CircleHelp, Wifi, WifiOff, ExternalLink } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@payable-turborepo-starter/ui";
+import { Badge, cn, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@payable-turborepo-starter/ui";
 import { AboutDialog } from "../AboutDialog";
 import { AppVersion } from "../AppVersion";
 
@@ -39,29 +39,15 @@ export function Footer() {
     <footer className="h-7 w-full border-t bg-card px-4 flex items-center justify-between text-[11px] text-muted-foreground select-none shrink-0">
       {/* Left side: Connection status */}
       <div className="flex items-center space-x-1.5 font-medium">
-        {/* <span className="relative flex h-2 w-2">
-          {isOnline ? (
-            <>
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </>
-          ) : (
-            <>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
-            </>
-          )}
-        </span> */}
-        {isOnline ? (
-          <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-500">
-            <Wifi className="h-3 w-3" />
-            Connected
-          </span>
-        ) : (
-          <span className="flex items-center gap-1 text-rose-400 dark:text-rose-500">
-            <WifiOff className="h-3 w-3" />
-            Offline
-          </span>
-        )}
+        <Badge variant="secondary" className="gap-2 rounded-full">
+          <span
+            className={cn(
+              "h-2 w-2 rounded-full",
+              isOnline ? "bg-emerald-500" : "bg-red-500"
+            )}
+          />
+          {isOnline ? "Connected" : "Offline"}
+        </Badge>
       </div>
 
       {/* Right side: About, Help icon & Version */}
