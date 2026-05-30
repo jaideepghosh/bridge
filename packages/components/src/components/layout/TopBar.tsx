@@ -3,7 +3,7 @@ import { useTheme } from "next-themes";
 import { EnvironmentManager } from "../EnvironmentManager";
 import { ImportDialog } from "../ImportDialog";
 import { Moon, Sun, Download, Rainbow, Folder } from "lucide-react";
-import { Button } from "@payable-turborepo-starter/ui";
+import { Button } from "@bridge/ui";
 import { StorageDirectoryModal } from "../StorageDirectoryModal";
 import { BrowserFileSystemStorageProvider } from "../../services/storage/browserFileSystem";
 

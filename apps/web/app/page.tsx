@@ -3,8 +3,8 @@ import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "@payable-turborepo-starter/ui/resizable";
-import { TooltipProvider } from "@payable-turborepo-starter/ui/tooltip";
+} from "@bridge/ui/resizable";
+import { TooltipProvider } from "@bridge/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   AppStoreProvider,
@@ -18,7 +18,7 @@ import {
   ResponseViewer,
   ConfigPanel,
   useStore,
-} from "@payable-turborepo-starter/components";
+} from "@bridge/components";
 import { webProxyExecutor } from "@/services/proxy-executor";
 
 const queryClient = new QueryClient();

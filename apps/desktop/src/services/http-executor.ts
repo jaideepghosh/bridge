@@ -1,5 +1,5 @@
 import { fetch } from "@tauri-apps/plugin-http";
-import type { ProxyRequestInput, ProxyResponse } from "@payable-turborepo-starter/components";
+import type { ProxyRequestInput, ProxyResponse } from "@bridge/components";
 
 export async function tauriHttpExecutor(req: ProxyRequestInput): Promise<ProxyResponse> {
   const start = Date.now();

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useStore } from "../../context/app-store";
 import { MonacoEditor } from "../MonacoEditor";
-import { Badge, Button, Tabs, TabsContent, TabsList, TabsTrigger } from "@payable-turborepo-starter/ui";
+import { Badge, Button, Tabs, TabsContent, TabsList, TabsTrigger } from "@bridge/ui";
 import { WrapText, BookmarkPlus } from "lucide-react";
 import { SaveExampleDialog } from "../request-builder/SaveExampleDialog";
 

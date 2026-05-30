@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { useStore } from "@/store";
-import { Button } from "@payable-turborepo-starter/ui/button";
-import { Input } from "@payable-turborepo-starter/ui/input";
-import { Label } from "@payable-turborepo-starter/ui/label";
+import { Button } from "@bridge/ui/button";
+import { Input } from "@bridge/ui/input";
+import { Label } from "@bridge/ui/label";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@payable-turborepo-starter/ui/dialog";
+} from "@bridge/ui/dialog";
 
 import {
   Select,
@@ -17,7 +17,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@payable-turborepo-starter/ui/select";
+} from "@bridge/ui/select";
 import { SavedRequest, ActiveTab } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 

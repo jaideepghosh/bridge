@@ -14,7 +14,7 @@ import { cn, useIsMobile, Button, Input, Separator,
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger } from "@payable-turborepo-starter/ui"
+  TooltipTrigger } from "@bridge/ui"
 
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"

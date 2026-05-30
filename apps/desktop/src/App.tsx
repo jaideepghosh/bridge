@@ -1,10 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { TooltipProvider } from "@payable-turborepo-starter/ui/tooltip";
+import { TooltipProvider } from "@bridge/ui/tooltip";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "@payable-turborepo-starter/ui/resizable";
+} from "@bridge/ui/resizable";
 import {
   AppStoreProvider,
   HttpExecutorProvider,
@@ -16,7 +16,7 @@ import {
   ResponseViewer,
   ConfigPanel,
   useStore,
-} from "@payable-turborepo-starter/components";
+} from "@bridge/components";
 import { tauriHttpExecutor } from "./services/http-executor";
 import { TauriStorageProvider } from "./services/storage";
 

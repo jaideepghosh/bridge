@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { useStore } from "../../context/app-store";
 import { AuthConfig, KeyValuePair, ScopeConfig } from "../../types";
-import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tabs, TabsContent, TabsList, TabsTrigger } from "@payable-turborepo-starter/ui";
+import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tabs, TabsContent, TabsList, TabsTrigger } from "@bridge/ui";
 import { FolderIcon, Layers, X, ChevronRight, ChevronDown, Info } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 

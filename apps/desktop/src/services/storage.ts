@@ -8,7 +8,7 @@ import {
   type SavedRequest,
   type ApiExample,
   type Environment,
-} from "@payable-turborepo-starter/components";
+} from "@bridge/components";
 
 interface StorageData {
   collections: Collection[];

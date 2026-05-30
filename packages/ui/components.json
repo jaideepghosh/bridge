@@ -11,10 +11,10 @@
     "prefix": ""
   },
   "aliases": {
-    "components": "@payable-turborepo-starter/ui/components",
-    "utils": "@payable-turborepo-starter/ui/lib/utils",
-    "hooks": "@payable-turborepo-starter/ui/hooks",
-    "lib": "@payable-turborepo-starter/ui/lib"
+    "components": "@bridge/ui/components",
+    "utils": "@bridge/ui/lib/utils",
+    "hooks": "@bridge/ui/hooks",
+    "lib": "@bridge/ui/lib"
   },
   "iconLibrary": "lucide"
 }

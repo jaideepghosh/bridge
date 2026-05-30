@@ -12,7 +12,7 @@ const version = rootPkg.version || "0.1.0";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Ensure Next compiles and processes CSS from the local UI package
-  transpilePackages: ["@payable-turborepo-starter/ui"],
+  transpilePackages: ["@bridge/ui"],
   env: {
     NEXT_PUBLIC_APP_VERSION: version,
   },

@@ -1,5 +1,5 @@
 {
-  "name": "@payable-turborepo-starter/web",
+  "name": "@bridge/web",
   "version": "0.1.0",
   "type": "module",
   "private": true,
@@ -13,11 +13,11 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
-    "@payable-turborepo-starter/components": "*",
-    "@payable-turborepo-starter/ui": "*",
+    "@bridge/components": "*",
+    "@bridge/ui": "*",
     "@tanstack/react-query": "^5.90.21",
     "autoprefixer": "^10.4.21",
-    "next": "^15.5.0",
+    "next": "^15.5.18",
     "next-themes": "^0.4.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -26,8 +26,8 @@
     "zustand": "^5.0.13"
   },
   "devDependencies": {
-    "@payable-turborepo-starter/eslint-config": "*",
-    "@payable-turborepo-starter/typescript-config": "*",
+    "@bridge/eslint-config": "*",
+    "@bridge/typescript-config": "*",
     "@tailwindcss/postcss": "^4.1.14",
     "@types/node": "^22.15.3",
     "@types/react": "19.1.0",

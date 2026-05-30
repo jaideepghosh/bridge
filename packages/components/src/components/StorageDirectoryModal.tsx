@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Button, Input, Label } from "@payable-turborepo-starter/ui";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Button, Input, Label } from "@bridge/ui";
 import { Folder, Sparkles, Database, ArrowRight, FolderOpen } from "lucide-react";
 import { StorageProvider } from "../services/storage/types";
 import { saveDirectoryHandle } from "../services/storage/indexedDb";

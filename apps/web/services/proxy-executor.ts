@@ -1,4 +1,4 @@
-import type { ProxyRequestInput, ProxyResponse } from "@payable-turborepo-starter/components";
+import type { ProxyRequestInput, ProxyResponse } from "@bridge/components";
 
 export async function webProxyExecutor(req: ProxyRequestInput): Promise<ProxyResponse> {
   const res = await fetch("/api/proxy/execute", {

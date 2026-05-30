@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@payable-turborepo-starter/ui/*": ["packages/ui/src/*"]
+      "@bridge/ui/*": ["packages/ui/src/*"]
     }
   }
 }

@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@payable-turborepo-starter/ui";
+} from "@bridge/ui";
 import { Plus, X, Play, Save } from "lucide-react";
 import { HttpMethod, KeyValuePair, Environment } from "../../types";
 import { prepareProxyRequest, resolveInheritedConfig } from "../../services/http-client";

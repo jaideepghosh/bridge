@@ -1,9 +1,9 @@
 import { useState, useRef } from "react";
 import { useStore } from "../context/app-store";
-import { Input } from "@payable-turborepo-starter/ui/input";
+import { Input } from "@bridge/ui/input";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
-} from "@payable-turborepo-starter/ui/dropdown-menu";
+} from "@bridge/ui/dropdown-menu";
 import {
   FolderIcon, Search, Plus, ChevronRight, Download,
   Pencil, Trash2, BookOpen, X as XIcon, FolderPlus, Layers, FileCode,

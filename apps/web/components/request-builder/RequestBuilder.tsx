@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useStore } from "@/store";
-import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tabs, TabsContent, TabsList, TabsTrigger } from "@payable-turborepo-starter/ui";
+import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tabs, TabsContent, TabsList, TabsTrigger } from "@bridge/ui";
 import { Plus, X, Play, Save } from "lucide-react";
 import { HttpMethod, KeyValuePair, Environment } from "@/types";
 import { useExecuteRequest } from "@/api-client-react";

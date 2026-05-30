@@ -1,5 +1,5 @@
 import { Rainbow, ShieldCheck } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@payable-turborepo-starter/ui";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@bridge/ui";
 import { AppVersion } from "./AppVersion";
 
 export function AboutDialog() {

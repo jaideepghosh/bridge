@@ -8,7 +8,7 @@ import {
 import { StorageProvider } from "../services/storage/types";
 import { StorageDirectoryModal } from "../components/StorageDirectoryModal";
 import { Folder as FolderIcon } from "lucide-react";
-import { Button } from "@payable-turborepo-starter/ui";
+import { Button } from "@bridge/ui";
 
 // ─── State shape ─────────────────────────────────────────────────────────────
 

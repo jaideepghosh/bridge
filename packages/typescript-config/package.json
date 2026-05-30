@@ -1,5 +1,5 @@
 {
-  "name": "@payable-turborepo-starter/typescript-config",
+  "name": "@bridge/typescript-config",
   "version": "0.0.0",
   "private": true,
   "license": "MIT",

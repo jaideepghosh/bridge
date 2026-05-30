@@ -3,7 +3,7 @@ import { useTheme } from "next-themes";
 import { EnvironmentManager } from "@/components/EnvironmentManager";
 import { ImportDialog } from "@/components/ImportDialog";
 import { Moon, Sun, Download, Rainbow } from "lucide-react";
-import { Button } from "@payable-turborepo-starter/ui";
+import { Button } from "@bridge/ui";
 
 export function TopBar() {
   const { theme, setTheme } = useTheme();

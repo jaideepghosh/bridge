@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useStore } from "@/store";
-import { Badge, Button, Dialog, DialogContent, DialogHeader, DialogTitle } from "@payable-turborepo-starter/ui";
+import { Badge, Button, Dialog, DialogContent, DialogHeader, DialogTitle } from "@bridge/ui";
 import { MonacoEditor } from "@/components/MonacoEditor";
 import { parseCurl, ParsedCurl } from "@/utils/curl-parser";
 import { Environment } from "@/types";

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import "@payable-turborepo-starter/ui/globals.css";
+import "@bridge/ui/globals.css";
 import Providers from "./providers";
 
 const geistSans = localFont({

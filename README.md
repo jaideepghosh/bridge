@@ -17,9 +17,9 @@ This Turborepo includes the following packages/apps:
 ### Apps and Packages
 
 - `web`: A [Next.js](https://nextjs.org/) app
-- `@payable-turborepo-starter/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@payable-turborepo-starter/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@payable-turborepo-starter/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- `@bridge/ui`: a stub React component library shared by both `web` and `docs` applications
+- `@bridge/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
+- `@bridge/typescript-config`: `tsconfig.json`s used throughout the monorepo
 
 Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 

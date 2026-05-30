@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useStore } from "@/store";
-import { Button, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@payable-turborepo-starter/ui";
+import { Button, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@bridge/ui";
 
 import { ActiveTab, ProxyResponse, ApiExample } from "@/types";
 import { v4 as uuidv4 } from "uuid";
