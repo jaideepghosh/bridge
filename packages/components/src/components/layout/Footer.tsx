@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CircleHelp, Wifi, WifiOff, ExternalLink } from "lucide-react";
+import { CircleHelp, ExternalLink } from "lucide-react";
 import { Badge, cn, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@bridge/ui";
 import { AboutDialog } from "../AboutDialog";
 import { AppVersion } from "../AppVersion";
