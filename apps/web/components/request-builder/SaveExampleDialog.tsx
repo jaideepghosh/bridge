@@ -13,7 +13,7 @@ type Props = {
 };
 
 export function SaveExampleDialog({ open, onClose, tab, response }: Props) {
-  const { saveExample, saveRequest, collections, requests } = useStore();
+  const { saveExample, saveRequest, collections } = useStore();
   const [name, setName] = useState(`${response.status} ${response.statusText}`);
 
   const handleSave = () => {

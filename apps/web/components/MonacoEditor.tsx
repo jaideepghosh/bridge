@@ -1,4 +1,4 @@
-import Editor, { useMonaco, EditorProps } from "@monaco-editor/react";
+import Editor, { EditorProps } from "@monaco-editor/react";
 import { useTheme } from "next-themes";
 
 interface MonacoEditorProps extends EditorProps {

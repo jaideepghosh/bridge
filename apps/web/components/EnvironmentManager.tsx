@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useStore } from "@/store";
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@bridge/ui";
-import { Plus, Trash2, Key, Eye, EyeOff } from "lucide-react";
+import { Plus, Trash2, Eye, EyeOff } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { Environment, EnvironmentVariable } from "@/types";
 

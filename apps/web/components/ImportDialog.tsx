@@ -313,7 +313,7 @@ export function ImportDialog({ open, onClose }: Props) {
                   <div className="px-5 pb-3 space-y-1.5">
                     <p className="text-xs text-muted-foreground mb-2">
                       Select variables to convert from inline values to <span className="font-mono text-amber-400">{"{{VAR}}"}</span> tokens.
-                      They'll be added to your active environment.
+                      They&apos;ll be added to your active environment.
                     </p>
                     {envCandidates.map(c => (
                       <label key={c.name} className="flex items-center gap-2.5 cursor-pointer group">
