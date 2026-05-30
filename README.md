@@ -105,9 +105,10 @@ Download the latest release for your platform from the [Releases page](https://g
 
 ### Web App
 
-The web version runs in any modern browser. A hosted instance is available at **[bridge.dev](https://bridge.dev)** _(coming soon)_.
+The web version runs in any modern browser. A hosted instance is available at **[bridge.jaideepghosh.com](https://bridge.jaideepghosh.com/)**.
 
-> **Note:** The web app uses the [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API) for filesystem storage. This requires a Chromium-based browser (Chrome 86+, Edge 86+). Firefox and Safari fall back to local session storage.
+> \[!NOTE]
+> The web app uses the [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API) for filesystem storage. This requires a Chromium-based browser (Chrome 86+, Edge 86+). Firefox and Safari fall back to local session storage.
 
 ### Build from Source
 
