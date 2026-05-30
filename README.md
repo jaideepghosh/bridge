@@ -58,10 +58,17 @@ Whether you're debugging a local microservice, exploring a third-party API, or b
 ### Collections & Folders
 Organize requests in nested collections. Drag-and-drop to reorder. Import and export as JSON.
 
+<div align="center">
+    <img width="294" height="273" alt="image" src="https://github.com/user-attachments/assets/3f850e71-9d59-41d8-a1fa-3d3eeef26645" />
+</div>
+
 ### Environments & Variables
 Define environments (development, staging, production) with key-value variable sets. Reference variables anywhere using `{{variableName}}` syntax — in URLs, headers, query params, auth config, and request bodies. Hover over a variable to preview its resolved value.
 
-<img width="508" height="184" alt="image" src="https://github.com/user-attachments/assets/d91472ec-b5f9-4d68-809d-3be3ac568e33" />
+
+<div align="center">
+    <img width="508" height="184" alt="image" src="https://github.com/user-attachments/assets/d91472ec-b5f9-4d68-809d-3be3ac568e33" />
+</div>
 
 ### cURL Import
 Paste any `curl` command. Bridge parses the method, URL, headers, and body and populates the request builder automatically.
@@ -69,14 +76,29 @@ Paste any `curl` command. Bridge parses the method, URL, headers, and body and p
 ### Request Builder
 A full-featured request editor with tabs for Params, Headers, Auth, Body (JSON, form-data, URL-encoded, raw), and Pre-request scripts.
 
+
+<div align="center">
+    <img width="1176" height="273" alt="image" src="https://github.com/user-attachments/assets/69b0e235-7a56-4a80-950b-d2eff65bd354" />
+</div>
+
 ### Response Viewer
 Inspect responses with syntax-highlighted JSON/XML/HTML rendering, raw view, headers panel, cookie viewer, and response time and size metrics.
+
+<div align="center">
+    <img width="1177" height="443" alt="image" src="https://github.com/user-attachments/assets/441a53c0-1717-4e1f-a8cf-5ab08b53670c" />
+    <img width="1177" height="446" alt="image" src="https://github.com/user-attachments/assets/2433da4d-a091-475d-942d-f87d7af0eded" />
+</div>
 
 ### Reusable Examples
 Save one or more response examples to any request. Use them as documentation, mocks, or test fixtures — exportable as part of your collection.
 
 ### Filesystem-Native Storage
 All your data — collections, environments, histories — is written to a single `bridge-data.json` file in a folder of your choice. No proprietary formats, no lock-in. Version-control it with Git.
+
+
+<div align="center">
+    <img width="404" height="572" alt="image" src="https://github.com/user-attachments/assets/958bd3d2-667b-4707-bbfd-43a9a6c3849b" />
+</div>
 
 ### Tab Management
 Full browser-grade tab experience:
