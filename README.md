@@ -61,12 +61,7 @@ Organize requests in nested collections. Drag-and-drop to reorder. Import and ex
 ### Environments & Variables
 Define environments (development, staging, production) with key-value variable sets. Reference variables anywhere using `{{variableName}}` syntax — in URLs, headers, query params, auth config, and request bodies. Hover over a variable to preview its resolved value.
 
-### Authentication
-Supports the most common auth schemes out of the box:
-- **Bearer Token**
-- **Basic Auth**
-- **API Key** (header or query param)
-- **OAuth 2.0** (client credentials and authorization code flows)
+<img width="508" height="184" alt="image" src="https://github.com/user-attachments/assets/d91472ec-b5f9-4d68-809d-3be3ac568e33" />
 
 ### cURL Import
 Paste any `curl` command. Bridge parses the method, URL, headers, and body and populates the request builder automatically.
