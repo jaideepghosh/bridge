@@ -5,13 +5,13 @@
 <p><strong>A lightweight REST API testing and documentation workbench built for developers.</strong><br/>
 Test local and remote APIs without CORS issues using a fast, desktop-grade client.</p>
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/your-org/bridge/releases)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/jaideepghosh/bridge/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Web%20%7C%20macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg)](#installation)
 [![Built with Tauri](https://img.shields.io/badge/desktop-Tauri%20v2-orange.svg)](https://tauri.app)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-[**Download**](#installation) · [**Documentation**](#usage) · [**Report a Bug**](https://github.com/your-org/bridge/issues) · [**Request a Feature**](https://github.com/your-org/bridge/issues)
+[**Download**](#installation) · [**Documentation**](#usage) · [**Report a Bug**](https://github.com/jaideepghosh/bridge/issues) · [**Request a Feature**](https://github.com/jaideepghosh/bridge/issues)
 
 </div>
 
@@ -95,7 +95,7 @@ Full browser-grade tab experience:
 
 ### Desktop App (recommended)
 
-Download the latest release for your platform from the [Releases page](https://github.com/your-org/bridge/releases):
+Download the latest release for your platform from the [Releases page](https://github.com/jaideepghosh/bridge/releases):
 
 | Platform | Download |
 |---|---|
@@ -183,7 +183,7 @@ bridge/
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/your-org/bridge.git
+git clone https://github.com/jaideepghosh/bridge.git
 cd bridge
 
 # 2. Install dependencies
@@ -221,8 +221,8 @@ npx turbo build --filter=desktop
 
 Contributions are welcome and appreciated. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
-- **Bug reports:** [Open an issue](https://github.com/your-org/bridge/issues) with reproduction steps.
-- **Feature requests:** [Start a discussion](https://github.com/your-org/bridge/discussions) before opening a PR.
+- **Bug reports:** [Open an issue](https://github.com/jaideepghosh/bridge/issues) with reproduction steps.
+- **Feature requests:** [Start a discussion](https://github.com/jaideepghosh/bridge/discussions) before opening a PR.
 - **Code:** Fork → branch → PR against `main`. Make sure `npm run lint` and `npm run build` pass.
 
 ### Local Development Tips
@@ -242,7 +242,7 @@ Contributions are welcome and appreciated. Please read [CONTRIBUTING.md](CONTRIB
 - [ ] Built-in mock server
 - [ ] Test scripting with assertions
 
-See the [open issues](https://github.com/your-org/bridge/issues) and [project board](https://github.com/your-org/bridge/projects) for the full list.
+See the [open issues](https://github.com/jaideepghosh/bridge/issues) and [project board](https://github.com/jaideepghosh/bridge/projects) for the full list.
 
 ---
 
