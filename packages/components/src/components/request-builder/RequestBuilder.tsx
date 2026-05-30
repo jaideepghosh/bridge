@@ -1,7 +1,24 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useStore } from "../../context/app-store";
 import { useHttpExecutor } from "../../context/http-executor";
-import { Button, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tabs, TabsContent, TabsList, TabsTrigger } from "@payable-turborepo-starter/ui";
+import {
+  Button,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@payable-turborepo-starter/ui";
 import { Plus, X, Play, Save } from "lucide-react";
 import { HttpMethod, KeyValuePair, Environment } from "../../types";
 import { prepareProxyRequest, resolveInheritedConfig } from "../../services/http-client";
@@ -26,7 +43,7 @@ const METHOD_COLORS: Record<HttpMethod, string> = {
 export function RequestBuilder() {
   const {
     activeTabs, selectedTabId, selectTab, closeTab, openTab,
-    updateTabDraft, setTabResponse, environments, activeEnvironmentId,
+    reopenLastClosedTab, updateTabDraft, setTabResponse, environments, activeEnvironmentId,
     collections, folders, requests,
   } = useStore(s => ({
     activeTabs: s.activeTabs,
@@ -34,6 +51,7 @@ export function RequestBuilder() {
     selectTab: s.selectTab,
     closeTab: s.closeTab,
     openTab: s.openTab,
+    reopenLastClosedTab: s.reopenLastClosedTab,
     updateTabDraft: s.updateTabDraft,
     setTabResponse: s.setTabResponse,
     environments: s.environments,
@@ -44,6 +62,7 @@ export function RequestBuilder() {
   }));
   const executeRequest = useHttpExecutor();
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [confirmCloseTabId, setConfirmCloseTabId] = useState<string | null>(null);
   const [renamingTabId, setRenamingTabId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
   const renameInputRef = useRef<HTMLInputElement>(null);
@@ -61,16 +80,157 @@ export function RequestBuilder() {
     setRenamingTabId(null);
   }, [renamingTabId, renameValue, updateTabDraft]);
 
+  const handleRequestCloseTab = useCallback((tabId: string) => {
+    const tab = activeTabs.find(t => t.id === tabId);
+    if (tab?.isDirty) {
+      setConfirmCloseTabId(tabId);
+    } else {
+      closeTab(tabId);
+    }
+  }, [activeTabs, closeTab]);
+
   const handleSendRef = useRef<() => void>(() => {});
   const handleSaveRef = useRef<() => void>(() => {});
 
+  const activeTabsRef = useRef(activeTabs);
+  const selectedTabIdRef = useRef(selectedTabId);
+  const renamingTabIdRef = useRef(renamingTabId);
+  const openTabRef = useRef(openTab);
+  const closeTabRef = useRef(closeTab);
+  const selectTabRef = useRef(selectTab);
+  const reopenLastClosedTabRef = useRef(reopenLastClosedTab);
+  const handleRequestCloseTabRef = useRef(handleRequestCloseTab);
+
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (!(e.metaKey || e.ctrlKey)) return;
-      if ((e.target as HTMLElement)?.tagName === "TEXTAREA") return;
-      if (e.key === "s") { e.preventDefault(); handleSaveRef.current(); }
-      if (e.key === "Enter") { e.preventDefault(); handleSendRef.current(); }
+    activeTabsRef.current = activeTabs;
+    selectedTabIdRef.current = selectedTabId;
+    renamingTabIdRef.current = renamingTabId;
+    openTabRef.current = openTab;
+    closeTabRef.current = closeTab;
+    selectTabRef.current = selectTab;
+    reopenLastClosedTabRef.current = reopenLastClosedTab;
+    handleRequestCloseTabRef.current = handleRequestCloseTab;
+  });
+
+  useEffect(() => {
+    const isMac = typeof window !== "undefined" && navigator.userAgent.toLowerCase().includes("mac");
+
+    const isInputTarget = (e: KeyboardEvent): boolean => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return false;
+      const tagName = target.tagName;
+      if (tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT") {
+        return true;
+      }
+      if (target.isContentEditable) {
+        return true;
+      }
+      if (target.closest(".monaco-editor") || target.closest(".inputarea") || target.classList.contains("inputarea")) {
+        return true;
+      }
+      return false;
     };
+
+    const onKey = (e: KeyboardEvent) => {
+      if (renamingTabIdRef.current !== null) {
+        return;
+      }
+
+      const isCmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
+      const key = e.key.toLowerCase();
+
+      // Standard browser shortcuts we want to intercept globally
+      const isTabShortcut =
+        isCmdOrCtrl &&
+        (key === "t" ||
+          key === "w" ||
+          key === "]" ||
+          key === "[" ||
+          key === "}" ||
+          key === "{" ||
+          /^[1-9]$/.test(key));
+
+      if (!isTabShortcut && isInputTarget(e)) {
+        if (isCmdOrCtrl) {
+          if ((e.target as HTMLElement)?.tagName === "TEXTAREA") return;
+          if (key === "s") {
+            e.preventDefault();
+            handleSaveRef.current();
+          }
+          if (key === "enter") {
+            e.preventDefault();
+            handleSendRef.current();
+          }
+        }
+        return;
+      }
+
+      if (isCmdOrCtrl) {
+        // Cmd+T / Ctrl+T -> Create and activate a new tab (or Shift+Cmd+T to reopen)
+        if (key === "t" && !e.altKey) {
+          e.preventDefault();
+          if (e.shiftKey) {
+            reopenLastClosedTabRef.current();
+          } else {
+            openTabRef.current();
+          }
+          return;
+        }
+
+        // Cmd+W / Ctrl+W -> Close active tab (Option+Cmd+W to Force Close)
+        if (key === "w") {
+          e.preventDefault();
+          const activeTabId = selectedTabIdRef.current;
+          if (!activeTabId) return;
+
+          const isForceClose = e.altKey;
+          if (isForceClose) {
+            closeTabRef.current(activeTabId);
+          } else {
+            handleRequestCloseTabRef.current(activeTabId);
+          }
+          return;
+        }
+
+        // Next/Prev Tab
+        if (e.shiftKey && (key === "]" || key === "}" || key === "[" || key === "{")) {
+          e.preventDefault();
+          const tabs = activeTabsRef.current;
+          if (tabs.length <= 1) return;
+          const currentIdx = tabs.findIndex(t => t.id === selectedTabIdRef.current);
+          if (currentIdx === -1) return;
+
+          const isNext = key === "]" || key === "}";
+          const nextIdx = isNext
+            ? (currentIdx + 1) % tabs.length
+            : (currentIdx - 1 + tabs.length) % tabs.length;
+
+          const nextTab = tabs[nextIdx];
+          if (nextTab) {
+            selectTabRef.current(nextTab.id);
+          }
+          return;
+        }
+
+        // Switch corresponding tab
+        if (/^[1-9]$/.test(key) && !e.shiftKey && !e.altKey) {
+          e.preventDefault();
+          const tabs = activeTabsRef.current;
+          if (tabs.length === 0) return;
+
+          if (key === "9") {
+            const lastTab = tabs[tabs.length - 1];
+            if (lastTab) selectTabRef.current(lastTab.id);
+          } else {
+            const targetIdx = parseInt(key) - 1;
+            const targetTab = tabs[targetIdx];
+            if (targetTab) selectTabRef.current(targetTab.id);
+          }
+          return;
+        }
+      }
+    };
+
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
@@ -165,7 +325,7 @@ export function RequestBuilder() {
               )}
               <button
                 className="ml-1 text-muted-foreground hover:text-foreground opacity-50 hover:opacity-100 p-0.5 rounded shrink-0"
-                onClick={(e) => { e.stopPropagation(); closeTab(tab.id); }}
+                onClick={(e) => { e.stopPropagation(); handleRequestCloseTab(tab.id); }}
               >
                 <X className="h-3 w-3" />
               </button>
@@ -408,6 +568,42 @@ export function RequestBuilder() {
           onClose={() => setShowSaveDialog(false)}
           tab={activeTab}
         />
+      )}
+
+      {confirmCloseTabId !== null && (
+        <Dialog open={confirmCloseTabId !== null} onOpenChange={(open) => !open && setConfirmCloseTabId(null)}>
+          <DialogContent className="max-w-sm p-6">
+            <DialogHeader className="mb-4">
+              <DialogTitle className="text-sm font-semibold">Unsaved Changes</DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground mt-1">
+                You have unsaved changes in this request. Are you sure you want to close this tab? Any unsaved changes will be lost.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setConfirmCloseTabId(null)}
+                className="text-xs animate-none cursor-pointer"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => {
+                  if (confirmCloseTabId) {
+                    closeTab(confirmCloseTabId);
+                  }
+                  setConfirmCloseTabId(null);
+                }}
+                className="text-xs font-semibold animate-none cursor-pointer"
+              >
+                Close Anyway
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { CircleHelp, Wifi, WifiOff } from "lucide-react";
+import { CircleHelp, Wifi, WifiOff, ExternalLink } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@payable-turborepo-starter/ui";
 import { AboutDialog } from "../AboutDialog";
 import { AppVersion } from "../AppVersion";
@@ -25,6 +25,14 @@ export function Footer() {
     { keys: ["⌘ + S", "Ctrl + S"], desc: "Save active request" },
     { keys: ["⌘ + Shift + I", "Ctrl + Shift + I"], desc: "Import cURL command" },
     { keys: ["Double-click Tab"], desc: "Rename request tab" },
+    { keys: ["⌘ + T", "Ctrl + T"], desc: "Create and activate new tab" },
+    { keys: ["⌘ + W", "Ctrl + W"], desc: "Close active tab (asks if dirty)" },
+    { keys: ["⌥ + ⌘ + W", "Ctrl + Alt + W"], desc: "Force close active tab" },
+    { keys: ["⌘ + Shift + T", "Ctrl + Shift + T"], desc: "Reopen last closed tab" },
+    { keys: ["⌘ + Shift + ]", "Ctrl + Shift + ]"], desc: "Switch to next tab" },
+    { keys: ["⌘ + Shift + [", "Ctrl + Shift + ["], desc: "Switch to previous tab" },
+    { keys: ["⌘ + 1-8", "Ctrl + 1-8"], desc: "Go to tab position 1 to 8" },
+    { keys: ["⌘ + 9", "Ctrl + 9"], desc: "Go to last tab" },
   ];
 
   return (
@@ -71,8 +79,8 @@ export function Footer() {
               <span>Help</span>
             </button>
           </DialogTrigger>
-          <DialogContent className="max-w-md p-6">
-            <DialogHeader className="mb-4">
+          <DialogContent className="max-w-full sm:max-w-2xl">
+            <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-sm font-semibold">
                 <CircleHelp className="h-4 w-4 text-primary" />
                 Keyboard Shortcuts
@@ -108,6 +116,19 @@ export function Footer() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 text-[10px] text-muted-foreground font-medium">
+                <span>Have feedback or found a bug?</span>
+                <a
+                  href="https://github.com/jaideepghosh/bridge/issues/new"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-primary hover:underline font-semibold cursor-pointer outline-none"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  Report an Issue
+                </a>
               </div>
             </div>
           </DialogContent>

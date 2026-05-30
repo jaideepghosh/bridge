@@ -23,6 +23,7 @@ export interface AppState {
   activeTabs: ActiveTab[];
   selectedTabId: string | null;
   selectedSidebarItem: { kind: "collection" | "folder"; id: string } | null;
+  closedTabsHistory: ActiveTab[];
 
   loadStorage: () => void;
   setActiveEnvironmentId: (id: string | null) => void;
@@ -30,6 +31,7 @@ export interface AppState {
   openTab: (request?: SavedRequest, draft?: Partial<ActiveTab["draft"]>) => void;
   openExampleTab: (exampleId: string) => void;
   closeTab: (tabId: string) => void;
+  reopenLastClosedTab: () => void;
   selectTab: (tabId: string) => void;
   updateTabDraft: (tabId: string, updates: Partial<ActiveTab["draft"]>) => void;
   setTabResponse: (tabId: string, response: any | null, isLoading: boolean) => void;
@@ -92,6 +94,7 @@ export function createAppStore(storage: StorageProvider): StoreApi<AppState> {
     activeTabs: [createBlankTab()],
     selectedTabId: null,
     selectedSidebarItem: null,
+    closedTabsHistory: [],
 
     loadStorage: () => {
       set({
@@ -155,18 +158,36 @@ export function createAppStore(storage: StorageProvider): StoreApi<AppState> {
     },
 
     closeTab: (tabId) => {
+      const tabToClose = get().activeTabs.find(t => t.id === tabId);
       set(state => {
         const filtered = state.activeTabs.filter(t => t.id !== tabId);
+        const closedHistory = tabToClose ? [...state.closedTabsHistory, tabToClose] : state.closedTabsHistory;
         if (filtered.length === 0) {
           const newTab = createBlankTab();
-          return { activeTabs: [newTab], selectedTabId: newTab.id };
+          return { activeTabs: [newTab], selectedTabId: newTab.id, closedTabsHistory: closedHistory };
         }
         let nextSelected = state.selectedTabId;
         if (state.selectedTabId === tabId) {
           const idx = state.activeTabs.findIndex(t => t.id === tabId);
           nextSelected = filtered[Math.max(0, idx - 1)]?.id || null;
         }
-        return { activeTabs: filtered, selectedTabId: nextSelected };
+        return { activeTabs: filtered, selectedTabId: nextSelected, closedTabsHistory: closedHistory };
+      });
+    },
+
+    reopenLastClosedTab: () => {
+      const history = get().closedTabsHistory;
+      if (history.length === 0) return;
+      set(state => {
+        const nextHistory = [...state.closedTabsHistory];
+        const lastTab = nextHistory.pop()!;
+        const alreadyActive = state.activeTabs.some(t => t.id === lastTab.id);
+        const newActiveTabs = alreadyActive ? state.activeTabs : [...state.activeTabs, lastTab];
+        return {
+          activeTabs: newActiveTabs,
+          selectedTabId: lastTab.id,
+          closedTabsHistory: nextHistory,
+        };
       });
     },
 
