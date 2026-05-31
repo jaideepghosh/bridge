@@ -33,5 +33,15 @@
     "copyright": "Copyright © 2026 Jaideep Ghosh",
     "shortDescription": "Lightweight REST API client for testing and documenting local and remote APIs without CORS limits.",
     "longDescription": "Lightweight REST API testing and documentation workbench built for developers. Test local and remote APIs without CORS issues using a fast desktop-grade client with collections, environments, auth, cURL import, and reusable examples."
+  },
+  "plugins": {
+    "updater": {
+      "active": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJFMzRCQTY5REY2MDM0MUUKUldRZU5HRGZhYm8wTHN3NVhLNFkyQVVZZkxYbGQ0ZFZGV25mYlZoeTZrVmprNDhQWEkyeDVTL2kK",
+      "endpoints": [
+        "https://github.com/jaideepghosh/bridge/releases/latest/download/latest.json"
+      ],
+      "dialog": true
+    }
   }
 }
