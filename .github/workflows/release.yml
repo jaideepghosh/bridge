@@ -37,7 +37,6 @@ jobs:
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          # Universal macOS binary targets (Intel + Apple Silicon)
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       # ── 3. Rust build cache ────────────────────────────────────────────────
@@ -70,22 +69,33 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # ── 7. Extract version from the release tag (e.g. v1.2.3 → 1.2.3) ─────
+      # ── 7. Extract version from tag (e.g. v1.2.3 → 1.2.3) ─────────────────
       - name: Extract version from tag
         id: version
         shell: bash
         run: |
           TAG="${{ github.event.release.tag_name }}"
-          VERSION="${TAG#v}"          # strip leading 'v' if present
+          VERSION="${TAG#v}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-      # ── 8. Build the Tauri app ─────────────────────────────────────────────
+      # ── 8. Stamp version into root package.json ────────────────────────────
+      # sync-version.js reads from root package.json, so we update it first.
+      # This makes sync-version.js propagate the correct version to
+      # tauri.conf.json and all other workspace package.json files.
+      - name: Update root package.json version from release tag
+        shell: bash
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          # npm version writes the version without touching git
+          npm version "$VERSION" --no-git-tag-version --workspaces=false
+          echo "Stamped root package.json with version $VERSION"
+
+      # ── 9. Build the Tauri app ─────────────────────────────────────────────
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0.5.20
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Updater signing — required for auto-updates and latest.json generation
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
@@ -105,10 +115,9 @@ jobs:
           releaseDraft: false
           prerelease: ${{ github.event.release.prerelease }}
           includeUpdaterJson: true
-          # Universal macOS binary: builds for both Intel and Apple Silicon
           args: ${{ matrix.platform == 'macos-latest' && '--target universal-apple-darwin' || '' }}
 
-      # ── 9. Upload platform artifact to the release ─────────────────────────
+      # ── 10. Upload versioned artifact to release ───────────────────────────
       - name: Upload versioned artifact to release
         shell: bash
         env:
