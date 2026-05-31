@@ -63,7 +63,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       # ── 6. Install all workspace dependencies ──────────────────────────────
@@ -80,36 +80,21 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-      # ── 8. Sync version into tauri.conf.json ───────────────────────────────
-      # This ensures the built artifact filename matches the release tag.
-      - name: Set app version from release tag
-        shell: bash
-        working-directory: apps/desktop/src-tauri
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          # Works on both macOS (BSD sed) and Linux/Windows-bash (GNU sed)
-          if [[ "$RUNNER_OS" == "macOS" ]]; then
-            sed -i '' "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" tauri.conf.json
-          else
-            sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" tauri.conf.json
-          fi
-          echo "Set version to $VERSION"
-
-      # ── 9. Build the Tauri app ─────────────────────────────────────────────
+      # ── 8. Build the Tauri app ─────────────────────────────────────────────
       - name: Build Tauri app
-        uses: tauri-apps/tauri-action@v0.5.18
+        uses: tauri-apps/tauri-action@v0.5.20
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Updater signing — required for auto-updates to work
+          # Updater signing — required for auto-updates and latest.json generation
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
           # ── macOS code signing (uncomment when ready) ──────────────────────
-          # APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}           # base64-encoded .p12
+          # APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           # APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          # APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }} # e.g. "Developer ID Application: Your Name (TEAMID)"
-          # APPLE_ID: ${{ secrets.APPLE_ID }}                             # your Apple ID email
-          # APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}                 # app-specific password
+          # APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          # APPLE_ID: ${{ secrets.APPLE_ID }}
+          # APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           # APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
         with:
@@ -119,12 +104,11 @@ jobs:
           releaseBody: ${{ github.event.release.body }}
           releaseDraft: false
           prerelease: ${{ github.event.release.prerelease }}
+          includeUpdaterJson: true
           # Universal macOS binary: builds for both Intel and Apple Silicon
           args: ${{ matrix.platform == 'macos-latest' && '--target universal-apple-darwin' || '' }}
 
-      # ── 10. Upload platform artifact to the release ────────────────────────
-      # tauri-action already uploads artifacts, but this step ensures the file
-      # is also attached with a predictable versioned name.
+      # ── 9. Upload platform artifact to the release ─────────────────────────
       - name: Upload versioned artifact to release
         shell: bash
         env:
@@ -133,7 +117,6 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           TAG="${{ steps.version.outputs.tag }}"
 
-          # Find the built artifact (search inside the Tauri bundle output dir)
           ARTIFACT=$(find apps/desktop/src-tauri/target -name "${{ matrix.artifact-pattern }}" \
             ! -path "*/deps/*" ! -name "*.d" | head -n 1)
 
@@ -142,7 +125,6 @@ jobs:
             exit 0
           fi
 
-          # Build a versioned filename: Bridge_1.2.3.dmg / Bridge_1.2.3.msi / Bridge_1.2.3.deb
           EXT="${ARTIFACT##*.}"
           BASENAME=$(basename "$ARTIFACT" ".$EXT")
           VERSIONED_NAME="${BASENAME}_${VERSION}.${EXT}"
