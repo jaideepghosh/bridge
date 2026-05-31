@@ -7,7 +7,7 @@ const __dirname = dirname(__filename);
 
 // Read root package.json version
 const rootPkg = JSON.parse(readFileSync(join(__dirname, "../../package.json"), "utf8"));
-const version = rootPkg.version || "0.1.1";
+const version = rootPkg.version || "0.1.2";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

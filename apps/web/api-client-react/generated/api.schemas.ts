@@ -3,7 +3,7 @@
  * Do not edit manually.
  * Api
  * API specification for Bridge
- * OpenAPI spec version: 0.1.1
+ * OpenAPI spec version: 0.1.2
  */
 export interface HealthStatus {
   status: string;

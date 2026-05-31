@@ -11,7 +11,7 @@ const isTauriEnv = (): boolean => {
 };
 
 export function useAppVersion(): string {
-  const [version, setVersion] = useState<string>("0.1.1");
+  const [version, setVersion] = useState<string>("0.1.2");
 
   useEffect(() => {
     if (isTauriEnv()) {
