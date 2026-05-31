@@ -1,6 +1,5 @@
 name: Release Desktop App
 
-# Triggered when a GitHub Release is published (e.g. tag v1.2.3)
 on:
   release:
     types: [published]
@@ -8,13 +7,13 @@ on:
 jobs:
   build-tauri:
     permissions:
-      contents: write # Needed to upload assets to the GitHub Release
+      contents: write
 
     strategy:
-      fail-fast: false # Let all platforms finish even if one fails
+      fail-fast: false
       matrix:
         include:
-          - platform: macos-latest   # Apple Silicon + Intel via universal build
+          - platform: macos-latest
             artifact-pattern: '*.dmg'
             artifact-name: dmg
 
@@ -40,10 +39,14 @@ jobs:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       # ── 3. Rust build cache ────────────────────────────────────────────────
+      # save-if: false means we READ the cache (for dependencies) but never
+      # write it back — so the app binary is always compiled fresh from source,
+      # picking up the correct version from tauri.conf.json every time.
       - name: Cache Rust build artifacts
         uses: swatinem/rust-cache@v2
         with:
           workspaces: apps/desktop/src-tauri
+          save-if: "false"
 
       # ── 4. Linux system dependencies ───────────────────────────────────────
       - name: Install Linux dependencies
@@ -80,14 +83,13 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       # ── 8. Stamp version into root package.json ────────────────────────────
-      # sync-version.js reads from root package.json, so we update it first.
-      # This makes sync-version.js propagate the correct version to
-      # tauri.conf.json and all other workspace package.json files.
+      # sync-version.js reads from root package.json and propagates to
+      # tauri.conf.json and all workspace packages. We update it here so
+      # the correct version flows through the whole build.
       - name: Update root package.json version from release tag
         shell: bash
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          # npm version writes the version without touching git
           npm version "$VERSION" --no-git-tag-version --workspaces=false
           echo "Stamped root package.json with version $VERSION"
 
