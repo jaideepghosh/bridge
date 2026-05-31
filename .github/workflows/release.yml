@@ -39,9 +39,6 @@ jobs:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       # ── 3. Rust build cache ────────────────────────────────────────────────
-      # save-if: false means we READ the cache (for dependencies) but never
-      # write it back — so the app binary is always compiled fresh from source,
-      # picking up the correct version from tauri.conf.json every time.
       - name: Cache Rust build artifacts
         uses: swatinem/rust-cache@v2
         with:
@@ -82,16 +79,36 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-      # ── 8. Stamp version into root package.json ────────────────────────────
-      # sync-version.js reads from root package.json and propagates to
-      # tauri.conf.json and all workspace packages. We update it here so
-      # the correct version flows through the whole build.
-      - name: Update root package.json version from release tag
+      # ── 8. Stamp version into ALL version files ────────────────────────────
+      # Three files must all agree on the version or cargo builds the wrong one:
+      #   • root package.json  → read by sync-version.js
+      #   • tauri.conf.json    → updated by sync-version.js (via prebuild)
+      #   • Cargo.toml         → read by Rust/cargo directly — THIS was missing
+      - name: Stamp version into package.json and Cargo.toml
         shell: bash
         run: |
           VERSION="${{ steps.version.outputs.version }}"
+
+          # 1. Root package.json — sync-version.js reads this and propagates
+          #    to tauri.conf.json and all workspace package.json files
           npm version "$VERSION" --no-git-tag-version --workspaces=false
-          echo "Stamped root package.json with version $VERSION"
+          echo "✓ root package.json → $VERSION"
+
+          # 2. Cargo.toml — cargo reads THIS as the binary version, not tauri.conf.json
+          #    Must match or cargo builds Bridge vX.Y.Z-old and tauri-action
+          #    looks for files named with the new version → mismatch → no latest.json
+          CARGO_TOML="apps/desktop/src-tauri/Cargo.toml"
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            sed -i '' "s/^version = \".*\"/version = \"$VERSION\"/" "$CARGO_TOML"
+          else
+            sed -i "s/^version = \".*\"/version = \"$VERSION\"/" "$CARGO_TOML"
+          fi
+          echo "✓ Cargo.toml → $VERSION"
+
+          # Verify both are correct before the build starts
+          echo "--- Verification ---"
+          node -e "const p=JSON.parse(require('fs').readFileSync('package.json','utf8')); console.log('package.json version:', p.version)"
+          grep '^version' "$CARGO_TOML"
 
       # ── 9. Build the Tauri app ─────────────────────────────────────────────
       - name: Build Tauri app
