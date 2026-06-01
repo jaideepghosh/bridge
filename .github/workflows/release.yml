@@ -5,6 +5,7 @@ on:
     types: [published]
 
 jobs:
+  # ── Platform build jobs ─────────────────────────────────────────────────────
   build-tauri:
     permissions:
       contents: write
@@ -15,61 +16,45 @@ jobs:
         include:
           - platform: macos-latest
             artifact-pattern: '*.dmg'
-            artifact-name: dmg
-
           - platform: windows-latest
             artifact-pattern: '*.msi'
-            artifact-name: msi
-
           - platform: ubuntu-22.04
             artifact-pattern: '*.deb'
-            artifact-name: deb
 
     runs-on: ${{ matrix.platform }}
 
     steps:
-      # ── 1. Checkout ────────────────────────────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ── 2. Rust toolchain ──────────────────────────────────────────────────
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
-      # ── 3. Rust build cache ────────────────────────────────────────────────
       - name: Cache Rust build artifacts
         uses: swatinem/rust-cache@v2
         with:
           workspaces: apps/desktop/src-tauri
           save-if: "false"
 
-      # ── 4. Linux system dependencies ───────────────────────────────────────
       - name: Install Linux dependencies
         if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            libwebkit2gtk-4.1-dev \
-            libayatana-appindicator3-dev \
-            librsvg2-dev \
-            patchelf \
-            libssl-dev \
-            libgtk-3-dev
+            libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev \
+            patchelf libssl-dev libgtk-3-dev
 
-      # ── 5. Node.js ─────────────────────────────────────────────────────────
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
-      # ── 6. Install all workspace dependencies ──────────────────────────────
       - name: Install dependencies
         run: npm ci
 
-      # ── 7. Extract version from tag (e.g. v1.2.3 → 1.2.3) ─────────────────
       - name: Extract version from tag
         id: version
         shell: bash
@@ -79,13 +64,7 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-      # ── 8. Stamp version into ALL version files ────────────────────────────
-      # All three files must agree BEFORE tauri-action starts. tauri-action
-      # reads tauri.conf.json first to know the expected artifact filename,
-      # then runs prebuild (sync-version.js) — but by then it's too late.
-      #   • root package.json  → source of truth for sync-version.js
-      #   • tauri.conf.json    → read by tauri-action BEFORE prebuild runs
-      #   • Cargo.toml         → read by cargo for the binary version
+      # Stamp all three version files BEFORE tauri-action reads any of them
       - name: Stamp version into package.json, tauri.conf.json and Cargo.toml
         shell: bash
         run: |
@@ -93,44 +72,30 @@ jobs:
           CARGO_TOML="apps/desktop/src-tauri/Cargo.toml"
           TAURI_CONF="apps/desktop/src-tauri/tauri.conf.json"
 
-          # 1. Root package.json
           npm version "$VERSION" --no-git-tag-version --workspaces=false
-          echo "✓ root package.json → $VERSION"
-
-          # 2. tauri.conf.json — tauri-action reads this BEFORE running prebuild
-          #    to determine the expected artifact filename. If this says 0.1.2
-          #    but the tag is 0.1.6, tauri-action looks for Bridge_0.1.6_*.dmg,
-          #    finds Bridge_0.1.2_*.dmg instead, and skips latest.json entirely.
           node -e "
             const fs = require('fs');
-            const conf = JSON.parse(fs.readFileSync('$TAURI_CONF', 'utf8'));
-            conf.version = '$VERSION';
-            fs.writeFileSync('$TAURI_CONF', JSON.stringify(conf, null, 2) + '\n');
+            const c = JSON.parse(fs.readFileSync('$TAURI_CONF','utf8'));
+            c.version = '$VERSION';
+            fs.writeFileSync('$TAURI_CONF', JSON.stringify(c,null,2)+'\n');
           "
-          echo "✓ tauri.conf.json → $VERSION"
-
-          # 3. Cargo.toml — cargo reads this for the binary version
           if [[ "$RUNNER_OS" == "macOS" ]]; then
             sed -i '' "s/^version = \".*\"/version = \"$VERSION\"/" "$CARGO_TOML"
           else
             sed -i "s/^version = \".*\"/version = \"$VERSION\"/" "$CARGO_TOML"
           fi
-          echo "✓ Cargo.toml → $VERSION"
 
-          # Verify all three before the build starts
           echo "--- Verification ---"
           node -e "const p=JSON.parse(require('fs').readFileSync('package.json','utf8')); console.log('package.json:', p.version)"
           node -e "const p=JSON.parse(require('fs').readFileSync('$TAURI_CONF','utf8')); console.log('tauri.conf.json:', p.version)"
           grep '^version' "$CARGO_TOML"
 
-      # ── 9. Build the Tauri app ─────────────────────────────────────────────
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0.5.20
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-
           # ── macOS code signing (uncomment when ready) ──────────────────────
           # APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
           # APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -138,7 +103,6 @@ jobs:
           # APPLE_ID: ${{ secrets.APPLE_ID }}
           # APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           # APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-
         with:
           projectPath: apps/desktop
           tagName: ${{ steps.version.outputs.tag }}
@@ -146,29 +110,156 @@ jobs:
           releaseBody: ${{ github.event.release.body }}
           releaseDraft: false
           prerelease: ${{ github.event.release.prerelease }}
-          includeUpdaterJson: true
+          # Do NOT set includeUpdaterJson here — tauri-action has a bug where
+          # it filters .sig files out of "Found artifacts" in Tauri v2 then
+          # can't find them to build latest.json. We generate it ourselves below.
           args: ${{ matrix.platform == 'macos-latest' && '--target universal-apple-darwin' || '' }}
 
-      # ── 10. Upload versioned artifact to release ───────────────────────────
-      - name: Upload versioned artifact to release
+      # Collect the .sig file and upload it as a release asset so the
+      # updater job (below) can download all three and build latest.json
+      - name: Upload sig file as release asset
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          VERSION="${{ steps.version.outputs.version }}"
+
+          # Find the .sig file Tauri generated
+          SIG=$(find apps/desktop/src-tauri/target -name "*.sig" \
+            ! -path "*/deps/*" ! -name "*.d" | head -n 1)
+
+          if [ -z "$SIG" ]; then
+            echo "No .sig file found — skipping"
+            exit 0
+          fi
+
+          # Find the corresponding unsigned artifact
+          UNSIGNED="${SIG%.sig}"
+          UNSIGNED_BASE=$(basename "$UNSIGNED")
+          EXT="${UNSIGNED_BASE##*.}"
+          NAME_NO_EXT="${UNSIGNED_BASE%.$EXT}"
+
+          echo "SIG: $SIG"
+          echo "Unsigned: $UNSIGNED"
+
+          # Upload the actual installer with a clean versioned name
+          if [ -f "$UNSIGNED" ]; then
+            gh release upload "$TAG" "$UNSIGNED#${NAME_NO_EXT}_${VERSION}.${EXT}" --clobber || true
+          fi
+
+          # Upload the .sig with a predictable platform name so updater job can find it
+          PLATFORM_SIG_NAME="${{ matrix.platform }}.sig"
+          gh release upload "$TAG" "$SIG#$PLATFORM_SIG_NAME" --clobber
+          echo "Uploaded sig as: $PLATFORM_SIG_NAME"
+
+          # Also upload the full original sig filename (needed for latest.json url field)
+          gh release upload "$TAG" "$SIG#$(basename $SIG)" --clobber || true
+
+  # ── Updater JSON job — runs after ALL 3 platforms finish ───────────────────
+  # tauri-action has a confirmed bug in Tauri v2: it finds .sig files but
+  # filters them from "Found artifacts", so it can never build latest.json.
+  # We build it ourselves here using the .sig files uploaded by the build jobs.
+  publish-updater-json:
+    needs: build-tauri
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Extract version from tag
+        id: version
+        shell: bash
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Build and upload latest.json
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           TAG="${{ steps.version.outputs.tag }}"
+          REPO="jaideepghosh/bridge"
+          BASE_URL="https://github.com/${REPO}/releases/download/${TAG}"
+          NOTES="${{ github.event.release.body }}"
+          PUB_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-          ARTIFACT=$(find apps/desktop/src-tauri/target -name "${{ matrix.artifact-pattern }}" \
-            ! -path "*/deps/*" ! -name "*.d" | head -n 1)
+          # Download all .sig files uploaded by the build jobs
+          mkdir -p /tmp/sigs
+          gh release download "$TAG" --repo "$REPO" --pattern "*.sig" --dir /tmp/sigs
+          echo "Downloaded sig files:"
+          ls -la /tmp/sigs/
 
-          if [ -z "$ARTIFACT" ]; then
-            echo "No artifact matching ${{ matrix.artifact-pattern }} found — skipping upload"
-            exit 0
-          fi
+          # Helper: read sig file content
+          read_sig() { cat "$1" 2>/dev/null || echo ""; }
 
-          EXT="${ARTIFACT##*.}"
-          BASENAME=$(basename "$ARTIFACT" ".$EXT")
-          VERSIONED_NAME="${BASENAME}_${VERSION}.${EXT}"
+          # Find sig files by platform
+          # macOS: Bridge_X.X.X_universal.app.tar.gz.sig
+          MAC_SIG_FILE=$(find /tmp/sigs -name "*universal*app*tar*gz*sig" | head -1)
+          # Linux: Bridge_X.X.X_amd64.AppImage.tar.gz.sig  
+          LINUX_SIG_FILE=$(find /tmp/sigs -name "*AppImage*tar*gz*sig" | head -1)
+          # Windows: Bridge_X.X.X_x64_en-US.msi.zip.sig or similar
+          WIN_SIG_FILE=$(find /tmp/sigs -name "*x64*msi*sig" -o -name "*setup*sig" | head -1)
 
-          echo "Uploading $ARTIFACT as $VERSIONED_NAME to release $TAG"
-          gh release upload "$TAG" "$ARTIFACT#$VERSIONED_NAME" --clobber
+          echo "Mac sig: $MAC_SIG_FILE"
+          echo "Linux sig: $LINUX_SIG_FILE"
+          echo "Win sig: $WIN_SIG_FILE"
+
+          MAC_SIG=$(read_sig "$MAC_SIG_FILE")
+          LINUX_SIG=$(read_sig "$LINUX_SIG_FILE")
+          WIN_SIG=$(read_sig "$WIN_SIG_FILE")
+
+          # Build latest.json — Tauri updater format
+          node -e "
+            const fs = require('fs');
+            const version = '$VERSION';
+            const notes = process.env.NOTES || '';
+            const pubDate = '$PUB_DATE';
+            const baseUrl = '$BASE_URL';
+
+            const platforms = {};
+
+            const macSig = '$MAC_SIG';
+            const linuxSig = '$LINUX_SIG';
+            const winSig = '$WIN_SIG';
+
+            if (macSig) {
+              const url = baseUrl + '/Bridge_' + version + '_universal.app.tar.gz';
+              platforms['darwin-x86_64'] = { signature: macSig, url };
+              platforms['darwin-aarch64'] = { signature: macSig, url };
+            }
+
+            if (linuxSig) {
+              platforms['linux-x86_64'] = {
+                signature: linuxSig,
+                url: baseUrl + '/Bridge_' + version + '_amd64.AppImage.tar.gz'
+              };
+            }
+
+            if (winSig) {
+              platforms['windows-x86_64'] = {
+                signature: winSig,
+                url: baseUrl + '/Bridge_' + version + '_x64_en-US.msi.zip'
+              };
+            }
+
+            const json = { version, notes, pub_date: pubDate, platforms };
+            fs.writeFileSync('latest.json', JSON.stringify(json, null, 2));
+            console.log(JSON.stringify(json, null, 2));
+          " NOTES="$NOTES"
+
+          echo "Uploading latest.json..."
+          gh release upload "$TAG" "latest.json" --clobber
+          echo "Done. latest.json uploaded to release $TAG"
