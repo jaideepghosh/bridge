@@ -5,7 +5,6 @@ on:
     types: [published]
 
 jobs:
-  # ── Platform build jobs ─────────────────────────────────────────────────────
   build-tauri:
     permissions:
       contents: write
@@ -16,24 +15,25 @@ jobs:
         include:
           - platform: macos-latest
             args: --target universal-apple-darwin
-            # macOS: target/universal-apple-darwin/release/bundle/macos/Bridge.app.tar.gz.sig
-            sig-glob: '**/bundle/macos/*.app.tar.gz.sig'
+            # grep pattern to find the right .sig among all .sig files
+            sig-grep: 'bundle/macos/.*\.app\.tar\.gz\.sig$'
             sig-name: updater-darwin.sig
-            installer-glob: '**/bundle/dmg/*.dmg'
+            installer-glob: bundle/dmg
+            installer-ext: dmg
 
           - platform: windows-latest
             args: ''
-            # Windows: target/release/bundle/msi/Bridge_x.x.x_x64_en-US.msi.zip.sig
-            sig-glob: '**/bundle/msi/*.msi.zip.sig'
+            sig-grep: 'bundle/msi/.*\.msi\.zip\.sig$'
             sig-name: updater-windows.sig
-            installer-glob: '**/bundle/msi/*.msi'
+            installer-glob: bundle/msi
+            installer-ext: msi
 
           - platform: ubuntu-22.04
             args: ''
-            # Linux: target/release/bundle/appimage/Bridge_x.x.x_amd64.AppImage.tar.gz.sig
-            sig-glob: '**/bundle/appimage/*.AppImage.tar.gz.sig'
+            sig-grep: 'bundle/appimage/.*\.AppImage\.tar\.gz\.sig$'
             sig-name: updater-linux.sig
-            installer-glob: '**/bundle/deb/*.deb'
+            installer-glob: bundle/deb
+            installer-ext: deb
 
     runs-on: ${{ matrix.platform }}
 
@@ -125,9 +125,6 @@ jobs:
           prerelease: ${{ github.event.release.prerelease }}
           args: ${{ matrix.args }}
 
-      # Upload the .sig file with a predictable platform name so
-      # publish-updater-json can download it by name.
-      # Also upload the installer with a clean versioned name.
       - name: Upload installer and sig to release
         shell: bash
         env:
@@ -136,36 +133,46 @@ jobs:
           TAG="${{ steps.version.outputs.tag }}"
           VERSION="${{ steps.version.outputs.version }}"
 
-          # ── Upload installer with clean versioned name ──
-          INSTALLER=$(find apps/desktop/src-tauri/target -path "${{ matrix.installer-glob }}" \
-            ! -path "*/deps/*" 2>/dev/null | head -1)
+          echo "=== All .sig files found in target ==="
+          find apps/desktop/src-tauri/target -name "*.sig" \
+            ! -path "*/deps/*" ! -path "*/incremental/*" 2>/dev/null
+          echo "======================================"
+
+          # ── Upload installer ──
+          INSTALLER=$(find apps/desktop/src-tauri/target \
+            -path "*/${{ matrix.installer-glob }}/*.${{ matrix.installer-ext }}" \
+            ! -path "*/deps/*" ! -path "*/incremental/*" \
+            2>/dev/null | head -1)
           if [ -n "$INSTALLER" ]; then
             EXT="${INSTALLER##*.}"
             BASENAME=$(basename "$INSTALLER" ".$EXT")
             gh release upload "$TAG" "$INSTALLER#${BASENAME}_${VERSION}.${EXT}" --clobber || true
             echo "Uploaded installer: ${BASENAME}_${VERSION}.${EXT}"
+          else
+            echo "WARNING: No installer found for ${{ matrix.installer-ext }}"
           fi
 
-          # ── Upload .sig with predictable platform name ──
-          # The exact paths confirmed from build logs:
-          #   macOS:   bundle/macos/Bridge.app.tar.gz.sig
-          #   Windows: bundle/msi/Bridge_x_x64_en-US.msi.zip.sig
-          #   Linux:   bundle/appimage/Bridge_x_amd64.AppImage.tar.gz.sig
-          SIG=$(find apps/desktop/src-tauri/target -path "${{ matrix.sig-glob }}" \
-            ! -path "*/deps/*" 2>/dev/null | head -1)
+          # ── Find .sig using grep on the full path ──
+          # find + grep avoids shell glob issues across platforms
+          SIG=$(find apps/desktop/src-tauri/target -name "*.sig" \
+            ! -path "*/deps/*" ! -path "*/incremental/*" \
+            2>/dev/null | grep -E '${{ matrix.sig-grep }}' | head -1)
 
           if [ -z "$SIG" ]; then
-            echo "ERROR: No .sig file found matching ${{ matrix.sig-glob }}"
-            find apps/desktop/src-tauri/target -name "*.sig" ! -path "*/deps/*" 2>/dev/null
+            echo "ERROR: No .sig file found matching pattern: ${{ matrix.sig-grep }}"
+            echo "All .sig files available:"
+            find apps/desktop/src-tauri/target -name "*.sig" \
+              ! -path "*/deps/*" ! -path "*/incremental/*" 2>/dev/null
             exit 1
           fi
 
           echo "Found sig: $SIG"
-          # Upload as predictable name (e.g. updater-darwin.sig)
+
+          # Upload sig with predictable name so publish-updater-json can find it
           gh release upload "$TAG" "$SIG#${{ matrix.sig-name }}" --clobber
           echo "Uploaded sig as: ${{ matrix.sig-name }}"
 
-          # Also upload the updater payload (the .tar.gz / .zip the sig covers)
+          # Upload the updater payload (.tar.gz or .zip the sig covers)
           PAYLOAD="${SIG%.sig}"
           if [ -f "$PAYLOAD" ]; then
             gh release upload "$TAG" "$PAYLOAD#$(basename $PAYLOAD)" --clobber || true
@@ -198,7 +205,7 @@ jobs:
             --repo jaideepghosh/bridge \
             --pattern "updater-*.sig" \
             --dir /tmp/sigs
-          echo "Downloaded sig files:"
+          echo "Downloaded:"
           ls -la /tmp/sigs/
 
       - name: Build and upload latest.json
@@ -216,49 +223,54 @@ jobs:
           WIN_SIG=$(cat /tmp/sigs/updater-windows.sig 2>/dev/null || echo "")
           LINUX_SIG=$(cat /tmp/sigs/updater-linux.sig 2>/dev/null || echo "")
 
-          echo "Mac sig present:   $([ -n "$MAC_SIG" ] && echo YES || echo NO)"
-          echo "Windows sig present: $([ -n "$WIN_SIG" ] && echo YES || echo NO)"
-          echo "Linux sig present:  $([ -n "$LINUX_SIG" ] && echo YES || echo NO)"
+          echo "Mac sig:     $([ -n "$MAC_SIG" ]   && echo YES || echo MISSING)"
+          echo "Windows sig: $([ -n "$WIN_SIG" ]   && echo YES || echo MISSING)"
+          echo "Linux sig:   $([ -n "$LINUX_SIG" ] && echo YES || echo MISSING)"
 
-          node -e "
-            const fs = require('fs');
-            const v = '$VERSION';
-            const base = '$BASE_URL';
-            const platforms = {};
+          node << EOF
+          const fs = require('fs');
+          const v = '$VERSION';
+          const base = '$BASE_URL';
+          const mac   = \`$MAC_SIG\`.trim();
+          const win   = \`$WIN_SIG\`.trim();
+          const linux = \`$LINUX_SIG\`.trim();
+          const platforms = {};
 
-            const mac = \`$MAC_SIG\`;
-            const win = \`$WIN_SIG\`;
-            const linux = \`$LINUX_SIG\`;
-
-            if (mac) {
-              platforms['darwin-aarch64'] = { signature: mac, url: \`\${base}/Bridge.app.tar.gz\` };
-              platforms['darwin-x86_64']  = { signature: mac, url: \`\${base}/Bridge.app.tar.gz\` };
-            }
-            if (win) {
-              platforms['windows-x86_64'] = { signature: win, url: \`\${base}/Bridge_\${v}_x64_en-US.msi.zip\` };
-            }
-            if (linux) {
-              platforms['linux-x86_64'] = { signature: linux, url: \`\${base}/Bridge_\${v}_amd64.AppImage.tar.gz\` };
-            }
-
-            if (Object.keys(platforms).length === 0) {
-              console.error('ERROR: No signatures found — cannot build latest.json');
-              process.exit(1);
-            }
-
-            const json = {
-              version: v,
-              notes: process.env.RELEASE_NOTES || '',
-              pub_date: '$PUB_DATE',
-              platforms
+          if (mac) {
+            platforms['darwin-aarch64'] = { signature: mac, url: base + '/Bridge.app.tar.gz' };
+            platforms['darwin-x86_64']  = { signature: mac, url: base + '/Bridge.app.tar.gz' };
+          }
+          if (win) {
+            platforms['windows-x86_64'] = {
+              signature: win,
+              url: base + '/Bridge_' + v + '_x64_en-US.msi.zip'
             };
+          }
+          if (linux) {
+            platforms['linux-x86_64'] = {
+              signature: linux,
+              url: base + '/Bridge_' + v + '_amd64.AppImage.tar.gz'
+            };
+          }
 
-            fs.writeFileSync('latest.json', JSON.stringify(json, null, 2));
-            console.log(JSON.stringify(json, null, 2));
-          "
+          if (Object.keys(platforms).length === 0) {
+            console.error('ERROR: No signatures found — cannot build latest.json');
+            process.exit(1);
+          }
+
+          const json = {
+            version: v,
+            notes: process.env.RELEASE_NOTES || '',
+            pub_date: '$PUB_DATE',
+            platforms
+          };
+
+          fs.writeFileSync('latest.json', JSON.stringify(json, null, 2));
+          console.log(JSON.stringify(json, null, 2));
+          EOF
 
           gh release upload "$TAG" latest.json \
             --repo "$REPO" \
             --clobber
 
-          echo "✅ latest.json uploaded to $TAG"
+          echo "✅ latest.json uploaded to release $TAG"
