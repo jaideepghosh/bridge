@@ -15,11 +15,25 @@ jobs:
       matrix:
         include:
           - platform: macos-latest
-            artifact-pattern: '*.dmg'
+            args: --target universal-apple-darwin
+            # macOS: target/universal-apple-darwin/release/bundle/macos/Bridge.app.tar.gz.sig
+            sig-glob: '**/bundle/macos/*.app.tar.gz.sig'
+            sig-name: updater-darwin.sig
+            installer-glob: '**/bundle/dmg/*.dmg'
+
           - platform: windows-latest
-            artifact-pattern: '*.msi'
+            args: ''
+            # Windows: target/release/bundle/msi/Bridge_x.x.x_x64_en-US.msi.zip.sig
+            sig-glob: '**/bundle/msi/*.msi.zip.sig'
+            sig-name: updater-windows.sig
+            installer-glob: '**/bundle/msi/*.msi'
+
           - platform: ubuntu-22.04
-            artifact-pattern: '*.deb'
+            args: ''
+            # Linux: target/release/bundle/appimage/Bridge_x.x.x_amd64.AppImage.tar.gz.sig
+            sig-glob: '**/bundle/appimage/*.AppImage.tar.gz.sig'
+            sig-name: updater-linux.sig
+            installer-glob: '**/bundle/deb/*.deb'
 
     runs-on: ${{ matrix.platform }}
 
@@ -64,7 +78,6 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-      # Stamp all three version files BEFORE tauri-action reads any of them
       - name: Stamp version into package.json, tauri.conf.json and Cargo.toml
         shell: bash
         run: |
@@ -110,14 +123,12 @@ jobs:
           releaseBody: ${{ github.event.release.body }}
           releaseDraft: false
           prerelease: ${{ github.event.release.prerelease }}
-          # Do NOT set includeUpdaterJson here — tauri-action has a bug where
-          # it filters .sig files out of "Found artifacts" in Tauri v2 then
-          # can't find them to build latest.json. We generate it ourselves below.
-          args: ${{ matrix.platform == 'macos-latest' && '--target universal-apple-darwin' || '' }}
+          args: ${{ matrix.args }}
 
-      # Collect the .sig file and upload it as a release asset so the
-      # updater job (below) can download all three and build latest.json
-      - name: Upload sig file as release asset
+      # Upload the .sig file with a predictable platform name so
+      # publish-updater-json can download it by name.
+      # Also upload the installer with a clean versioned name.
+      - name: Upload installer and sig to release
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -125,41 +136,43 @@ jobs:
           TAG="${{ steps.version.outputs.tag }}"
           VERSION="${{ steps.version.outputs.version }}"
 
-          # Find the .sig file Tauri generated
-          SIG=$(find apps/desktop/src-tauri/target -name "*.sig" \
-            ! -path "*/deps/*" ! -name "*.d" | head -n 1)
+          # ── Upload installer with clean versioned name ──
+          INSTALLER=$(find apps/desktop/src-tauri/target -path "${{ matrix.installer-glob }}" \
+            ! -path "*/deps/*" 2>/dev/null | head -1)
+          if [ -n "$INSTALLER" ]; then
+            EXT="${INSTALLER##*.}"
+            BASENAME=$(basename "$INSTALLER" ".$EXT")
+            gh release upload "$TAG" "$INSTALLER#${BASENAME}_${VERSION}.${EXT}" --clobber || true
+            echo "Uploaded installer: ${BASENAME}_${VERSION}.${EXT}"
+          fi
+
+          # ── Upload .sig with predictable platform name ──
+          # The exact paths confirmed from build logs:
+          #   macOS:   bundle/macos/Bridge.app.tar.gz.sig
+          #   Windows: bundle/msi/Bridge_x_x64_en-US.msi.zip.sig
+          #   Linux:   bundle/appimage/Bridge_x_amd64.AppImage.tar.gz.sig
+          SIG=$(find apps/desktop/src-tauri/target -path "${{ matrix.sig-glob }}" \
+            ! -path "*/deps/*" 2>/dev/null | head -1)
 
           if [ -z "$SIG" ]; then
-            echo "No .sig file found — skipping"
-            exit 0
+            echo "ERROR: No .sig file found matching ${{ matrix.sig-glob }}"
+            find apps/desktop/src-tauri/target -name "*.sig" ! -path "*/deps/*" 2>/dev/null
+            exit 1
           fi
 
-          # Find the corresponding unsigned artifact
-          UNSIGNED="${SIG%.sig}"
-          UNSIGNED_BASE=$(basename "$UNSIGNED")
-          EXT="${UNSIGNED_BASE##*.}"
-          NAME_NO_EXT="${UNSIGNED_BASE%.$EXT}"
+          echo "Found sig: $SIG"
+          # Upload as predictable name (e.g. updater-darwin.sig)
+          gh release upload "$TAG" "$SIG#${{ matrix.sig-name }}" --clobber
+          echo "Uploaded sig as: ${{ matrix.sig-name }}"
 
-          echo "SIG: $SIG"
-          echo "Unsigned: $UNSIGNED"
-
-          # Upload the actual installer with a clean versioned name
-          if [ -f "$UNSIGNED" ]; then
-            gh release upload "$TAG" "$UNSIGNED#${NAME_NO_EXT}_${VERSION}.${EXT}" --clobber || true
+          # Also upload the updater payload (the .tar.gz / .zip the sig covers)
+          PAYLOAD="${SIG%.sig}"
+          if [ -f "$PAYLOAD" ]; then
+            gh release upload "$TAG" "$PAYLOAD#$(basename $PAYLOAD)" --clobber || true
+            echo "Uploaded payload: $(basename $PAYLOAD)"
           fi
 
-          # Upload the .sig with a predictable platform name so updater job can find it
-          PLATFORM_SIG_NAME="${{ matrix.platform }}.sig"
-          gh release upload "$TAG" "$SIG#$PLATFORM_SIG_NAME" --clobber
-          echo "Uploaded sig as: $PLATFORM_SIG_NAME"
-
-          # Also upload the full original sig filename (needed for latest.json url field)
-          gh release upload "$TAG" "$SIG#$(basename $SIG)" --clobber || true
-
-  # ── Updater JSON job — runs after ALL 3 platforms finish ───────────────────
-  # tauri-action has a confirmed bug in Tauri v2: it finds .sig files but
-  # filters them from "Found artifacts", so it can never build latest.json.
-  # We build it ourselves here using the .sig files uploaded by the build jobs.
+  # ── Assemble latest.json after all 3 platforms finish ──────────────────────
   publish-updater-json:
     needs: build-tauri
     runs-on: ubuntu-latest
@@ -167,14 +180,6 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
       - name: Extract version from tag
         id: version
         shell: bash
@@ -184,82 +189,76 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-      - name: Build and upload latest.json
-        shell: bash
+      - name: Download sig files
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p /tmp/sigs
+          gh release download "${{ steps.version.outputs.tag }}" \
+            --repo jaideepghosh/bridge \
+            --pattern "updater-*.sig" \
+            --dir /tmp/sigs
+          echo "Downloaded sig files:"
+          ls -la /tmp/sigs/
+
+      - name: Build and upload latest.json
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_NOTES: ${{ github.event.release.body }}
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           TAG="${{ steps.version.outputs.tag }}"
           REPO="jaideepghosh/bridge"
           BASE_URL="https://github.com/${REPO}/releases/download/${TAG}"
-          NOTES="${{ github.event.release.body }}"
           PUB_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-          # Download all .sig files uploaded by the build jobs
-          mkdir -p /tmp/sigs
-          gh release download "$TAG" --repo "$REPO" --pattern "*.sig" --dir /tmp/sigs
-          echo "Downloaded sig files:"
-          ls -la /tmp/sigs/
+          MAC_SIG=$(cat /tmp/sigs/updater-darwin.sig 2>/dev/null || echo "")
+          WIN_SIG=$(cat /tmp/sigs/updater-windows.sig 2>/dev/null || echo "")
+          LINUX_SIG=$(cat /tmp/sigs/updater-linux.sig 2>/dev/null || echo "")
 
-          # Helper: read sig file content
-          read_sig() { cat "$1" 2>/dev/null || echo ""; }
+          echo "Mac sig present:   $([ -n "$MAC_SIG" ] && echo YES || echo NO)"
+          echo "Windows sig present: $([ -n "$WIN_SIG" ] && echo YES || echo NO)"
+          echo "Linux sig present:  $([ -n "$LINUX_SIG" ] && echo YES || echo NO)"
 
-          # Find sig files by platform
-          # macOS: Bridge_X.X.X_universal.app.tar.gz.sig
-          MAC_SIG_FILE=$(find /tmp/sigs -name "*universal*app*tar*gz*sig" | head -1)
-          # Linux: Bridge_X.X.X_amd64.AppImage.tar.gz.sig  
-          LINUX_SIG_FILE=$(find /tmp/sigs -name "*AppImage*tar*gz*sig" | head -1)
-          # Windows: Bridge_X.X.X_x64_en-US.msi.zip.sig or similar
-          WIN_SIG_FILE=$(find /tmp/sigs -name "*x64*msi*sig" -o -name "*setup*sig" | head -1)
-
-          echo "Mac sig: $MAC_SIG_FILE"
-          echo "Linux sig: $LINUX_SIG_FILE"
-          echo "Win sig: $WIN_SIG_FILE"
-
-          MAC_SIG=$(read_sig "$MAC_SIG_FILE")
-          LINUX_SIG=$(read_sig "$LINUX_SIG_FILE")
-          WIN_SIG=$(read_sig "$WIN_SIG_FILE")
-
-          # Build latest.json — Tauri updater format
           node -e "
             const fs = require('fs');
-            const version = '$VERSION';
-            const notes = process.env.NOTES || '';
-            const pubDate = '$PUB_DATE';
-            const baseUrl = '$BASE_URL';
-
+            const v = '$VERSION';
+            const base = '$BASE_URL';
             const platforms = {};
 
-            const macSig = '$MAC_SIG';
-            const linuxSig = '$LINUX_SIG';
-            const winSig = '$WIN_SIG';
+            const mac = \`$MAC_SIG\`;
+            const win = \`$WIN_SIG\`;
+            const linux = \`$LINUX_SIG\`;
 
-            if (macSig) {
-              const url = baseUrl + '/Bridge_' + version + '_universal.app.tar.gz';
-              platforms['darwin-x86_64'] = { signature: macSig, url };
-              platforms['darwin-aarch64'] = { signature: macSig, url };
+            if (mac) {
+              platforms['darwin-aarch64'] = { signature: mac, url: \`\${base}/Bridge.app.tar.gz\` };
+              platforms['darwin-x86_64']  = { signature: mac, url: \`\${base}/Bridge.app.tar.gz\` };
+            }
+            if (win) {
+              platforms['windows-x86_64'] = { signature: win, url: \`\${base}/Bridge_\${v}_x64_en-US.msi.zip\` };
+            }
+            if (linux) {
+              platforms['linux-x86_64'] = { signature: linux, url: \`\${base}/Bridge_\${v}_amd64.AppImage.tar.gz\` };
             }
 
-            if (linuxSig) {
-              platforms['linux-x86_64'] = {
-                signature: linuxSig,
-                url: baseUrl + '/Bridge_' + version + '_amd64.AppImage.tar.gz'
-              };
+            if (Object.keys(platforms).length === 0) {
+              console.error('ERROR: No signatures found — cannot build latest.json');
+              process.exit(1);
             }
 
-            if (winSig) {
-              platforms['windows-x86_64'] = {
-                signature: winSig,
-                url: baseUrl + '/Bridge_' + version + '_x64_en-US.msi.zip'
-              };
-            }
+            const json = {
+              version: v,
+              notes: process.env.RELEASE_NOTES || '',
+              pub_date: '$PUB_DATE',
+              platforms
+            };
 
-            const json = { version, notes, pub_date: pubDate, platforms };
             fs.writeFileSync('latest.json', JSON.stringify(json, null, 2));
             console.log(JSON.stringify(json, null, 2));
-          " NOTES="$NOTES"
+          "
 
-          echo "Uploading latest.json..."
-          gh release upload "$TAG" "latest.json" --clobber
-          echo "Done. latest.json uploaded to release $TAG"
+          gh release upload "$TAG" latest.json \
+            --repo "$REPO" \
+            --clobber
+
+          echo "✅ latest.json uploaded to $TAG"
