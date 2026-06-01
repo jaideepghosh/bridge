@@ -80,24 +80,36 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       # ── 8. Stamp version into ALL version files ────────────────────────────
-      # Three files must all agree on the version or cargo builds the wrong one:
-      #   • root package.json  → read by sync-version.js
-      #   • tauri.conf.json    → updated by sync-version.js (via prebuild)
-      #   • Cargo.toml         → read by Rust/cargo directly — THIS was missing
-      - name: Stamp version into package.json and Cargo.toml
+      # All three files must agree BEFORE tauri-action starts. tauri-action
+      # reads tauri.conf.json first to know the expected artifact filename,
+      # then runs prebuild (sync-version.js) — but by then it's too late.
+      #   • root package.json  → source of truth for sync-version.js
+      #   • tauri.conf.json    → read by tauri-action BEFORE prebuild runs
+      #   • Cargo.toml         → read by cargo for the binary version
+      - name: Stamp version into package.json, tauri.conf.json and Cargo.toml
         shell: bash
         run: |
           VERSION="${{ steps.version.outputs.version }}"
+          CARGO_TOML="apps/desktop/src-tauri/Cargo.toml"
+          TAURI_CONF="apps/desktop/src-tauri/tauri.conf.json"
 
-          # 1. Root package.json — sync-version.js reads this and propagates
-          #    to tauri.conf.json and all workspace package.json files
+          # 1. Root package.json
           npm version "$VERSION" --no-git-tag-version --workspaces=false
           echo "✓ root package.json → $VERSION"
 
-          # 2. Cargo.toml — cargo reads THIS as the binary version, not tauri.conf.json
-          #    Must match or cargo builds Bridge vX.Y.Z-old and tauri-action
-          #    looks for files named with the new version → mismatch → no latest.json
-          CARGO_TOML="apps/desktop/src-tauri/Cargo.toml"
+          # 2. tauri.conf.json — tauri-action reads this BEFORE running prebuild
+          #    to determine the expected artifact filename. If this says 0.1.2
+          #    but the tag is 0.1.6, tauri-action looks for Bridge_0.1.6_*.dmg,
+          #    finds Bridge_0.1.2_*.dmg instead, and skips latest.json entirely.
+          node -e "
+            const fs = require('fs');
+            const conf = JSON.parse(fs.readFileSync('$TAURI_CONF', 'utf8'));
+            conf.version = '$VERSION';
+            fs.writeFileSync('$TAURI_CONF', JSON.stringify(conf, null, 2) + '\n');
+          "
+          echo "✓ tauri.conf.json → $VERSION"
+
+          # 3. Cargo.toml — cargo reads this for the binary version
           if [[ "$RUNNER_OS" == "macOS" ]]; then
             sed -i '' "s/^version = \".*\"/version = \"$VERSION\"/" "$CARGO_TOML"
           else
@@ -105,14 +117,15 @@ jobs:
           fi
           echo "✓ Cargo.toml → $VERSION"
 
-          # Verify both are correct before the build starts
+          # Verify all three before the build starts
           echo "--- Verification ---"
-          node -e "const p=JSON.parse(require('fs').readFileSync('package.json','utf8')); console.log('package.json version:', p.version)"
+          node -e "const p=JSON.parse(require('fs').readFileSync('package.json','utf8')); console.log('package.json:', p.version)"
+          node -e "const p=JSON.parse(require('fs').readFileSync('$TAURI_CONF','utf8')); console.log('tauri.conf.json:', p.version)"
           grep '^version' "$CARGO_TOML"
 
       # ── 9. Build the Tauri app ─────────────────────────────────────────────
       - name: Build Tauri app
-        uses: tauri-apps/tauri-action@v0.5.16
+        uses: tauri-apps/tauri-action@v0.5.20
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
