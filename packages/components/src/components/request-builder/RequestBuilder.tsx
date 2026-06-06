@@ -53,7 +53,8 @@ function isNonPublicUrl(url: string): boolean {
     // Private IPv4 ranges
     const v4 = hostname.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
     if (v4) {
-      const [, a, b, c] = v4.map(Number);
+      const a = Number(v4[1]);
+      const b = Number(v4[2]);
       if (a === 10) return true;
       if (a === 127) return true;
       if (a === 0) return true;
