@@ -82,11 +82,19 @@ jobs:
         run: |
           VERSION="${{ steps.version.outputs.version }}"
 
+          PACKAGE_JSON="package.json"
           CARGO_TOML="apps/desktop/src-tauri/Cargo.toml"
           TAURI_CONF="apps/desktop/src-tauri/tauri.conf.json"
 
-          npm version "$VERSION" --no-git-tag-version --workspaces=false
+          # Update package.json
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('$PACKAGE_JSON', 'utf8'));
+            pkg.version = '$VERSION';
+            fs.writeFileSync('$PACKAGE_JSON', JSON.stringify(pkg, null, 2) + '\n');
+          "
 
+          # Update tauri.conf.json
           node -e "
             const fs = require('fs');
             const config = JSON.parse(fs.readFileSync('$TAURI_CONF', 'utf8'));
@@ -94,11 +102,14 @@ jobs:
             fs.writeFileSync('$TAURI_CONF', JSON.stringify(config, null, 2) + '\n');
           "
 
+          # Update Cargo.toml
           if [[ "$RUNNER_OS" == "macOS" ]]; then
             sed -i '' "s/^version = \".*\"/version = \"$VERSION\"/" "$CARGO_TOML"
           else
             sed -i "s/^version = \".*\"/version = \"$VERSION\"/" "$CARGO_TOML"
           fi
+
+          echo "Updated all app versions to $VERSION"
 
       - name: Build and publish app
         uses: tauri-apps/tauri-action@v0.5.24
