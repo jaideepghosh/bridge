@@ -42,7 +42,7 @@ function AppLayout() {
             ) : (
               <ResizablePanelGroup direction="vertical">
                 <ResizablePanel defaultSize={60} minSize={20}>
-                  <RequestBuilder />
+                  <RequestBuilder checkUnreachableUrl />
                 </ResizablePanel>
                 <ResizableHandle />
                 <ResizablePanel defaultSize={40} minSize={20} className="border-t bg-card">

@@ -68,7 +68,7 @@ function isNonPublicUrl(url: string): boolean {
   }
 }
 
-export function RequestBuilder() {
+export function RequestBuilder({ checkUnreachableUrl = false }: { checkUnreachableUrl?: boolean } = {}) {
   const {
     activeTabs, selectedTabId, selectTab, closeTab, openTab,
     reopenLastClosedTab, updateTabDraft, setTabResponse, environments, activeEnvironmentId,
@@ -281,7 +281,7 @@ export function RequestBuilder() {
       const inherited = resolveInheritedConfig(collection, folder);
       const proxyReq = prepareProxyRequest(draft, activeEnv, inherited);
 
-      if (isNonPublicUrl(proxyReq.url)) {
+      if (checkUnreachableUrl && isNonPublicUrl(proxyReq.url)) {
         setTabResponse(activeTab.id, {
           status: 0, statusText: "", headers: {}, body: "", durationMs: 0, size: 0,
           isUnreachableUrl: true,
