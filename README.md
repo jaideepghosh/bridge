@@ -5,7 +5,7 @@
 <p><strong>A lightweight REST API testing and documentation workbench built for developers.</strong><br/>
 Test local and remote APIs without CORS issues using a fast, desktop-grade client.</p>
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/jaideepghosh/bridge/releases)
+[![GitHub release](https://img.shields.io/github/v/release/jaideepghosh/bridge)](https://github.com/jaideepghosh/bridge/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Web%20%7C%20macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg)](#installation)
 [![Built with Tauri](https://img.shields.io/badge/desktop-Tauri%20v2-orange.svg)](https://tauri.app)
