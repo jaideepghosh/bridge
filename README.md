@@ -9,6 +9,7 @@ Test local and remote APIs without CORS issues using a fast, desktop-grade clien
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Web%20%7C%20macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg)](#installation)
 [![Built with Tauri](https://img.shields.io/badge/desktop-Tauri%20v2-orange.svg)](https://tauri.app)
+[![Built with Next.js](https://img.shields.io/badge/web-Next.js-black.svg)](https://nextjs.org)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 [**Download**](#installation) · [**Documentation**](#usage) · [**Report a Bug**](https://github.com/jaideepghosh/bridge/issues) · [**Request a Feature**](https://github.com/jaideepghosh/bridge/issues)
