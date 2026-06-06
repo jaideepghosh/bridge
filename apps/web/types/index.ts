@@ -117,4 +117,5 @@ export type ProxyResponse = {
   durationMs: number;
   size: number;
   contentType?: string;
+  isUnreachableUrl?: boolean;
 };

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useStore } from "@/store";
 import { MonacoEditor } from "../MonacoEditor";
-import { Badge, Button, Tabs, TabsContent, TabsList, TabsTrigger } from "@bridge/ui";
-import { WrapText, BookmarkPlus } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle, Badge, Button, Tabs, TabsContent, TabsList, TabsTrigger } from "@bridge/ui";
+import { BookmarkPlus, Info, WrapText } from "lucide-react";
 import { SaveExampleDialog } from "../request-builder/SaveExampleDialog";
 
 export function ResponseViewer() {
@@ -36,6 +36,34 @@ export function ResponseViewer() {
 
   const { response } = activeTab;
   if (!response) return null;
+
+  if (response.isUnreachableUrl) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center p-8 bg-card">
+        <div className="w-full max-w-md">
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertTitle>Testing a local API?</AlertTitle>
+            <AlertDescription>
+              This URL points to a service that isn&apos;t publicly accessible (such as{" "}
+              <code className="font-mono text-xs">localhost</code>, a private network address, or a
+              custom hostname). It can&apos;t be reached from the web app. Please use the desktop app
+              to test APIs running on your machine.{" "}
+              <a
+                href="https://github.com/jaideepghosh/bridge/releases"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-3 hover:text-foreground"
+              >
+                Download the desktop app
+              </a>
+              .
+            </AlertDescription>
+          </Alert>
+        </div>
+      </div>
+    );
+  }
 
   const isSuccess = response.status >= 200 && response.status < 300;
   const isRedirect = response.status >= 300 && response.status < 400;

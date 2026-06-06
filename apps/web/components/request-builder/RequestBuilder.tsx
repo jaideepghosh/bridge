@@ -13,6 +13,34 @@ import { v4 as uuidv4 } from "uuid";
 
 const METHODS: HttpMethod[] = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"];
 
+const RESERVED_TLDS = new Set([".local", ".localhost", ".internal", ".test", ".invalid", ".example"]);
+
+function isNonPublicUrl(url: string): boolean {
+  try {
+    const { hostname } = new URL(url);
+    // Single-label hostname (no dot) — covers `localhost`, custom /etc/hosts aliases, bare server names
+    if (!hostname.includes(".")) return true;
+    // Reserved / mDNS TLDs
+    const lower = hostname.toLowerCase();
+    if (RESERVED_TLDS.has("." + lower.split(".").pop())) return true;
+    // Private IPv4 ranges
+    const v4 = hostname.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+    if (v4) {
+      const [, a, b, c] = v4.map(Number);
+      if (a === 10) return true;
+      if (a === 127) return true;
+      if (a === 0) return true;
+      if (a === 172 && b >= 16 && b <= 31) return true;
+      if (a === 192 && b === 168) return true;
+    }
+    // IPv6 loopback [::1]
+    if (hostname === "[::1]" || hostname === "::1") return true;
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 const METHOD_COLORS: Record<HttpMethod, string> = {
   GET: "text-emerald-500",
   POST: "text-blue-500",
@@ -82,6 +110,15 @@ export function RequestBuilder() {
       const folder = savedReq?.folderId ? folders.find(f => f.id === savedReq.folderId) : undefined;
       const inherited = resolveInheritedConfig(collection, folder);
       const proxyReq = prepareProxyRequest(draft, activeEnv, inherited);
+
+      if (isNonPublicUrl(proxyReq.url)) {
+        setTabResponse(activeTab.id, {
+          status: 0, statusText: "", headers: {}, body: "", durationMs: 0, size: 0,
+          isUnreachableUrl: true,
+        }, false);
+        return;
+      }
+
       const res = await executeMutation.mutateAsync({ data: proxyReq });
       setTabResponse(activeTab.id, res, false);
     } catch (err: unknown) {
