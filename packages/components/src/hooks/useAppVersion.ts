@@ -1,34 +1,28 @@
 import { useState, useEffect } from "react";
 
-// Check if running inside Tauri environment at runtime
-const isTauriEnv = (): boolean => {
-  return (
-    typeof window !== "undefined" &&
-    ((window as any).__TAURI_IPC__ !== undefined ||
-      (window as any).__TAURI_INTERNALS__ !== undefined ||
-      (window as any).__TAURI__ !== undefined)
-  );
-};
+const isTauri = (): boolean =>
+  typeof window !== "undefined" &&
+  ((window as any).__TAURI_IPC__ !== undefined ||
+    (window as any).__TAURI_INTERNALS__ !== undefined ||
+    (window as any).__TAURI__ !== undefined);
 
 export function useAppVersion(): string {
-  const [version, setVersion] = useState<string>("0.1.2");
+  const [version, setVersion] = useState<string>("");
 
   useEffect(() => {
-    if (isTauriEnv()) {
-      // Dynamic import to prevent bundler/compilation errors in pure web environments
+    if (isTauri()) {
       import("@tauri-apps/api/app")
         .then((app) => app.getVersion())
         .then((ver) => setVersion(ver))
-        .catch((err) => {
-          console.error("[useAppVersion] Failed to read Tauri version:", err);
-          const fallback = process.env.NEXT_PUBLIC_APP_VERSION;
-          if (fallback) setVersion(fallback);
-        });
+        .catch(() => {});
     } else {
-      const ver = process.env.NEXT_PUBLIC_APP_VERSION;
-      if (ver) {
-        setVersion(ver);
-      }
+      fetch("https://api.github.com/repos/jaideepghosh/bridge/releases/latest")
+        .then((r) => r.json())
+        .then((data) => {
+          const tag: string = data.tag_name ?? "";
+          setVersion(tag.replace(/^v/, ""));
+        })
+        .catch(() => {});
     }
   }, []);
 
