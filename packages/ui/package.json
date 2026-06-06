@@ -6,6 +6,7 @@
     "./globals.css": "./src/styles/globals.css",
     "./utils": "./src/lib/utils.ts",
     "./use-mobile": "./src/hooks/use-mobile.ts",
+    "./alert": "./src/components/ui/alert.tsx",
     "./badge": "./src/components/ui/badge.tsx",
     "./button": "./src/components/ui/button.tsx",
     "./dialog": "./src/components/ui/dialog.tsx",
