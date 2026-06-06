@@ -23,6 +23,7 @@ import { Plus, X, Play, Save } from "lucide-react";
 import { HttpMethod, KeyValuePair, Environment } from "../../types";
 import { prepareProxyRequest, resolveInheritedConfig } from "../../services/http-client";
 import { MonacoEditor } from "../MonacoEditor";
+import { CodeGeneratorDialog } from "../CodeGeneratorDialog";
 import { UrlInput } from "./UrlInput";
 import { VariableInput } from "./VariableInput";
 import { SaveRequestDialog } from "./SaveRequestDialog";
@@ -422,6 +423,8 @@ export function RequestBuilder({ checkUnreachableUrl = false }: { checkUnreachab
         >
           <Save className="h-4 w-4" />
         </Button>
+
+        <CodeGeneratorDialog request={draft} />
       </div>
 
       {/* Request Settings Tabs */}

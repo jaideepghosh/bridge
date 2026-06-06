@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
+    "@bridge/codegen": "*",
     "@bridge/ui": "*",
     "@tanstack/react-query": "^5.90.21",
     "@tauri-apps/plugin-dialog": "^2",
