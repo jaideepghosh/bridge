@@ -21,6 +21,7 @@
     }
   },
   "bundle": {
+    "createUpdaterArtifacts": true,
     "active": true,
     "targets": "all",
     "icon": [
@@ -37,7 +38,7 @@
   "plugins": {
     "updater": {
       "active": true,
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJFMzRCQTY5REY2MDM0MUUKUldRZU5HRGZhYm8wTHN3NVhLNFkyQVVZZkxYbGQ0ZFZGV25mYlZoeTZrVmprNDhQWEkyeDVTL2kK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJEQzAyMzdBRUFBNEI5NTgKUldSWXVhVHFlaVBBTFRyR01ZTjQ1dThkdU1XaFdTeUdZUWdMUnQxblMvV04rWkc0QytVSlJHUXoK",
       "endpoints": [
         "https://github.com/jaideepghosh/bridge/releases/latest/download/latest.json"
       ],
