@@ -1,9 +1,27 @@
-import React, { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import {
-  Bold, Italic, Underline, Strikethrough,
-  List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify,
-  Link as LinkIcon, Quote, Code, Undo, Redo, Eraser,
-  Eye, Code2, Edit3, Heading1, Heading2, Heading3
+  Bold,
+  Italic,
+  Underline,
+  Strikethrough,
+  List,
+  ListOrdered,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  Link as LinkIcon,
+  Quote,
+  Code,
+  Undo,
+  Redo,
+  Eraser,
+  Eye,
+  Code2,
+  Edit3,
+  Heading1,
+  Heading2,
+  Heading3,
 } from "lucide-react";
 import { Button } from "@bridge/ui";
 import { MonacoEditor } from "./MonacoEditor";
@@ -65,7 +83,7 @@ export function RichTextEditor({
 
   const checkStates = () => {
     if (typeof document === "undefined" || !editorRef.current) return;
-    
+
     // Check basic formats
     setActiveFormats({
       bold: document.queryCommandState("bold"),
@@ -110,7 +128,9 @@ export function RichTextEditor({
   };
 
   return (
-    <div className={`flex flex-col border border-border rounded-md overflow-hidden bg-card h-full min-h-[200px] ${className}`}>
+    <div
+      className={`flex flex-col border border-border rounded-md overflow-hidden bg-card h-full min-h-[200px] ${className}`}
+    >
       {/* Styles injector for premium layout styling */}
       <style>{`
         .rich-editor-content {
@@ -202,7 +222,12 @@ export function RichTextEditor({
                   variant="ghost"
                   size="icon"
                   className={`h-7 w-7 rounded-md ${activeBlock === "h1" ? "bg-muted text-primary font-bold border" : "text-muted-foreground"}`}
-                  onClick={() => executeCommand("formatBlock", activeBlock === "h1" ? "<p>" : "<h1>")}
+                  onClick={() =>
+                    executeCommand(
+                      "formatBlock",
+                      activeBlock === "h1" ? "<p>" : "<h1>",
+                    )
+                  }
                   title="Heading 1"
                 >
                   <Heading1 className="h-4 w-4" />
@@ -211,7 +236,12 @@ export function RichTextEditor({
                   variant="ghost"
                   size="icon"
                   className={`h-7 w-7 rounded-md ${activeBlock === "h2" ? "bg-muted text-primary font-bold border" : "text-muted-foreground"}`}
-                  onClick={() => executeCommand("formatBlock", activeBlock === "h2" ? "<p>" : "<h2>")}
+                  onClick={() =>
+                    executeCommand(
+                      "formatBlock",
+                      activeBlock === "h2" ? "<p>" : "<h2>",
+                    )
+                  }
                   title="Heading 2"
                 >
                   <Heading2 className="h-4 w-4" />
@@ -220,7 +250,12 @@ export function RichTextEditor({
                   variant="ghost"
                   size="icon"
                   className={`h-7 w-7 rounded-md ${activeBlock === "h3" ? "bg-muted text-primary font-bold border" : "text-muted-foreground"}`}
-                  onClick={() => executeCommand("formatBlock", activeBlock === "h3" ? "<p>" : "<h3>")}
+                  onClick={() =>
+                    executeCommand(
+                      "formatBlock",
+                      activeBlock === "h3" ? "<p>" : "<h3>",
+                    )
+                  }
                   title="Heading 3"
                 >
                   <Heading3 className="h-4 w-4" />
@@ -269,7 +304,12 @@ export function RichTextEditor({
                   variant="ghost"
                   size="icon"
                   className={`h-7 w-7 rounded-md ${activeBlock === "pre" ? "bg-muted text-primary font-bold border" : "text-muted-foreground"}`}
-                  onClick={() => executeCommand("formatBlock", activeBlock === "pre" ? "<p>" : "<pre>")}
+                  onClick={() =>
+                    executeCommand(
+                      "formatBlock",
+                      activeBlock === "pre" ? "<p>" : "<pre>",
+                    )
+                  }
                   title="Code block"
                 >
                   <Code className="h-4 w-4" />
@@ -300,7 +340,12 @@ export function RichTextEditor({
                   variant="ghost"
                   size="icon"
                   className={`h-7 w-7 rounded-md ${activeBlock === "blockquote" ? "bg-muted text-primary font-bold border" : "text-muted-foreground"}`}
-                  onClick={() => executeCommand("formatBlock", activeBlock === "blockquote" ? "<p>" : "<blockquote>")}
+                  onClick={() =>
+                    executeCommand(
+                      "formatBlock",
+                      activeBlock === "blockquote" ? "<p>" : "<blockquote>",
+                    )
+                  }
                   title="Quote block"
                 >
                   <Quote className="h-4 w-4" />
@@ -398,7 +443,9 @@ export function RichTextEditor({
             </>
           ) : (
             <div className="text-xs font-semibold text-muted-foreground px-2">
-              {viewMode === "preview" ? "Preview Mode (Read-only)" : "HTML Source Code Editor"}
+              {viewMode === "preview"
+                ? "Preview Mode (Read-only)"
+                : "HTML Source Code Editor"}
             </div>
           )}
         </div>
@@ -449,11 +496,15 @@ export function RichTextEditor({
             data-placeholder={placeholder}
           />
         )}
-        
+
         {viewMode === "preview" && (
           <div
             className="rich-editor-content p-4 min-h-full font-sans text-sm prose dark:prose-invert"
-            dangerouslySetInnerHTML={{ __html: value || `<p class="text-muted-foreground/60 italic">${placeholder}</p>` }}
+            dangerouslySetInnerHTML={{
+              __html:
+                value ||
+                `<p class="text-muted-foreground/60 italic">${placeholder}</p>`,
+            }}
           />
         )}
 
