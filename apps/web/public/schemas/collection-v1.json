@@ -1,0 +1,173 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Bridge Collection",
+  "description": "JSON Schema for Bridge Collection exports",
+  "type": "object",
+  "required": ["type", "name", "folders", "requests"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "type": { "type": "string", "const": "collection" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "config": {
+      "$ref": "#/definitions/scopeConfig"
+    },
+    "variables": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/keyValuePair"
+      }
+    },
+    "folders": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/folder"
+      }
+    },
+    "requests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/requestWithFolder"
+      }
+    }
+  },
+  "definitions": {
+    "keyValuePair": {
+      "type": "object",
+      "required": ["id", "key", "value", "enabled"],
+      "properties": {
+        "id": { "type": "string" },
+        "key": { "type": "string" },
+        "value": { "type": "string" },
+        "enabled": { "type": "boolean" }
+      }
+    },
+    "authConfig": {
+      "type": "object",
+      "required": ["type"],
+      "oneOf": [
+        {
+          "properties": { "type": { "const": "none" } }
+        },
+        {
+          "properties": {
+            "type": { "const": "bearer" },
+            "token": { "type": "string" }
+          },
+          "required": ["token"]
+        },
+        {
+          "properties": {
+            "type": { "const": "basic" },
+            "username": { "type": "string" },
+            "password": { "type": "string" }
+          },
+          "required": ["username", "password"]
+        },
+        {
+          "properties": {
+            "type": { "const": "apiKey" },
+            "key": { "type": "string" },
+            "value": { "type": "string" },
+            "in": { "type": "string", "enum": ["header", "query"] }
+          },
+          "required": ["key", "value", "in"]
+        }
+      ]
+    },
+    "scopeConfig": {
+      "type": "object",
+      "properties": {
+        "auth": { "$ref": "#/definitions/authConfig" },
+        "headers": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/keyValuePair" }
+        },
+        "variables": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/keyValuePair" }
+        }
+      }
+    },
+    "requestBody": {
+      "type": "object",
+      "required": ["type"],
+      "oneOf": [
+        {
+          "properties": { "type": { "const": "none" } }
+        },
+        {
+          "properties": {
+            "type": { "const": "json" },
+            "content": { "type": "string" }
+          },
+          "required": ["content"]
+        },
+        {
+          "properties": {
+            "type": { "const": "raw" },
+            "content": { "type": "string" }
+          },
+          "required": ["content"]
+        },
+        {
+          "properties": {
+            "type": { "const": "form-urlencoded" },
+            "pairs": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/keyValuePair" }
+            }
+          },
+          "required": ["pairs"]
+        },
+        {
+          "properties": {
+            "type": { "const": "form-data" },
+            "pairs": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/keyValuePair" }
+            }
+          },
+          "required": ["pairs"]
+        }
+      ]
+    },
+    "folder": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "parentFolderId": { "type": ["string", "null"] },
+        "config": { "$ref": "#/definitions/scopeConfig" }
+      }
+    },
+    "requestWithFolder": {
+      "type": "object",
+      "required": ["name", "method", "url", "headers", "queryParams", "body", "auth"],
+      "properties": {
+        "name": { "type": "string" },
+        "method": { "type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"] },
+        "url": { "type": "string" },
+        "description": { "type": "string" },
+        "operationId": { "type": "string" },
+        "headers": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/keyValuePair" }
+        },
+        "queryParams": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/keyValuePair" }
+        },
+        "pathParams": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/keyValuePair" }
+        },
+        "body": { "$ref": "#/definitions/requestBody" },
+        "auth": { "$ref": "#/definitions/authConfig" },
+        "folderId": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

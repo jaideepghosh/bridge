@@ -5,6 +5,7 @@ import { parseOpenApi } from "./parsers/openapi";
 import { parse as parseYaml } from "yaml";
 
 export * from "./types";
+export * from "./exporters";
 
 export function parseImportContent(input: string): ImportResult | null {
   const trimmed = input.trim();
@@ -20,6 +21,16 @@ export function parseImportContent(input: string): ImportResult | null {
   if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
     try {
       const parsedJson = JSON.parse(trimmed);
+
+      // Check if Bridge Collection
+      if (parsedJson && parsedJson.type === "collection" && Array.isArray(parsedJson.folders) && Array.isArray(parsedJson.requests)) {
+        return { type: "collection", data: parsedJson };
+      }
+
+      // Check if Bridge Request
+      if (parsedJson && parsedJson.type === "request" && parsedJson.method && parsedJson.url) {
+        return { type: "request", data: parsedJson };
+      }
 
       // Check if Postman
       if (parsedJson && parsedJson.info && Array.isArray(parsedJson.item)) {
@@ -58,3 +69,4 @@ export function parseImportContent(input: string): ImportResult | null {
 
   return null;
 }
+
