@@ -25,6 +25,12 @@ export interface AppState {
   selectedSidebarItem: { kind: "collection" | "folder"; id: string } | null;
   closedTabsHistory: ActiveTab[];
 
+  isLoaded: boolean;
+  collapsedCollections: string[];
+  expandedFolders: string[];
+  navigate: ((url: string) => void) | null;
+  setNavigate: (navigate: ((url: string) => void) | null) => void;
+
   loadStorage: () => void;
   setActiveEnvironmentId: (id: string | null) => void;
 
@@ -36,6 +42,11 @@ export interface AppState {
   updateTabDraft: (tabId: string, updates: Partial<ActiveTab["draft"]>) => void;
   setTabResponse: (tabId: string, response: any | null, isLoading: boolean) => void;
   selectSidebarItem: (item: { kind: "collection" | "folder"; id: string } | null) => void;
+
+  toggleCollection: (id: string) => void;
+  toggleFolder: (id: string) => void;
+  setCollectionCollapsed: (id: string, collapsed: boolean) => void;
+  setFolderExpanded: (id: string, expanded: boolean) => void;
 
   saveEnvironment: (env: Environment) => void;
   deleteEnvironment: (id: string) => void;
@@ -96,6 +107,11 @@ export function createAppStore(storage: StorageProvider): StoreApi<AppState> {
     selectedSidebarItem: null,
     closedTabsHistory: [],
 
+    isLoaded: false,
+    collapsedCollections: [],
+    expandedFolders: [],
+    navigate: null,
+
     loadStorage: () => {
       set({
         collections: storage.getCollections(),
@@ -104,6 +120,7 @@ export function createAppStore(storage: StorageProvider): StoreApi<AppState> {
         examples: storage.getExamples(),
         environments: storage.getEnvironments(),
         activeEnvironmentId: storage.getActiveEnvironmentId(),
+        isLoaded: true,
       });
       const state = get();
       if (state.activeTabs.length > 0 && !state.selectedTabId) {
@@ -193,6 +210,42 @@ export function createAppStore(storage: StorageProvider): StoreApi<AppState> {
 
     selectSidebarItem: (item) => set({ selectedSidebarItem: item }),
     selectTab: (tabId) => set({ selectedTabId: tabId }),
+
+    toggleCollection: (id) => set(state => {
+      const isCollapsed = state.collapsedCollections.includes(id);
+      return {
+        collapsedCollections: isCollapsed
+          ? state.collapsedCollections.filter(cid => cid !== id)
+          : [...state.collapsedCollections, id]
+      };
+    }),
+    toggleFolder: (id) => set(state => {
+      const isExpanded = state.expandedFolders.includes(id);
+      return {
+        expandedFolders: isExpanded
+          ? state.expandedFolders.filter(fid => fid !== id)
+          : [...state.expandedFolders, id]
+      };
+    }),
+    setCollectionCollapsed: (id, collapsed) => set(state => {
+      const isCollapsed = state.collapsedCollections.includes(id);
+      if (collapsed === isCollapsed) return {};
+      return {
+        collapsedCollections: collapsed
+          ? [...state.collapsedCollections, id]
+          : state.collapsedCollections.filter(cid => cid !== id)
+      };
+    }),
+    setFolderExpanded: (id, expanded) => set(state => {
+      const isExpanded = state.expandedFolders.includes(id);
+      if (expanded === isExpanded) return {};
+      return {
+        expandedFolders: expanded
+          ? [...state.expandedFolders, id]
+          : state.expandedFolders.filter(fid => fid !== id)
+      };
+    }),
+    setNavigate: (navigate) => set({ navigate }),
 
     updateTabDraft: (tabId, updates) => set(state => ({
       activeTabs: state.activeTabs.map(t =>
