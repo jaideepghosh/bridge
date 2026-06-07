@@ -26,8 +26,11 @@ export type SavedRequest = {
   name: string;
   method: HttpMethod;
   url: string;
+  description?: string;
+  operationId?: string;
   headers: KeyValuePair[];
   queryParams: KeyValuePair[];
+  pathParams?: KeyValuePair[];
   body: RequestBody;
   auth: AuthConfig;
   tags?: string[];
@@ -87,6 +90,7 @@ export type Environment = {
 export type Folder = {
   id: string;
   name: string;
+  description?: string;
   collectionId: string;
   parentFolderId?: string | null;
   config?: ScopeConfig;

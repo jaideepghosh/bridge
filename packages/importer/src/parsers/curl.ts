@@ -1,14 +1,5 @@
-import { HttpMethod, KeyValuePair, RequestBody, AuthConfig } from "../types";
+import { HttpMethod, KeyValuePair, RequestBody, AuthConfig, ImportedRequest } from "../types";
 import { v4 as uuidv4 } from "uuid";
-
-export type ParsedCurl = {
-  method: HttpMethod;
-  url: string;
-  headers: KeyValuePair[];
-  queryParams: KeyValuePair[];
-  body: RequestBody;
-  auth: AuthConfig;
-};
 
 function tokenize(input: string): string[] {
   const tokens: string[] = [];
@@ -81,7 +72,7 @@ function parseUrl(raw: string): { baseUrl: string; queryParams: KeyValuePair[] }
   }
 }
 
-export function parseCurl(input: string): ParsedCurl | null {
+export function parseCurl(input: string): ImportedRequest | null {
   const cleaned = input.trim().replace(/\\\n/g, " ").replace(/\\\r\n/g, " ");
   const tokens = tokenize(cleaned);
 
@@ -184,5 +175,16 @@ export function parseCurl(input: string): ParsedCurl | null {
     }
   }
 
-  return { method, url: baseUrl, headers, queryParams, body, auth };
+  const cleanUrl = baseUrl.replace(/^https?:\/\//, "").split("?")[0] || "";
+  const name = `cURL: ${method} ${cleanUrl.slice(0, 40)}`;
+
+  return {
+    name,
+    method,
+    url: baseUrl,
+    headers,
+    queryParams,
+    body,
+    auth,
+  };
 }

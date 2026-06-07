@@ -2,7 +2,6 @@
 export * from "./types";
 
 // Utils
-export * from "./utils/curl-parser";
 
 // Services
 export * from "./services/resolver";
