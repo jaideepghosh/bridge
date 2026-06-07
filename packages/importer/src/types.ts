@@ -13,6 +13,12 @@ export type AuthConfig =
   | { type: "basic"; username: string; password: string }
   | { type: "apiKey"; key: string; value: string; in: "header" | "query" };
 
+export interface ScopeConfig {
+  auth?: AuthConfig;
+  headers?: KeyValuePair[];
+  variables?: KeyValuePair[];
+}
+
 export type RequestBody =
   | { type: "none" }
   | { type: "json"; content: string }
@@ -38,11 +44,13 @@ export interface ImportedFolder {
   name: string;
   description?: string;
   parentFolderId?: string | null;
+  config?: ScopeConfig;
 }
 
 export interface ImportedCollection {
   name: string;
   description?: string;
+  config?: ScopeConfig;
   variables?: KeyValuePair[];
   folders: ImportedFolder[];
   requests: (ImportedRequest & { folderId?: string | null })[];
@@ -51,3 +59,4 @@ export interface ImportedCollection {
 export type ImportResult =
   | { type: "request"; data: ImportedRequest }
   | { type: "collection"; data: ImportedCollection };
+
