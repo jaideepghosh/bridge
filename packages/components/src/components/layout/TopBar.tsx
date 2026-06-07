@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { EnvironmentManager } from "../EnvironmentManager";
 import { ImportDialog } from "../ImportDialog";
-import { Moon, Sun, Download, Rainbow, Folder } from "lucide-react";
+import { Moon, Sun, Download, Rainbow, Folder, Monitor } from "lucide-react";
 import { Button } from "@bridge/ui";
 import { StorageDirectoryModal } from "../StorageDirectoryModal";
 import { BrowserFileSystemStorageProvider } from "../../services/storage/browserFileSystem";
@@ -12,10 +12,12 @@ export function TopBar() {
   const [showImport, setShowImport] = useState(false);
   const [workspaceDir, setWorkspaceDir] = useState<string | null>(null);
   const [showStorageModal, setShowStorageModal] = useState(false);
+  const [isWeb, setIsWeb] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       setWorkspaceDir(localStorage.getItem("bridge_storage_directory"));
+      setIsWeb(!(window as any).__TAURI_IPC__ && !(window as any).__TAURI_INTERNALS__);
     }
   }, []);
 
@@ -61,6 +63,23 @@ export function TopBar() {
         </div>
 
         <div className="flex items-center gap-2">
+          {isWeb && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs gap-1.5 font-medium border-primary/30 text-primary hover:bg-primary/5 hover:text-primary transition-all active:scale-95 cursor-pointer shadow-sm"
+              onClick={() => {
+                const currentPath = window.location.pathname.replace(/^\/+/, "");
+                const deepLinkUrl = `bridge://${currentPath}${window.location.search}`;
+                window.location.href = deepLinkUrl;
+              }}
+              title="Open this workspace/request in the native Bridge desktop app"
+            >
+              <Monitor className="h-3.5 w-3.5" />
+              <span>Open in Desktop</span>
+            </Button>
+          )}
+
           <Button
             variant="outline"
             size="sm"

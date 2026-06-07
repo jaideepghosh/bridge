@@ -43,6 +43,11 @@
         "https://github.com/jaideepghosh/bridge/releases/latest/download/latest.json"
       ],
       "dialog": true
+    },
+    "deep-link": {
+      "desktop": {
+        "schemes": ["bridge"]
+      }
     }
   }
 }
