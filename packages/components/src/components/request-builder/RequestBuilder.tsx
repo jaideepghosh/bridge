@@ -74,7 +74,7 @@ export function RequestBuilder({ checkUnreachableUrl = false }: { checkUnreachab
   const {
     activeTabs, selectedTabId, selectTab, closeTab, openTab,
     reopenLastClosedTab, updateTabDraft, setTabResponse, environments, activeEnvironmentId,
-    collections, folders, requests,
+    collections, folders, requests, navigate,
   } = useStore(s => ({
     activeTabs: s.activeTabs,
     selectedTabId: s.selectedTabId,
@@ -89,7 +89,27 @@ export function RequestBuilder({ checkUnreachableUrl = false }: { checkUnreachab
     collections: s.collections,
     folders: s.folders,
     requests: s.requests,
+    navigate: s.navigate,
   }));
+
+  const handleSelectTab = useCallback((tab: (typeof activeTabs)[0]) => {
+    if (navigate) {
+      if (tab.requestId) {
+        const req = requests.find(r => r.id === tab.requestId);
+        if (req) {
+          if (req.folderId) {
+            navigate(`/workspace/${req.collectionId}/folder/${req.folderId}/request/${req.id}`);
+          } else {
+            navigate(`/workspace/${req.collectionId}/request/${req.id}`);
+          }
+        }
+      } else {
+        navigate("/");
+      }
+    } else {
+      selectTab(tab.id);
+    }
+  }, [navigate, requests, selectTab]);
   const executeRequest = useHttpExecutor();
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [confirmCloseTabId, setConfirmCloseTabId] = useState<string | null>(null);
@@ -324,7 +344,7 @@ export function RequestBuilder({ checkUnreachableUrl = false }: { checkUnreachab
               className={`flex items-center min-w-[120px] max-w-[220px] h-9 px-3 border-r cursor-pointer text-xs transition-colors ${
                 tab.id === selectedTabId ? "bg-background border-t-2 border-t-primary" : "hover:bg-muted"
               }`}
-              onClick={() => !isRenaming && selectTab(tab.id)}
+              onClick={() => !isRenaming && handleSelectTab(tab)}
             >
               <span className={`font-bold mr-2 text-[10px] shrink-0 ${METHOD_COLORS[tab.draft.method] ?? METHOD_COLORS.GET}`}>
                 {tab.draft.method}
@@ -350,7 +370,7 @@ export function RequestBuilder({ checkUnreachableUrl = false }: { checkUnreachab
                   className="truncate flex-1 font-medium"
                   onDoubleClick={(e) => {
                     e.stopPropagation();
-                    selectTab(tab.id);
+                    handleSelectTab(tab);
                     startRename(tab.id, tab.draft.name);
                   }}
                   title="Double-click to rename"
@@ -374,7 +394,13 @@ export function RequestBuilder({ checkUnreachableUrl = false }: { checkUnreachab
         <button
           data-testid="button-new-tab"
           className="px-3 hover:bg-muted transition-colors flex items-center justify-center text-muted-foreground"
-          onClick={() => openTab()}
+          onClick={() => {
+            if (navigate) {
+              navigate("/");
+            } else {
+              openTab();
+            }
+          }}
         >
           <Plus className="h-4 w-4" />
         </button>

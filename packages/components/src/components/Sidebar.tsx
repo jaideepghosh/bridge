@@ -270,6 +270,9 @@ export function Sidebar() {
     saveRequest, saveFolder, deleteFolder, deleteRequest,
     saveExample, deleteExample,
     selectSidebarItem, selectedSidebarItem,
+    collapsedCollections, expandedFolders,
+    toggleCollection, toggleFolder, setFolderExpanded,
+    navigate,
   } = useStore(s => ({
     collections: s.collections,
     folders: s.folders,
@@ -287,11 +290,15 @@ export function Sidebar() {
     deleteExample: s.deleteExample,
     selectSidebarItem: s.selectSidebarItem,
     selectedSidebarItem: s.selectedSidebarItem,
+    collapsedCollections: s.collapsedCollections,
+    expandedFolders: s.expandedFolders,
+    toggleCollection: s.toggleCollection,
+    toggleFolder: s.toggleFolder,
+    setFolderExpanded: s.setFolderExpanded,
+    navigate: s.navigate,
   }));
 
   const [search, setSearch] = useState("");
-  const [collapsedCollections, setCollapsedCollections] = useState<Set<string>>(new Set());
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
 
   const [showNewCollection, setShowNewCollection] = useState(false);
   const [showNewFolder, setShowNewFolder] = useState(false);
@@ -301,23 +308,7 @@ export function Sidebar() {
   const dragReqId = useRef<string | null>(null);
   const [dropTarget, setDropTarget] = useState<DropTarget | null>(null);
 
-  const toggleCollection = (id: string) => {
-    setCollapsedCollections(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  };
-
-  const toggleFolder = (id: string) => {
-    setExpandedFolders(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  };
-
-  const isCollectionExpanded = (id: string) => !collapsedCollections.has(id);
+  const isCollectionExpanded = (id: string) => !collapsedCollections.includes(id);
 
   const lowerSearch = search.toLowerCase();
   const matchesSearch = (req: SavedRequest) =>
@@ -338,7 +329,7 @@ export function Sidebar() {
     if (!req) return;
     saveRequest({ ...req, collectionId: target.collectionId, folderId: target.kind === "folder" ? target.folderId : null, updatedAt: new Date().toISOString() });
     dragReqId.current = null; setDropTarget(null);
-    if (target.kind === "folder") setExpandedFolders(prev => new Set([...prev, target.folderId]));
+    if (target.kind === "folder") setFolderExpanded(target.folderId, true);
   };
   const handleDragLeave = () => setDropTarget(null);
   const handleDragEnd = () => { dragReqId.current = null; setDropTarget(null); };
@@ -458,8 +449,12 @@ export function Sidebar() {
                 <button
                   className="truncate flex-1 text-left hover:text-foreground"
                   onClick={() => {
-                    selectSidebarItem({ kind: "collection", id: collection.id });
-                    if (!isExpanded) toggleCollection(collection.id);
+                    if (navigate) {
+                      navigate(`/workspace/${collection.id}`);
+                    } else {
+                      selectSidebarItem({ kind: "collection", id: collection.id });
+                      if (!isExpanded) toggleCollection(collection.id);
+                    }
                   }}
                   title="Edit collection settings"
                 >
@@ -470,7 +465,7 @@ export function Sidebar() {
               {isExpanded && (
                 <div className="ml-3 border-l border-sidebar-border/40 pl-1 mb-0.5">
                   {folderMatches.map(folder => {
-                    const folderExpanded = expandedFolders.has(folder.id);
+                    const folderExpanded = expandedFolders.includes(folder.id);
                     const folderReqs = requests.filter(r => r.folderId === folder.id).filter(matchesSearch);
                     const folderTarget: DropTarget = { kind: "folder", folderId: folder.id, collectionId: collection.id };
 
@@ -481,8 +476,12 @@ export function Sidebar() {
                           isSelected={selectedSidebarItem?.kind === "folder" && selectedSidebarItem?.id === folder.id}
                           onToggle={() => toggleFolder(folder.id)}
                           onSelect={() => {
-                            selectSidebarItem({ kind: "folder", id: folder.id });
-                            if (!folderExpanded) toggleFolder(folder.id);
+                            if (navigate) {
+                              navigate(`/workspace/${folder.collectionId}/folder/${folder.id}`);
+                            } else {
+                              selectSidebarItem({ kind: "folder", id: folder.id });
+                              if (!folderExpanded) toggleFolder(folder.id);
+                            }
                           }}
                           onRename={(name) => handleRenameFolder(folder, name)}
                           onDelete={() => handleDeleteFolder(folder.id)}
@@ -504,7 +503,13 @@ export function Sidebar() {
                                 <RequestRow
                                   key={req.id} req={req}
                                   isActive={req.id === activeRequestId}
-                                  onClick={() => openTab(req)}
+                                  onClick={() => {
+                                    if (navigate) {
+                                      navigate(`/workspace/${req.collectionId}/folder/${req.folderId}/request/${req.id}`);
+                                    } else {
+                                      openTab(req);
+                                    }
+                                  }}
                                   onDragStart={() => handleDragStart(req.id)}
                                   onDragEnd={handleDragEnd}
                                   onRename={(name) => handleRenameRequest(req, name)}
@@ -535,7 +540,13 @@ export function Sidebar() {
                       <RequestRow
                         key={req.id} req={req}
                         isActive={req.id === activeRequestId}
-                        onClick={() => openTab(req)}
+                        onClick={() => {
+                          if (navigate) {
+                            navigate(`/workspace/${req.collectionId}/request/${req.id}`);
+                          } else {
+                            openTab(req);
+                          }
+                        }}
                         onDragStart={() => handleDragStart(req.id)}
                         onDragEnd={handleDragEnd}
                         onRename={(name) => handleRenameRequest(req, name)}
