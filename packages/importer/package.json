@@ -1,0 +1,20 @@
+{
+  "name": "@bridge/importer",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "prebuild": "node ../../scripts/sync-version.js"
+  },
+  "dependencies": {
+    "uuid": "^14.0.0",
+    "yaml": "^2.7.0"
+  },
+  "devDependencies": {
+    "@bridge/typescript-config": "*",
+    "@types/uuid": "^10.0.0",
+    "typescript": "5.9.2"
+  }
+}

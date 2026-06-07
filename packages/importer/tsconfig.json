@@ -1,0 +1,10 @@
+{
+  "extends": "@bridge/typescript-config/base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "moduleResolution": "bundler",
+    "module": "ESNext"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}
