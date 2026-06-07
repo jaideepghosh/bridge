@@ -73,6 +73,7 @@ const createBlankTab = (): ActiveTab => ({
     queryParams: [],
     body: { type: "none" },
     auth: { type: "none" },
+    description: "",
   },
 });
 
@@ -88,6 +89,7 @@ const reqToTab = (req: SavedRequest): ActiveTab => ({
     queryParams: JSON.parse(JSON.stringify(req.queryParams)),
     body: JSON.parse(JSON.stringify(req.body)),
     auth: JSON.parse(JSON.stringify(req.auth)),
+    description: req.description || "",
   },
 });
 
@@ -151,6 +153,7 @@ export function createAppStore(storage: StorageProvider): StoreApi<AppState> {
             queryParams: JSON.parse(JSON.stringify(ex.request.queryParams)),
             body: JSON.parse(JSON.stringify(ex.request.body)),
             auth: JSON.parse(JSON.stringify(ex.request.auth)),
+            description: ex.request.description || "",
           },
           response: { ...ex.response },
           isLoading: false,

@@ -23,6 +23,7 @@ import { Plus, X, Play, Save } from "lucide-react";
 import { HttpMethod, KeyValuePair, Environment } from "../../types";
 import { prepareProxyRequest, resolveInheritedConfig } from "../../services/http-client";
 import { MonacoEditor } from "../MonacoEditor";
+import { RichTextEditor } from "../RichTextEditor";
 import { CodeGeneratorDialog } from "../CodeGeneratorDialog";
 import { UrlInput } from "./UrlInput";
 import { VariableInput } from "./VariableInput";
@@ -458,6 +459,7 @@ export function RequestBuilder({ checkUnreachableUrl = false }: { checkUnreachab
         <Tabs defaultValue="params" className="w-full h-full flex flex-col">
           <div className="px-3 border-b shrink-0">
             <TabsList className="bg-transparent h-10 p-0 space-x-6">
+              <TabsTrigger value="docs" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:shadow-none px-0 py-2 text-xs">Docs</TabsTrigger>
               <TabsTrigger value="params" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:shadow-none px-0 py-2 text-xs">Params</TabsTrigger>
               <TabsTrigger value="headers" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:shadow-none px-0 py-2 text-xs">Headers</TabsTrigger>
               <TabsTrigger value="auth" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:shadow-none px-0 py-2 text-xs">Auth</TabsTrigger>
@@ -466,6 +468,13 @@ export function RequestBuilder({ checkUnreachableUrl = false }: { checkUnreachab
           </div>
 
           <div className="flex-1 overflow-y-auto">
+            <TabsContent value="docs" className="p-4 m-0 h-full border-0 flex flex-col overflow-hidden">
+              <RichTextEditor
+                value={draft.description}
+                onChange={(v) => updateDraft({ description: v })}
+                placeholder="Describe this request..."
+              />
+            </TabsContent>
             <TabsContent value="params" className="p-4 m-0 h-full border-0">
               <KeyValueTable items={draft.queryParams} onChange={(items) => updateDraft({ queryParams: items })} env={activeEnv} placeholderKey="Query Parameter" />
             </TabsContent>
