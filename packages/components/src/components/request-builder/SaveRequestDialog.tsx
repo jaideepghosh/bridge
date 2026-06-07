@@ -38,6 +38,7 @@ export function SaveRequestDialog({ open, onClose, tab }: Props) {
       queryParams: tab.draft.queryParams,
       body: tab.draft.body,
       auth: tab.draft.auth,
+      description: tab.draft.description,
       collectionId,
       folderId: folderId === "none" ? null : folderId,
       createdAt: new Date().toISOString(),

@@ -20,6 +20,7 @@ export type { ExecuteRequestFn } from "./context/http-executor";
 // Components
 export { ThemeProvider } from "./components/theme-provider";
 export { MonacoEditor } from "./components/MonacoEditor";
+export { RichTextEditor } from "./components/RichTextEditor";
 export { EnvironmentManager } from "./components/EnvironmentManager";
 export { ImportDialog } from "./components/ImportDialog";
 export { StorageDirectoryModal } from "./components/StorageDirectoryModal";

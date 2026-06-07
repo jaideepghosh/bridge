@@ -305,6 +305,7 @@ export function ImportDialog({ open, onClose }: Props) {
         queryParams: finalParsed.queryParams,
         body: finalParsed.body,
         auth: finalParsed.auth,
+        description: finalParsed.description || "",
       });
     } else {
       // It is a collection (OpenAPI or Postman)

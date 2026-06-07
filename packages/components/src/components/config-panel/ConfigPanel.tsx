@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { useStore } from "../../context/app-store";
 import { AuthConfig, KeyValuePair, ScopeConfig } from "../../types";
+import { RichTextEditor } from "../RichTextEditor";
 import { Button, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tabs, TabsContent, TabsList, TabsTrigger } from "@bridge/ui";
 import { FolderIcon, Layers, X, ChevronRight, ChevronDown, Info } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
@@ -268,6 +269,14 @@ export function ConfigPanel() {
     }
   };
 
+  const updateDescription = (desc: string) => {
+    if (isCollection && collection) {
+      saveCollection({ ...collection, description: desc, updatedAt: new Date().toISOString() });
+    } else if (folder) {
+      saveFolder({ ...folder, description: desc, updatedAt: new Date().toISOString() });
+    }
+  };
+
   const auth: AuthConfig = config.auth ?? { type: "none" };
   const headers: KeyValuePair[] = config.headers ?? [];
   const variables: KeyValuePair[] = config.variables ?? [];
@@ -309,9 +318,10 @@ export function ConfigPanel() {
         </p>
       </div>
 
-      <Tabs defaultValue="auth" className="flex-1 flex flex-col min-h-0 overflow-hidden">
+      <Tabs defaultValue="overview" className="flex-1 flex flex-col min-h-0 overflow-hidden">
         <div className="px-4 border-b shrink-0">
           <TabsList className="bg-transparent h-10 p-0 space-x-6">
+            <TabsTrigger value="overview" className={TAB_TRIGGER}>Overview</TabsTrigger>
             <TabsTrigger value="auth" className={TAB_TRIGGER}>Auth</TabsTrigger>
             <TabsTrigger value="headers" className={TAB_TRIGGER}>
               Headers{headers.filter(h => h.enabled && h.key).length > 0
@@ -325,6 +335,21 @@ export function ConfigPanel() {
         </div>
 
         <div className="flex-1 overflow-y-auto">
+          <TabsContent value="overview" className="p-4 m-0 border-0 flex flex-col h-full overflow-hidden">
+            <p className="text-xs text-muted-foreground mb-4">
+              {isCollection
+                ? "Description and documentation for this collection."
+                : "Description and documentation for this folder."}
+            </p>
+            <div className="flex-1 min-h-0">
+              <RichTextEditor
+                value={item.description || ""}
+                onChange={updateDescription}
+                placeholder="Describe this collection or folder..."
+              />
+            </div>
+          </TabsContent>
+
           <TabsContent value="auth" className="p-4 m-0 border-0">
             <p className="text-xs text-muted-foreground mb-4">
               {isCollection

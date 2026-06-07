@@ -119,6 +119,7 @@ export type ActiveTab = {
     queryParams: KeyValuePair[];
     body: RequestBody;
     auth: AuthConfig;
+    description: string;
   };
   response?: ProxyResponse | null;
   isLoading?: boolean;
