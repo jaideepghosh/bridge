@@ -23,14 +23,18 @@ This directory houses the **Tauri Desktop Application** for Bridge, a lightning-
 ## 🚀 Development Setup
 
 ### Prerequisites
+
 - Node.js >= 18
 - Rust compiler and Cargo toolchain: [Install Rust](https://www.rust-lang.org/tools/install)
 
 ### Run the Desktop development environment
+
 From the root workspace directory, run:
+
 ```bash
 npx turbo dev --filter=desktop
 ```
+
 This launches a local Vite dev server and opens the native Tauri desktop window frame with real-time hot module reloading (HMR).
 
 ---
@@ -38,7 +42,9 @@ This launches a local Vite dev server and opens the native Tauri desktop window 
 ## 📦 Compile the Desktop Application
 
 To build the native desktop bundle and compile the Rust backend:
+
 ```bash
 npx turbo build --filter=desktop
 ```
+
 This triggers a native production compiler compile and packages the application binary inside the target output.

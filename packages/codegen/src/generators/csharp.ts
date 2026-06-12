@@ -18,7 +18,9 @@ export const csharpGenerator: CodeGenerator = {
     lines.push(``);
 
     // Build request message
-    lines.push(`var request = new HttpRequestMessage(HttpMethod.${capitalizeMethod(request.method)}, "${url}");`);
+    lines.push(
+      `var request = new HttpRequestMessage(HttpMethod.${capitalizeMethod(request.method)}, "${url}");`,
+    );
 
     // Headers
     for (const [key, value] of Object.entries(headers)) {
@@ -29,31 +31,43 @@ export const csharpGenerator: CodeGenerator = {
     // Body
     switch (request.body.type) {
       case "json": {
-        const escaped = request.body.content.replace(/"/g, '\\"').replace(/\n/g, "\\n");
-        lines.push(`request.Content = new StringContent("${escaped}", Encoding.UTF8, "application/json");`);
+        const escaped = request.body.content
+          .replace(/"/g, '\\"')
+          .replace(/\n/g, "\\n");
+        lines.push(
+          `request.Content = new StringContent("${escaped}", Encoding.UTF8, "application/json");`,
+        );
         break;
       }
       case "raw": {
-        const escaped = request.body.content.replace(/"/g, '\\"').replace(/\n/g, "\\n");
+        const escaped = request.body.content
+          .replace(/"/g, '\\"')
+          .replace(/\n/g, "\\n");
         const ct = headers["Content-Type"] || "text/plain";
-        lines.push(`request.Content = new StringContent("${escaped}", Encoding.UTF8, "${ct}");`);
+        lines.push(
+          `request.Content = new StringContent("${escaped}", Encoding.UTF8, "${ct}");`,
+        );
         break;
       }
       case "form-urlencoded": {
-        const pairs = request.body.pairs.filter(p => p.enabled && p.key);
+        const pairs = request.body.pairs.filter((p) => p.enabled && p.key);
         lines.push(`request.Content = new FormUrlEncodedContent(new[]`);
         lines.push(`{`);
         for (const p of pairs) {
-          lines.push(`    new KeyValuePair<string, string>("${p.key}", "${p.value}"),`);
+          lines.push(
+            `    new KeyValuePair<string, string>("${p.key}", "${p.value}"),`,
+          );
         }
         lines.push(`});`);
         break;
       }
       case "form-data": {
-        const pairs = request.body.pairs.filter(p => p.enabled && p.key);
+        const pairs = request.body.pairs.filter((p) => p.enabled && p.key);
         lines.push(`var content = new MultipartFormDataContent();`);
         for (const p of pairs) {
-          lines.push(`content.Add(new StringContent("${p.value}"), "${p.key}");`);
+          lines.push(
+            `content.Add(new StringContent("${p.value}"), "${p.key}");`,
+          );
         }
         lines.push(`request.Content = content;`);
         break;

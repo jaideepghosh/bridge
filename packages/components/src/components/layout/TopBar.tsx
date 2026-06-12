@@ -17,7 +17,9 @@ export function TopBar() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       setWorkspaceDir(localStorage.getItem("bridge_storage_directory"));
-      setIsWeb(!(window as any).__TAURI_IPC__ && !(window as any).__TAURI_INTERNALS__);
+      setIsWeb(
+        !(window as any).__TAURI_IPC__ && !(window as any).__TAURI_INTERNALS__,
+      );
     }
   }, []);
 
@@ -36,8 +38,8 @@ export function TopBar() {
     ? workspaceDir.includes("/")
       ? workspaceDir.split("/").pop() || workspaceDir
       : workspaceDir.includes("\\")
-      ? workspaceDir.split("\\").pop() || workspaceDir
-      : workspaceDir
+        ? workspaceDir.split("\\").pop() || workspaceDir
+        : workspaceDir
     : "";
 
   return (
@@ -49,7 +51,9 @@ export function TopBar() {
 
           {workspaceDir && (
             <>
-              <span className="text-muted-foreground/30 font-light select-none">/</span>
+              <span className="text-muted-foreground/30 font-light select-none">
+                /
+              </span>
               <button
                 onClick={() => setShowStorageModal(true)}
                 className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-muted/70 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/40 transition-all active:scale-95 cursor-pointer max-w-[150px] truncate"
@@ -69,7 +73,10 @@ export function TopBar() {
               size="sm"
               className="h-8 text-xs gap-1.5 font-medium border-primary/30 text-primary hover:bg-primary/5 hover:text-primary transition-all active:scale-95 cursor-pointer shadow-sm"
               onClick={() => {
-                const currentPath = window.location.pathname.replace(/^\/+/, "");
+                const currentPath = window.location.pathname.replace(
+                  /^\/+/,
+                  "",
+                );
                 const deepLinkUrl = `bridge://${currentPath}${window.location.search}`;
                 window.location.href = deepLinkUrl;
               }}
@@ -105,7 +112,11 @@ export function TopBar() {
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             title="Toggle theme"
           >
-            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            {theme === "dark" ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
           </Button>
         </div>
       </div>

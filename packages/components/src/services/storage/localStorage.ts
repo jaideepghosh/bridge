@@ -1,4 +1,10 @@
-import { Collection, Folder, SavedRequest, ApiExample, Environment } from "../../types";
+import {
+  Collection,
+  Folder,
+  SavedRequest,
+  ApiExample,
+  Environment,
+} from "../../types";
 import { StorageProvider } from "./types";
 
 export class LocalStorageProvider implements StorageProvider {
@@ -32,63 +38,93 @@ export class LocalStorageProvider implements StorageProvider {
   }
 
   // Collections
-  getCollections(): Collection[] { return this.getItems<Collection>("collections"); }
+  getCollections(): Collection[] {
+    return this.getItems<Collection>("collections");
+  }
   saveCollection(collection: Collection) {
     const items = this.getCollections();
-    const index = items.findIndex(i => i.id === collection.id);
-    if (index >= 0) items[index] = collection; else items.push(collection);
+    const index = items.findIndex((i) => i.id === collection.id);
+    if (index >= 0) items[index] = collection;
+    else items.push(collection);
     this.saveItems("collections", items);
   }
   deleteCollection(id: string) {
-    this.saveItems("collections", this.getCollections().filter(i => i.id !== id));
+    this.saveItems(
+      "collections",
+      this.getCollections().filter((i) => i.id !== id),
+    );
   }
 
   // Folders
-  getFolders(): Folder[] { return this.getItems<Folder>("folders"); }
+  getFolders(): Folder[] {
+    return this.getItems<Folder>("folders");
+  }
   saveFolder(folder: Folder) {
     const items = this.getFolders();
-    const index = items.findIndex(i => i.id === folder.id);
-    if (index >= 0) items[index] = folder; else items.push(folder);
+    const index = items.findIndex((i) => i.id === folder.id);
+    if (index >= 0) items[index] = folder;
+    else items.push(folder);
     this.saveItems("folders", items);
   }
   deleteFolder(id: string) {
-    this.saveItems("folders", this.getFolders().filter(i => i.id !== id));
+    this.saveItems(
+      "folders",
+      this.getFolders().filter((i) => i.id !== id),
+    );
   }
 
   // Requests
-  getRequests(): SavedRequest[] { return this.getItems<SavedRequest>("requests"); }
+  getRequests(): SavedRequest[] {
+    return this.getItems<SavedRequest>("requests");
+  }
   saveRequest(request: SavedRequest) {
     const items = this.getRequests();
-    const index = items.findIndex(i => i.id === request.id);
-    if (index >= 0) items[index] = request; else items.push(request);
+    const index = items.findIndex((i) => i.id === request.id);
+    if (index >= 0) items[index] = request;
+    else items.push(request);
     this.saveItems("requests", items);
   }
   deleteRequest(id: string) {
-    this.saveItems("requests", this.getRequests().filter(i => i.id !== id));
+    this.saveItems(
+      "requests",
+      this.getRequests().filter((i) => i.id !== id),
+    );
   }
 
   // Examples
-  getExamples(): ApiExample[] { return this.getItems<ApiExample>("examples"); }
+  getExamples(): ApiExample[] {
+    return this.getItems<ApiExample>("examples");
+  }
   saveExample(example: ApiExample) {
     const items = this.getExamples();
-    const index = items.findIndex(i => i.id === example.id);
-    if (index >= 0) items[index] = example; else items.push(example);
+    const index = items.findIndex((i) => i.id === example.id);
+    if (index >= 0) items[index] = example;
+    else items.push(example);
     this.saveItems("examples", items);
   }
   deleteExample(id: string) {
-    this.saveItems("examples", this.getExamples().filter(i => i.id !== id));
+    this.saveItems(
+      "examples",
+      this.getExamples().filter((i) => i.id !== id),
+    );
   }
 
   // Environments
-  getEnvironments(): Environment[] { return this.getItems<Environment>("environments"); }
+  getEnvironments(): Environment[] {
+    return this.getItems<Environment>("environments");
+  }
   saveEnvironment(env: Environment) {
     const items = this.getEnvironments();
-    const index = items.findIndex(i => i.id === env.id);
-    if (index >= 0) items[index] = env; else items.push(env);
+    const index = items.findIndex((i) => i.id === env.id);
+    if (index >= 0) items[index] = env;
+    else items.push(env);
     this.saveItems("environments", items);
   }
   deleteEnvironment(id: string) {
-    this.saveItems("environments", this.getEnvironments().filter(i => i.id !== id));
+    this.saveItems(
+      "environments",
+      this.getEnvironments().filter((i) => i.id !== id),
+    );
   }
 
   getActiveEnvironmentId(): string | null {

@@ -9,23 +9,23 @@ export interface HealthStatus {
   status: string;
 }
 
-export type ProxyRequestInputMethod = typeof ProxyRequestInputMethod[keyof typeof ProxyRequestInputMethod];
-
+export type ProxyRequestInputMethod =
+  (typeof ProxyRequestInputMethod)[keyof typeof ProxyRequestInputMethod];
 
 export const ProxyRequestInputMethod = {
-  GET: 'GET',
-  POST: 'POST',
-  PUT: 'PUT',
-  PATCH: 'PATCH',
-  DELETE: 'DELETE',
-  OPTIONS: 'OPTIONS',
-  HEAD: 'HEAD',
+  GET: "GET",
+  POST: "POST",
+  PUT: "PUT",
+  PATCH: "PATCH",
+  DELETE: "DELETE",
+  OPTIONS: "OPTIONS",
+  HEAD: "HEAD",
 } as const;
 
 /**
  * Request headers as key-value pairs
  */
-export type ProxyRequestInputHeaders = {[key: string]: string};
+export type ProxyRequestInputHeaders = { [key: string]: string };
 
 export interface ProxyRequestInput {
   method: ProxyRequestInputMethod;
@@ -34,21 +34,21 @@ export interface ProxyRequestInput {
   /** Request headers as key-value pairs */
   headers?: ProxyRequestInputHeaders;
   /**
-     * Raw request body string
-     * @nullable
-     */
+   * Raw request body string
+   * @nullable
+   */
   body?: string | null;
   /**
-     * Timeout in milliseconds (default 30000)
-     * @nullable
-     */
+   * Timeout in milliseconds (default 30000)
+   * @nullable
+   */
   timeoutMs?: number | null;
 }
 
 /**
  * Response headers as key-value pairs
  */
-export type ProxyResponseHeaders = {[key: string]: string};
+export type ProxyResponseHeaders = { [key: string]: string };
 
 export interface ProxyResponse {
   /** HTTP status code */
@@ -64,9 +64,9 @@ export interface ProxyResponse {
   /** Response body size in bytes */
   size: number;
   /**
-     * Content-Type header from response
-     * @nullable
-     */
+   * Content-Type header from response
+   * @nullable
+   */
   contentType?: string | null;
 }
 
@@ -75,4 +75,3 @@ export interface ApiError {
   /** @nullable */
   details?: string | null;
 }
-

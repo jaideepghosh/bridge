@@ -32,45 +32,45 @@ function parseUrlParts(urlStr: string): { server: string; path: string } {
 function buildOpenApiOperation(
   req: ImportedRequest,
   tags: string[],
-  securitySchemes: Record<string, any>
+  securitySchemes: Record<string, any>,
 ): any {
   const parameters: any[] = [];
 
   // 1. Path parameters
   if (req.pathParams) {
-    req.pathParams.forEach(p => {
+    req.pathParams.forEach((p) => {
       parameters.push({
         name: p.key,
         in: "path",
         required: true,
         schema: { type: "string" },
-        example: p.value
+        example: p.value,
       });
     });
   }
 
   // 2. Query parameters
-  req.queryParams.forEach(q => {
+  req.queryParams.forEach((q) => {
     parameters.push({
       name: q.key,
       in: "query",
       required: false,
       schema: { type: "string" },
-      example: q.value
+      example: q.value,
     });
   });
 
   // 3. Headers (excluding Content-Type and Authorization)
   const skipHeaders = ["content-type", "authorization"];
   req.headers
-    .filter(h => !skipHeaders.includes(h.key.toLowerCase()))
-    .forEach(h => {
+    .filter((h) => !skipHeaders.includes(h.key.toLowerCase()))
+    .forEach((h) => {
       parameters.push({
         name: h.key,
         in: "header",
         required: false,
         schema: { type: "string" },
-        example: h.value
+        example: h.value,
       });
     });
 
@@ -88,22 +88,22 @@ function buildOpenApiOperation(
         content: {
           "application/json": {
             schema: { type: "object" },
-            example: exampleValue
-          }
-        }
+            example: exampleValue,
+          },
+        },
       };
     } else if (req.body.type === "raw") {
       requestBody = {
         content: {
           "text/plain": {
             schema: { type: "string" },
-            example: req.body.content
-          }
-        }
+            example: req.body.content,
+          },
+        },
       };
     } else if (req.body.type === "form-urlencoded") {
       const properties: Record<string, any> = {};
-      req.body.pairs.forEach(p => {
+      req.body.pairs.forEach((p) => {
         properties[p.key] = { type: "string", example: p.value };
       });
       requestBody = {
@@ -111,25 +111,29 @@ function buildOpenApiOperation(
           "application/x-www-form-urlencoded": {
             schema: {
               type: "object",
-              properties
-            }
-          }
-        }
+              properties,
+            },
+          },
+        },
       };
     } else if (req.body.type === "form-data") {
       const properties: Record<string, any> = {};
-      req.body.pairs.forEach(p => {
-        properties[p.key] = { type: "string", format: "binary", example: p.value };
+      req.body.pairs.forEach((p) => {
+        properties[p.key] = {
+          type: "string",
+          format: "binary",
+          example: p.value,
+        };
       });
       requestBody = {
         content: {
           "multipart/form-data": {
             schema: {
               type: "object",
-              properties
-            }
-          }
-        }
+              properties,
+            },
+          },
+        },
       };
     }
   }
@@ -141,20 +145,20 @@ function buildOpenApiOperation(
     if (a.type === "bearer") {
       securitySchemes["BearerAuth"] = {
         type: "http",
-        scheme: "bearer"
+        scheme: "bearer",
       };
       security.push({ BearerAuth: [] });
     } else if (a.type === "basic") {
       securitySchemes["BasicAuth"] = {
         type: "http",
-        scheme: "basic"
+        scheme: "basic",
       };
       security.push({ BasicAuth: [] });
     } else if (a.type === "apiKey") {
       securitySchemes["ApiKeyAuth"] = {
         type: "apiKey",
         name: a.key,
-        in: a.in
+        in: a.in,
       };
       security.push({ ApiKeyAuth: [] });
     }
@@ -169,10 +173,10 @@ function buildOpenApiOperation(
     requestBody,
     responses: {
       "200": {
-        description: "Successful response"
-      }
+        description: "Successful response",
+      },
     },
-    security: security.length > 0 ? security : undefined
+    security: security.length > 0 ? security : undefined,
   };
 }
 
@@ -188,14 +192,14 @@ export class OpenApiExporter implements Exporter {
 
     const getFolderTags = (folderId: string | null | undefined): string[] => {
       if (!folderId) return [];
-      const folder = collection.folders.find(f => f.id === folderId);
+      const folder = collection.folders.find((f) => f.id === folderId);
       if (!folder) return [];
       const parentTags = getFolderTags(folder.parentFolderId);
       return [...parentTags, folder.name];
     };
 
     // Process all requests
-    collection.requests.forEach(r => {
+    collection.requests.forEach((r) => {
       const { server, path } = parseUrlParts(r.url);
       serversMap.add(server);
 
@@ -214,24 +218,27 @@ export class OpenApiExporter implements Exporter {
       info: {
         title: collection.name || "Bridge Exported API",
         description: collection.description || "",
-        version: "1.0.0"
+        version: "1.0.0",
       },
-      servers: Array.from(serversMap).map(url => ({ url })),
+      servers: Array.from(serversMap).map((url) => ({ url })),
       paths,
-      components: Object.keys(securitySchemes).length > 0 ? { securitySchemes } : undefined
+      components:
+        Object.keys(securitySchemes).length > 0
+          ? { securitySchemes }
+          : undefined,
     };
 
     return {
       filename: `${collection.name || "openapi"}.json`,
       content: JSON.stringify(openapiDoc, null, 2),
-      mimeType: "application/json"
+      mimeType: "application/json",
     };
   }
 
   exportFolder(
     folder: ImportedFolder,
     subfolders: ImportedFolder[],
-    requests: (ImportedRequest & { folderId?: string | null })[]
+    requests: (ImportedRequest & { folderId?: string | null })[],
   ): ExportResult {
     const serversMap = new Set<string>();
     const securitySchemes: Record<string, any> = {};
@@ -240,13 +247,13 @@ export class OpenApiExporter implements Exporter {
     const allFolders = [folder, ...subfolders];
     const getFolderTags = (folderId: string | null | undefined): string[] => {
       if (!folderId) return [];
-      const f = allFolders.find(x => x.id === folderId);
+      const f = allFolders.find((x) => x.id === folderId);
       if (!f) return [];
       const parentTags = getFolderTags(f.parentFolderId);
       return [...parentTags, f.name];
     };
 
-    requests.forEach(r => {
+    requests.forEach((r) => {
       const { server, path } = parseUrlParts(r.url);
       serversMap.add(server);
 
@@ -265,17 +272,20 @@ export class OpenApiExporter implements Exporter {
       info: {
         title: folder.name || "Bridge Exported Folder",
         description: folder.description || "",
-        version: "1.0.0"
+        version: "1.0.0",
       },
-      servers: Array.from(serversMap).map(url => ({ url })),
+      servers: Array.from(serversMap).map((url) => ({ url })),
       paths,
-      components: Object.keys(securitySchemes).length > 0 ? { securitySchemes } : undefined
+      components:
+        Object.keys(securitySchemes).length > 0
+          ? { securitySchemes }
+          : undefined,
     };
 
     return {
       filename: `${folder.name || "folder"}.json`,
       content: JSON.stringify(openapiDoc, null, 2),
-      mimeType: "application/json"
+      mimeType: "application/json",
     };
   }
 
@@ -287,8 +297,8 @@ export class OpenApiExporter implements Exporter {
 
     const paths: Record<string, any> = {
       [path]: {
-        [method]: operation
-      }
+        [method]: operation,
+      },
     };
 
     const openapiDoc = {
@@ -296,17 +306,20 @@ export class OpenApiExporter implements Exporter {
       info: {
         title: request.name || "Bridge Exported Request",
         description: request.description || "",
-        version: "1.0.0"
+        version: "1.0.0",
       },
       servers: [{ url: server }],
       paths,
-      components: Object.keys(securitySchemes).length > 0 ? { securitySchemes } : undefined
+      components:
+        Object.keys(securitySchemes).length > 0
+          ? { securitySchemes }
+          : undefined,
     };
 
     return {
       filename: `${request.name || "request"}.json`,
       content: JSON.stringify(openapiDoc, null, 2),
-      mimeType: "application/json"
+      mimeType: "application/json",
     };
   }
 }

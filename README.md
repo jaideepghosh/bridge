@@ -57,6 +57,7 @@ Whether you're debugging a local microservice, exploring a third-party API, or b
 ## Features
 
 ### Collections & Folders
+
 Organize requests in nested collections. Drag-and-drop to reorder. Import and export as JSON.
 
 <div align="center">
@@ -64,25 +65,27 @@ Organize requests in nested collections. Drag-and-drop to reorder. Import and ex
 </div>
 
 ### Environments & Variables
-Define environments (development, staging, production) with key-value variable sets. Reference variables anywhere using `{{variableName}}` syntax — in URLs, headers, query params, auth config, and request bodies. Hover over a variable to preview its resolved value.
 
+Define environments (development, staging, production) with key-value variable sets. Reference variables anywhere using `{{variableName}}` syntax — in URLs, headers, query params, auth config, and request bodies. Hover over a variable to preview its resolved value.
 
 <div align="center">
     <img width="508" height="184" alt="image" src="https://github.com/user-attachments/assets/d91472ec-b5f9-4d68-809d-3be3ac568e33" />
 </div>
 
 ### cURL Import
+
 Paste any `curl` command. Bridge parses the method, URL, headers, and body and populates the request builder automatically.
 
 ### Request Builder
-A full-featured request editor with tabs for Params, Headers, Auth, Body (JSON, form-data, URL-encoded, raw), and Pre-request scripts.
 
+A full-featured request editor with tabs for Params, Headers, Auth, Body (JSON, form-data, URL-encoded, raw), and Pre-request scripts.
 
 <div align="center">
     <img width="1176" height="273" alt="image" src="https://github.com/user-attachments/assets/69b0e235-7a56-4a80-950b-d2eff65bd354" />
 </div>
 
 ### Response Viewer
+
 Inspect responses with syntax-highlighted JSON/XML/HTML rendering, raw view, headers panel, cookie viewer, and response time and size metrics.
 
 <div align="center">
@@ -91,18 +94,21 @@ Inspect responses with syntax-highlighted JSON/XML/HTML rendering, raw view, hea
 </div>
 
 ### Reusable Examples
+
 Save one or more response examples to any request. Use them as documentation, mocks, or test fixtures — exportable as part of your collection.
 
 ### Filesystem-Native Storage
-All your data — collections, environments, histories — is written to a single `bridge-data.json` file in a folder of your choice. No proprietary formats, no lock-in. Version-control it with Git.
 
+All your data — collections, environments, histories — is written to a single `bridge-data.json` file in a folder of your choice. No proprietary formats, no lock-in. Version-control it with Git.
 
 <div align="center">
     <img width="404" height="572" alt="image" src="https://github.com/user-attachments/assets/958bd3d2-667b-4707-bbfd-43a9a6c3849b" />
 </div>
 
 ### Tab Management
+
 Full browser-grade tab experience:
+
 - Restore closed tabs (`Ctrl+Shift+T` / `⌘⇧T`)
 - New, close, and cycle tabs with keyboard shortcuts
 - Dirty state tracking with unsaved-changes prompts
@@ -115,11 +121,11 @@ Full browser-grade tab experience:
 
 Download the latest release for your platform from the [Releases page](https://github.com/jaideepghosh/bridge/releases):
 
-| Platform | Download |
-|---|---|
-| macOS (Apple Silicon / Intel) | `.dmg` |
-| Windows | `.msi` |
-| Linux | `.AppImage` / `.deb` |
+| Platform                      | Download             |
+| ----------------------------- | -------------------- |
+| macOS (Apple Silicon / Intel) | `.dmg`               |
+| Windows                       | `.msi`               |
+| Linux                         | `.AppImage` / `.deb` |
 
 ### Web App
 
@@ -145,18 +151,18 @@ See [**Development Setup**](#development-setup) below.
 
 ### Keyboard Shortcuts
 
-| Action | macOS | Windows / Linux |
-|---|---|---|
-| New tab | `⌘T` | `Ctrl+T` |
-| Close tab | `⌘W` | `Ctrl+W` |
-| Force close tab | `⌥⌘W` | `Ctrl+Alt+W` |
-| Reopen closed tab | `⌘⇧T` | `Ctrl+Shift+T` |
-| Next tab | `⌘⇧]` | `Ctrl+Shift+]` |
-| Previous tab | `⌘⇧[` | `Ctrl+Shift+[` |
-| Jump to tab 1–8 | `⌘1`–`⌘8` | `Ctrl+1`–`Ctrl+8` |
-| Jump to last tab | `⌘9` | `Ctrl+9` |
-| Send request | `⌘↩` | `Ctrl+Enter` |
-| Save request | `⌘S` | `Ctrl+S` |
+| Action            | macOS     | Windows / Linux   |
+| ----------------- | --------- | ----------------- |
+| New tab           | `⌘T`      | `Ctrl+T`          |
+| Close tab         | `⌘W`      | `Ctrl+W`          |
+| Force close tab   | `⌥⌘W`     | `Ctrl+Alt+W`      |
+| Reopen closed tab | `⌘⇧T`     | `Ctrl+Shift+T`    |
+| Next tab          | `⌘⇧]`     | `Ctrl+Shift+]`    |
+| Previous tab      | `⌘⇧[`     | `Ctrl+Shift+[`    |
+| Jump to tab 1–8   | `⌘1`–`⌘8` | `Ctrl+1`–`Ctrl+8` |
+| Jump to last tab  | `⌘9`      | `Ctrl+9`          |
+| Send request      | `⌘↩`     | `Ctrl+Enter`      |
+| Save request      | `⌘S`      | `Ctrl+S`          |
 
 A full shortcut reference is available in-app via the **Help** footer menu.
 
@@ -180,14 +186,14 @@ bridge/
 
 **Tech stack:**
 
-| Layer | Technology |
-|---|---|
-| Web client | Next.js 15, React 19, Tailwind CSS v4 |
-| Desktop shell | Tauri v2 (Rust), Vite |
-| State management | Zustand |
-| Component library | Radix UI primitives |
-| Code editor | Monaco Editor |
-| Monorepo tooling | Turborepo, NPM Workspaces |
+| Layer             | Technology                            |
+| ----------------- | ------------------------------------- |
+| Web client        | Next.js 15, React 19, Tailwind CSS v4 |
+| Desktop shell     | Tauri v2 (Rust), Vite                 |
+| State management  | Zustand                               |
+| Component library | Radix UI primitives                   |
+| Code editor       | Monaco Editor                         |
+| Monorepo tooling  | Turborepo, NPM Workspaces             |
 
 ---
 

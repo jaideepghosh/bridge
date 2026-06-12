@@ -21,5 +21,3 @@ export function getExporter(id: string = "openapi-json"): Exporter {
   }
   return exporter;
 }
-
-

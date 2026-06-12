@@ -26,7 +26,9 @@ export const axiosGenerator: CodeGenerator = {
     }
 
     if (headerEntries.length > 0) {
-      const headerLines = headerEntries.map(([k, v]) => `    "${k}": "${v}"`).join(",\n");
+      const headerLines = headerEntries
+        .map(([k, v]) => `    "${k}": "${v}"`)
+        .join(",\n");
       config.push(`  headers: {\n${headerLines}\n  }`);
     }
 
@@ -48,9 +50,12 @@ export const axiosGenerator: CodeGenerator = {
 
 function getContentType(request: RequestDefinition): string | null {
   switch (request.body.type) {
-    case "json": return "application/json";
-    case "form-urlencoded": return "application/x-www-form-urlencoded";
-    default: return null;
+    case "json":
+      return "application/json";
+    case "form-urlencoded":
+      return "application/x-www-form-urlencoded";
+    default:
+      return null;
   }
 }
 
@@ -63,13 +68,17 @@ function getDataString(request: RequestDefinition): string | null {
     case "raw":
       return `"${request.body.content.replace(/"/g, '\\"').replace(/\n/g, "\\n")}"`;
     case "form-urlencoded": {
-      const pairs = request.body.pairs.filter(p => p.enabled && p.key);
-      const entries = pairs.map(p => `    ${p.key}: "${p.value}"`).join(",\n");
+      const pairs = request.body.pairs.filter((p) => p.enabled && p.key);
+      const entries = pairs
+        .map((p) => `    ${p.key}: "${p.value}"`)
+        .join(",\n");
       return `new URLSearchParams({\n${entries}\n  })`;
     }
     case "form-data": {
-      const pairs = request.body.pairs.filter(p => p.enabled && p.key);
-      const lines = pairs.map(p => `formData.append("${p.key}", "${p.value}");`);
+      const pairs = request.body.pairs.filter((p) => p.enabled && p.key);
+      const lines = pairs.map(
+        (p) => `formData.append("${p.key}", "${p.value}");`,
+      );
       return `(() => {\n    const formData = new FormData();\n    ${lines.join("\n    ")}\n    return formData;\n  })()`;
     }
   }

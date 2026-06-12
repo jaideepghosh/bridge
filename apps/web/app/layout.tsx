@@ -14,7 +14,8 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "Bridge",
-  description: "Lightweight REST API testing and documentation workbench built for developers. Test local and remote APIs without CORS issues using a fast desktop-grade client with collections, environments, auth, cURL import, and reusable examples.",
+  description:
+    "Lightweight REST API testing and documentation workbench built for developers. Test local and remote APIs without CORS issues using a fast desktop-grade client with collections, environments, auth, cURL import, and reusable examples.",
 };
 
 export default function RootLayout({

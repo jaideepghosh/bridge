@@ -3,10 +3,14 @@
  * Handles are stored in a database named 'bridge_db' under object store 'handles'.
  */
 
-export function saveDirectoryHandle(handle: FileSystemDirectoryHandle): Promise<void> {
+export function saveDirectoryHandle(
+  handle: FileSystemDirectoryHandle,
+): Promise<void> {
   return new Promise((resolve, reject) => {
     if (typeof window === "undefined" || !window.indexedDB) {
-      return reject(new Error("IndexedDB is not supported in this environment."));
+      return reject(
+        new Error("IndexedDB is not supported in this environment."),
+      );
     }
 
     const request = indexedDB.open("bridge_db", 1);

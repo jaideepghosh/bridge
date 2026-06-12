@@ -19,7 +19,9 @@ export const phpGenerator: CodeGenerator = {
     lines.push(`curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);`);
 
     if (request.method !== "GET") {
-      lines.push(`curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "${request.method}");`);
+      lines.push(
+        `curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "${request.method}");`,
+      );
     }
 
     // Headers
@@ -50,13 +52,18 @@ export const phpGenerator: CodeGenerator = {
         break;
       }
       case "form-urlencoded": {
-        const pairs = request.body.pairs.filter(p => p.enabled && p.key);
-        const encoded = pairs.map(p => `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`).join("&");
+        const pairs = request.body.pairs.filter((p) => p.enabled && p.key);
+        const encoded = pairs
+          .map(
+            (p) =>
+              `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`,
+          )
+          .join("&");
         lines.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, "${encoded}");`);
         break;
       }
       case "form-data": {
-        const pairs = request.body.pairs.filter(p => p.enabled && p.key);
+        const pairs = request.body.pairs.filter((p) => p.enabled && p.key);
         lines.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, [`);
         for (const p of pairs) {
           lines.push(`    "${p.key}" => "${p.value}",`);
@@ -78,8 +85,11 @@ export const phpGenerator: CodeGenerator = {
 
 function getContentType(request: RequestDefinition): string | null {
   switch (request.body.type) {
-    case "json": return "application/json";
-    case "form-urlencoded": return "application/x-www-form-urlencoded";
-    default: return null;
+    case "json":
+      return "application/json";
+    case "form-urlencoded":
+      return "application/x-www-form-urlencoded";
+    default:
+      return null;
   }
 }

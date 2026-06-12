@@ -1,6 +1,18 @@
-export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS" | "HEAD";
+export type HttpMethod =
+  | "GET"
+  | "POST"
+  | "PUT"
+  | "PATCH"
+  | "DELETE"
+  | "OPTIONS"
+  | "HEAD";
 
-export type KeyValuePair = { id: string; key: string; value: string; enabled: boolean };
+export type KeyValuePair = {
+  id: string;
+  key: string;
+  value: string;
+  enabled: boolean;
+};
 
 export type AuthConfig =
   | { type: "none" }

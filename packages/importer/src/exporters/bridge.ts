@@ -14,14 +14,14 @@ export class BridgeExporter implements Exporter {
       description: collection.description,
       config: collection.config,
       variables: collection.variables,
-      folders: collection.folders.map(f => ({
+      folders: collection.folders.map((f) => ({
         id: f.id,
         name: f.name,
         description: f.description,
         parentFolderId: f.parentFolderId,
         config: f.config,
       })),
-      requests: collection.requests.map(r => ({
+      requests: collection.requests.map((r) => ({
         name: r.name,
         method: r.method,
         url: r.url,
@@ -46,7 +46,7 @@ export class BridgeExporter implements Exporter {
   exportFolder(
     folder: ImportedFolder,
     subfolders: ImportedFolder[],
-    requests: (ImportedRequest & { folderId?: string | null })[]
+    requests: (ImportedRequest & { folderId?: string | null })[],
   ): ExportResult {
     const cleanFolder = {
       $schema: "https://bridge.jaideepghosh.com/schemas/folder-v1.json",
@@ -56,14 +56,14 @@ export class BridgeExporter implements Exporter {
       description: folder.description,
       parentFolderId: folder.parentFolderId,
       config: folder.config,
-      folders: subfolders.map(f => ({
+      folders: subfolders.map((f) => ({
         id: f.id,
         name: f.name,
         description: f.description,
         parentFolderId: f.parentFolderId,
         config: f.config,
       })),
-      requests: requests.map(r => ({
+      requests: requests.map((r) => ({
         name: r.name,
         method: r.method,
         url: r.url,

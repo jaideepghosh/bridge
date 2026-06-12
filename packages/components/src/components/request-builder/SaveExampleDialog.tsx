@@ -1,6 +1,15 @@
 import { useState } from "react";
 import { useStore } from "../../context/app-store";
-import { Button, Input, Label, Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@bridge/ui";
+import {
+  Button,
+  Input,
+  Label,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@bridge/ui";
 import { ActiveTab, ProxyResponse, ApiExample } from "../../types";
 import { v4 as uuidv4 } from "uuid";
 
@@ -12,7 +21,7 @@ type Props = {
 };
 
 export function SaveExampleDialog({ open, onClose, tab, response }: Props) {
-  const { saveExample, saveRequest, collections } = useStore(s => ({
+  const { saveExample, saveRequest, collections } = useStore((s) => ({
     saveExample: s.saveExample,
     saveRequest: s.saveRequest,
     collections: s.collections,
@@ -89,29 +98,45 @@ export function SaveExampleDialog({ open, onClose, tab, response }: Props) {
         </DialogHeader>
         <div className="space-y-4 py-2">
           <p className="text-xs text-muted-foreground">
-            Saves this request + response pair as a reusable example for documentation.
+            Saves this request + response pair as a reusable example for
+            documentation.
           </p>
           <div className="space-y-1.5">
-            <Label htmlFor="example-name" className="text-xs font-semibold">Example Name</Label>
+            <Label htmlFor="example-name" className="text-xs font-semibold">
+              Example Name
+            </Label>
             <Input
               id="example-name"
               value={name}
-              onChange={e => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value)}
               placeholder="200 OK"
               className="h-9 font-mono text-sm"
               autoFocus
-              onKeyDown={e => e.key === "Enter" && handleSave()}
+              onKeyDown={(e) => e.key === "Enter" && handleSave()}
             />
           </div>
           <div className="bg-muted/30 rounded-md p-3 text-xs font-mono space-y-1">
-            <div><span className="text-muted-foreground">method:</span> {tab.draft.method}</div>
-            <div><span className="text-muted-foreground">status:</span> {response.status} {response.statusText}</div>
-            <div><span className="text-muted-foreground">duration:</span> {response.durationMs}ms</div>
+            <div>
+              <span className="text-muted-foreground">method:</span>{" "}
+              {tab.draft.method}
+            </div>
+            <div>
+              <span className="text-muted-foreground">status:</span>{" "}
+              {response.status} {response.statusText}
+            </div>
+            <div>
+              <span className="text-muted-foreground">duration:</span>{" "}
+              {response.durationMs}ms
+            </div>
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSave} disabled={!name.trim()}>Save Example</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} disabled={!name.trim()}>
+            Save Example
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

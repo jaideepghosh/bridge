@@ -21,7 +21,9 @@ export const curlGenerator: CodeGenerator = {
     // Headers
     const headers = getAllHeaders(request);
     for (const [key, value] of Object.entries(headers)) {
-      parts.push(`-H '${escapeString(key, "single")}: ${escapeString(value, "single")}'`);
+      parts.push(
+        `-H '${escapeString(key, "single")}: ${escapeString(value, "single")}'`,
+      );
     }
 
     // Body
@@ -39,16 +41,20 @@ export const curlGenerator: CodeGenerator = {
         if (!headers["Content-Type"]) {
           parts.push(`-H 'Content-Type: application/x-www-form-urlencoded'`);
         }
-        const pairs = request.body.pairs.filter(p => p.enabled && p.key);
+        const pairs = request.body.pairs.filter((p) => p.enabled && p.key);
         for (const p of pairs) {
-          parts.push(`--data-urlencode '${escapeString(p.key, "single")}=${escapeString(p.value, "single")}'`);
+          parts.push(
+            `--data-urlencode '${escapeString(p.key, "single")}=${escapeString(p.value, "single")}'`,
+          );
         }
         break;
       }
       case "form-data": {
-        const pairs = request.body.pairs.filter(p => p.enabled && p.key);
+        const pairs = request.body.pairs.filter((p) => p.enabled && p.key);
         for (const p of pairs) {
-          parts.push(`-F '${escapeString(p.key, "single")}=${escapeString(p.value, "single")}'`);
+          parts.push(
+            `-F '${escapeString(p.key, "single")}=${escapeString(p.value, "single")}'`,
+          );
         }
         break;
       }

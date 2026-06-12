@@ -23,7 +23,9 @@ export const nodeFetchGenerator: CodeGenerator = {
     }
 
     if (headerEntries.length > 0) {
-      const headerLines = headerEntries.map(([k, v]) => `    "${k}": "${v}"`).join(",\n");
+      const headerLines = headerEntries
+        .map(([k, v]) => `    "${k}": "${v}"`)
+        .join(",\n");
       options.push(`  headers: {\n${headerLines}\n  }`);
     }
 
@@ -46,9 +48,12 @@ export const nodeFetchGenerator: CodeGenerator = {
 
 function getContentType(request: RequestDefinition): string | null {
   switch (request.body.type) {
-    case "json": return "application/json";
-    case "form-urlencoded": return "application/x-www-form-urlencoded";
-    default: return null;
+    case "json":
+      return "application/json";
+    case "form-urlencoded":
+      return "application/x-www-form-urlencoded";
+    default:
+      return null;
   }
 }
 
@@ -61,12 +66,14 @@ function getBodyString(request: RequestDefinition): string | null {
     case "raw":
       return `"${request.body.content.replace(/"/g, '\\"').replace(/\n/g, "\\n")}"`;
     case "form-urlencoded": {
-      const pairs = request.body.pairs.filter(p => p.enabled && p.key);
-      const entries = pairs.map(p => `  ["${p.key}", "${p.value}"]`).join(",\n");
+      const pairs = request.body.pairs.filter((p) => p.enabled && p.key);
+      const entries = pairs
+        .map((p) => `  ["${p.key}", "${p.value}"]`)
+        .join(",\n");
       return `new URLSearchParams([\n${entries}\n])`;
     }
     case "form-data": {
-      const pairs = request.body.pairs.filter(p => p.enabled && p.key);
+      const pairs = request.body.pairs.filter((p) => p.enabled && p.key);
       const lines = [`  const formData = new FormData();`];
       for (const p of pairs) {
         lines.push(`  formData.append("${p.key}", "${p.value}");`);

@@ -1,4 +1,10 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@bridge/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@bridge/ui/dialog";
 import { Button } from "@bridge/ui/button";
 
 type Props = {
@@ -11,7 +17,12 @@ type Props = {
   };
 };
 
-export function ExportConfirmationDialog({ open, onClose, onConfirm, target }: Props) {
+export function ExportConfirmationDialog({
+  open,
+  onClose,
+  onConfirm,
+  target,
+}: Props) {
   const getTitle = () => {
     switch (target.type) {
       case "collection":
@@ -30,15 +41,16 @@ export function ExportConfirmationDialog({ open, onClose, onConfirm, target }: P
           <DialogTitle>{getTitle()}</DialogTitle>
         </DialogHeader>
         <div className="py-4 text-sm text-muted-foreground leading-relaxed">
-          <span className="font-semibold text-foreground break-all">{target.name}</span> will be exported as a JSON file.
+          <span className="font-semibold text-foreground break-all">
+            {target.name}
+          </span>{" "}
+          will be exported as a JSON file.
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={onConfirm}>
-            Export
-          </Button>
+          <Button onClick={onConfirm}>Export</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

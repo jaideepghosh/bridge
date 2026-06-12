@@ -3,8 +3,20 @@ import { useStore } from "../../context/app-store";
 import { Button } from "@bridge/ui/button";
 import { Input } from "@bridge/ui/input";
 import { Label } from "@bridge/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@bridge/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@bridge/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@bridge/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@bridge/ui/select";
 import { SavedRequest, ActiveTab } from "../../types";
 import { v4 as uuidv4 } from "uuid";
 
@@ -15,7 +27,7 @@ type Props = {
 };
 
 export function SaveRequestDialog({ open, onClose, tab }: Props) {
-  const { collections, folders, saveRequest } = useStore(s => ({
+  const { collections, folders, saveRequest } = useStore((s) => ({
     collections: s.collections,
     folders: s.folders,
     saveRequest: s.saveRequest,
@@ -24,7 +36,9 @@ export function SaveRequestDialog({ open, onClose, tab }: Props) {
   const [collectionId, setCollectionId] = useState(collections[0]?.id || "");
   const [folderId, setFolderId] = useState<string>("none");
 
-  const availableFolders = folders.filter(f => f.collectionId === collectionId);
+  const availableFolders = folders.filter(
+    (f) => f.collectionId === collectionId,
+  );
 
   const handleSave = () => {
     if (!name.trim() || !collectionId) return;
@@ -57,30 +71,42 @@ export function SaveRequestDialog({ open, onClose, tab }: Props) {
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
-            <Label htmlFor="req-name" className="text-xs font-semibold">Request Name</Label>
+            <Label htmlFor="req-name" className="text-xs font-semibold">
+              Request Name
+            </Label>
             <Input
               id="req-name"
               value={name}
-              onChange={e => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value)}
               placeholder="My Request"
               className="h-9 font-mono text-sm"
               autoFocus
-              onKeyDown={e => e.key === "Enter" && handleSave()}
+              onKeyDown={(e) => e.key === "Enter" && handleSave()}
             />
           </div>
 
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold">Collection</Label>
             {collections.length === 0 ? (
-              <p className="text-xs text-muted-foreground">No collections yet. Create one first.</p>
+              <p className="text-xs text-muted-foreground">
+                No collections yet. Create one first.
+              </p>
             ) : (
-              <Select value={collectionId} onValueChange={v => { setCollectionId(v); setFolderId("none"); }}>
+              <Select
+                value={collectionId}
+                onValueChange={(v) => {
+                  setCollectionId(v);
+                  setFolderId("none");
+                }}
+              >
                 <SelectTrigger className="h-9 text-sm">
                   <SelectValue placeholder="Select collection" />
                 </SelectTrigger>
                 <SelectContent>
-                  {collections.map(c => (
-                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  {collections.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -96,8 +122,10 @@ export function SaveRequestDialog({ open, onClose, tab }: Props) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">No folder</SelectItem>
-                  {availableFolders.map(f => (
-                    <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
+                  {availableFolders.map((f) => (
+                    <SelectItem key={f.id} value={f.id}>
+                      {f.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -105,8 +133,12 @@ export function SaveRequestDialog({ open, onClose, tab }: Props) {
           )}
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSave} disabled={!name.trim() || !collectionId}>Save</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} disabled={!name.trim() || !collectionId}>
+            Save
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

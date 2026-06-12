@@ -39,7 +39,7 @@ function parsePathname(pathname: string) {
 }
 
 function AppLayout() {
-  const selectedSidebarItem = useStore(s => s.selectedSidebarItem);
+  const selectedSidebarItem = useStore((s) => s.selectedSidebarItem);
   const pathname = usePathname();
   const { requestId } = parsePathname(pathname);
 
@@ -52,7 +52,12 @@ function AppLayout() {
       <TopBar />
       <div className="flex-1 min-h-0">
         <ResizablePanelGroup direction="horizontal">
-          <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className="border-r">
+          <ResizablePanel
+            defaultSize={20}
+            minSize={15}
+            maxSize={30}
+            className="border-r"
+          >
             <Sidebar />
           </ResizablePanel>
           <ResizableHandle />
@@ -65,7 +70,11 @@ function AppLayout() {
                   <RequestBuilder checkUnreachableUrl />
                 </ResizablePanel>
                 <ResizableHandle />
-                <ResizablePanel defaultSize={40} minSize={20} className="border-t bg-card">
+                <ResizablePanel
+                  defaultSize={40}
+                  minSize={20}
+                  className="border-t bg-card"
+                >
                   <ResponseViewer />
                 </ResizablePanel>
               </ResizablePanelGroup>

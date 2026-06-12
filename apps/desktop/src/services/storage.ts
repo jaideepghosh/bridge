@@ -1,5 +1,10 @@
 import { appDataDir, documentDir } from "@tauri-apps/api/path";
-import { readTextFile, writeTextFile, mkdir, exists } from "@tauri-apps/plugin-fs";
+import {
+  readTextFile,
+  writeTextFile,
+  mkdir,
+  exists,
+} from "@tauri-apps/plugin-fs";
 import {
   LocalStorageProvider,
   type StorageProvider,
@@ -51,7 +56,10 @@ export class TauriStorageProvider implements StorageProvider {
       const doc = await documentDir();
       return `${doc}/Bridge`;
     } catch (err) {
-      console.error("[TauriStorageProvider] Failed to get documentDir, trying appDataDir:", err);
+      console.error(
+        "[TauriStorageProvider] Failed to get documentDir, trying appDataDir:",
+        err,
+      );
       try {
         return await appDataDir();
       } catch {
@@ -62,18 +70,26 @@ export class TauriStorageProvider implements StorageProvider {
 
   async initialize(): Promise<void> {
     if (!this.isTauri()) {
-      console.warn("[TauriStorageProvider] Not running in Tauri environment. Falling back to LocalStorageProvider.");
+      console.warn(
+        "[TauriStorageProvider] Not running in Tauri environment. Falling back to LocalStorageProvider.",
+      );
       this.fallback = new LocalStorageProvider();
       await this.fallback.initialize();
       return;
     }
 
     try {
-      let dir = typeof window !== "undefined" ? localStorage.getItem("bridge_storage_directory") : null;
+      let dir =
+        typeof window !== "undefined"
+          ? localStorage.getItem("bridge_storage_directory")
+          : null;
       if (!dir) {
         dir = await appDataDir();
       }
-      console.info("[TauriStorageProvider] running in Tauri environment. App Data Location:", dir);
+      console.info(
+        "[TauriStorageProvider] running in Tauri environment. App Data Location:",
+        dir,
+      );
       this.filePath = `${dir}/bridge-data.json`;
 
       const dirExists = await exists(dir);
@@ -91,7 +107,10 @@ export class TauriStorageProvider implements StorageProvider {
         }
       }
     } catch (err) {
-      console.error("[TauriStorageProvider] Failed to initialize Tauri storage:", err);
+      console.error(
+        "[TauriStorageProvider] Failed to initialize Tauri storage:",
+        err,
+      );
       console.warn("Falling back to LocalStorageProvider.");
       this.fallback = new LocalStorageProvider();
       await this.fallback.initialize();
@@ -119,7 +138,7 @@ export class TauriStorageProvider implements StorageProvider {
       return;
     }
     const items = [...this.data.collections];
-    const idx = items.findIndex(x => x.id === c.id);
+    const idx = items.findIndex((x) => x.id === c.id);
     if (idx >= 0) items[idx] = c;
     else items.push(c);
     this.data.collections = items;
@@ -130,7 +149,7 @@ export class TauriStorageProvider implements StorageProvider {
       this.fallback.deleteCollection(id);
       return;
     }
-    this.data.collections = this.data.collections.filter(x => x.id !== id);
+    this.data.collections = this.data.collections.filter((x) => x.id !== id);
     this.flush();
   }
 
@@ -145,7 +164,7 @@ export class TauriStorageProvider implements StorageProvider {
       return;
     }
     const items = [...this.data.folders];
-    const idx = items.findIndex(x => x.id === f.id);
+    const idx = items.findIndex((x) => x.id === f.id);
     if (idx >= 0) items[idx] = f;
     else items.push(f);
     this.data.folders = items;
@@ -156,7 +175,7 @@ export class TauriStorageProvider implements StorageProvider {
       this.fallback.deleteFolder(id);
       return;
     }
-    this.data.folders = this.data.folders.filter(x => x.id !== id);
+    this.data.folders = this.data.folders.filter((x) => x.id !== id);
     this.flush();
   }
 
@@ -171,7 +190,7 @@ export class TauriStorageProvider implements StorageProvider {
       return;
     }
     const items = [...this.data.requests];
-    const idx = items.findIndex(x => x.id === r.id);
+    const idx = items.findIndex((x) => x.id === r.id);
     if (idx >= 0) items[idx] = r;
     else items.push(r);
     this.data.requests = items;
@@ -182,7 +201,7 @@ export class TauriStorageProvider implements StorageProvider {
       this.fallback.deleteRequest(id);
       return;
     }
-    this.data.requests = this.data.requests.filter(x => x.id !== id);
+    this.data.requests = this.data.requests.filter((x) => x.id !== id);
     this.flush();
   }
 
@@ -197,7 +216,7 @@ export class TauriStorageProvider implements StorageProvider {
       return;
     }
     const items = [...this.data.examples];
-    const idx = items.findIndex(x => x.id === e.id);
+    const idx = items.findIndex((x) => x.id === e.id);
     if (idx >= 0) items[idx] = e;
     else items.push(e);
     this.data.examples = items;
@@ -208,7 +227,7 @@ export class TauriStorageProvider implements StorageProvider {
       this.fallback.deleteExample(id);
       return;
     }
-    this.data.examples = this.data.examples.filter(x => x.id !== id);
+    this.data.examples = this.data.examples.filter((x) => x.id !== id);
     this.flush();
   }
 
@@ -223,7 +242,7 @@ export class TauriStorageProvider implements StorageProvider {
       return;
     }
     const items = [...this.data.environments];
-    const idx = items.findIndex(x => x.id === e.id);
+    const idx = items.findIndex((x) => x.id === e.id);
     if (idx >= 0) items[idx] = e;
     else items.push(e);
     this.data.environments = items;
@@ -234,7 +253,7 @@ export class TauriStorageProvider implements StorageProvider {
       this.fallback.deleteEnvironment(id);
       return;
     }
-    this.data.environments = this.data.environments.filter(x => x.id !== id);
+    this.data.environments = this.data.environments.filter((x) => x.id !== id);
     this.flush();
   }
 

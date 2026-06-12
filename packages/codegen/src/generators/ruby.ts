@@ -1,5 +1,9 @@
 import type { CodeGenerator, RequestDefinition } from "../types";
-import { getAllHeaders, getEnabledParams, getAuthQueryParams } from "../utils/formatting";
+import {
+  getAllHeaders,
+  getEnabledParams,
+  getAuthQueryParams,
+} from "../utils/formatting";
 
 export const rubyGenerator: CodeGenerator = {
   id: "ruby",
@@ -8,7 +12,10 @@ export const rubyGenerator: CodeGenerator = {
 
   generate(request: RequestDefinition): string {
     const headers = getAllHeaders(request);
-    const params = [...getEnabledParams(request), ...getAuthQueryParams(request.auth)];
+    const params = [
+      ...getEnabledParams(request),
+      ...getAuthQueryParams(request.auth),
+    ];
     const lines: string[] = [];
 
     lines.push(`require "net/http"`);
@@ -20,7 +27,9 @@ export const rubyGenerator: CodeGenerator = {
     let urlExpr: string;
     if (params.length > 0) {
       lines.push(`uri = URI.parse("${request.url}")`);
-      const paramEntries = params.map(p => `  "${p.key}" => "${p.value}"`).join(",\n");
+      const paramEntries = params
+        .map((p) => `  "${p.key}" => "${p.value}"`)
+        .join(",\n");
       lines.push(`params = {\n${paramEntries}\n}`);
       lines.push(`uri.query = URI.encode_www_form(params)`);
       urlExpr = "uri";
@@ -51,24 +60,34 @@ export const rubyGenerator: CodeGenerator = {
     // Body
     switch (request.body.type) {
       case "json": {
-        lines.push(`request.body = '${request.body.content.replace(/'/g, "\\'")}'`);
+        lines.push(
+          `request.body = '${request.body.content.replace(/'/g, "\\'")}'`,
+        );
         break;
       }
       case "raw": {
-        lines.push(`request.body = '${request.body.content.replace(/'/g, "\\'")}'`);
+        lines.push(
+          `request.body = '${request.body.content.replace(/'/g, "\\'")}'`,
+        );
         break;
       }
       case "form-urlencoded": {
-        const pairs = request.body.pairs.filter(p => p.enabled && p.key);
-        const formEntries = pairs.map(p => `  ["${p.key}", "${p.value}"]`).join(",\n");
+        const pairs = request.body.pairs.filter((p) => p.enabled && p.key);
+        const formEntries = pairs
+          .map((p) => `  ["${p.key}", "${p.value}"]`)
+          .join(",\n");
         lines.push(`request.set_form_data([\n${formEntries}\n])`);
         break;
       }
       case "form-data": {
-        const pairs = request.body.pairs.filter(p => p.enabled && p.key);
-        const formEntries = pairs.map(p => `  ["${p.key}", "${p.value}"]`).join(",\n");
+        const pairs = request.body.pairs.filter((p) => p.enabled && p.key);
+        const formEntries = pairs
+          .map((p) => `  ["${p.key}", "${p.value}"]`)
+          .join(",\n");
         lines.push(`# For multipart, consider using a gem like multipart-post`);
-        lines.push(`request.set_form([\n${formEntries}\n], "multipart/form-data")`);
+        lines.push(
+          `request.set_form([\n${formEntries}\n], "multipart/form-data")`,
+        );
         break;
       }
     }
@@ -96,8 +115,11 @@ function getMethodClass(method: string): string {
 
 function getContentType(request: RequestDefinition): string | null {
   switch (request.body.type) {
-    case "json": return "application/json";
-    case "form-urlencoded": return "application/x-www-form-urlencoded";
-    default: return null;
+    case "json":
+      return "application/json";
+    case "form-urlencoded":
+      return "application/x-www-form-urlencoded";
+    default:
+      return null;
   }
 }

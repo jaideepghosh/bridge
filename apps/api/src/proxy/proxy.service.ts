@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException, RequestTimeoutException, BadGatewayException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  RequestTimeoutException,
+  BadGatewayException,
+} from '@nestjs/common';
 import { ExecuteRequestDto, ExecuteResponseDto } from './proxy.dto';
 
 @Injectable()

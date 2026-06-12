@@ -5,6 +5,7 @@ Loaded by the bridge-monorepo-dev skill when extra detail is needed.
 ---
 
 ## Table of Contents
+
 1. [Package naming & scope](#naming)
 2. [TypeScript config inheritance](#tsconfig)
 3. [Storage backends in components](#storage)
@@ -21,13 +22,16 @@ Loaded by the bridge-monorepo-dev skill when extra detail is needed.
 
 Read the `"name"` field in existing `package.json` files to confirm the scope.
 Based on the tree, packages appear to use a consistent scope — check:
+
 ```bash
 grep '"name"' packages/*/package.json
 ```
+
 Common patterns seen in monorepos like this: `@bridge/*`, `@repo/*`, or unscoped.
 **Always match whatever is already there.**
 
 File naming:
+
 - React components: `PascalCase.tsx` (e.g. `RequestBuilder.tsx`)
 - Services / utilities: `camelCase.ts` (e.g. `http-client.ts`, `curl-parser.ts`)
 - Hooks: `useCapitalCamel.ts` (e.g. `useAppVersion.ts`)
@@ -45,6 +49,7 @@ packages/typescript-config/
 ```
 
 Rules:
+
 - `apps/api` → extends `base.json` (NestJS, no JSX)
 - `apps/web` → extends `nextjs.json`
 - `apps/desktop` → its own tsconfig (Vite/Tauri handles it); check `tsconfig.json` +
@@ -64,16 +69,17 @@ Check the existing one before creating a new variant.
 
 `packages/components/src/services/storage/` has four backends:
 
-| File | Backend | Used by |
-|------|---------|---------|
-| `indexedDb.ts` | IndexedDB | Web browser (persistent) |
-| `localStorage.ts` | localStorage | Web browser (simple KV) |
-| `browserFileSystem.ts` | File System Access API | Web (file-based collections) |
-| `apiStorage.ts` | Remote API (`apps/api`) | Web (server-side storage) |
+| File                   | Backend                 | Used by                      |
+| ---------------------- | ----------------------- | ---------------------------- |
+| `indexedDb.ts`         | IndexedDB               | Web browser (persistent)     |
+| `localStorage.ts`      | localStorage            | Web browser (simple KV)      |
+| `browserFileSystem.ts` | File System Access API  | Web (file-based collections) |
+| `apiStorage.ts`        | Remote API (`apps/api`) | Web (server-side storage)    |
 
 `types.ts` defines the `StorageBackend` interface that all four implement.
 
 When adding a **new storage backend**:
+
 1. Create `packages/components/src/services/storage/<name>.ts` implementing `StorageBackend`
 2. Export it from `storage/types.ts` or a new barrel
 3. Register it in `context/app-store.tsx` where the active backend is selected
@@ -90,6 +96,7 @@ Inspect it to understand the shape before adding new state — it's likely Zusta
 React context + useReducer.
 
 Rules:
+
 - App-wide state (active request, collections, environment variables, etc.) → `app-store.tsx`
 - HTTP execution state (loading, response, error) → `http-executor.tsx`
 - Local component state → `useState` inside the component, not in the store
@@ -101,6 +108,7 @@ Rules:
 Two paths exist:
 
 **Web (`apps/web`):**
+
 ```
 services/proxy-executor.ts
   → app/api/proxy/execute/route.ts   (Next.js API route)
@@ -109,16 +117,19 @@ services/proxy-executor.ts
 ```
 
 **Desktop (`apps/desktop`):**
+
 ```
 services/http-executor.ts
   → direct HTTP via Tauri (no proxy needed — native HTTP)
 ```
 
 **Shared (`packages/components`):**
+
 - `services/http-client.ts` — abstract HTTP client interface
 - `context/http-executor.tsx` — React context that injects the right executor
 
 When adding new HTTP functionality:
+
 1. Define the interface change in `packages/components/src/services/http-client.ts`
 2. Implement for web in `apps/web/services/`
 3. Implement for desktop in `apps/desktop/src/services/`
@@ -128,12 +139,12 @@ When adding new HTTP functionality:
 
 ## 6. Tauri vs Web differences <a name="tauri-web"></a>
 
-| Capability | Web (`apps/web`) | Desktop (`apps/desktop`) |
-|------------|-----------------|--------------------------|
-| HTTP requests | Via NestJS proxy (CORS bypass) | Native Tauri HTTP plugin |
-| File storage | File System Access API / IndexedDB | OS filesystem via Tauri |
-| App version | API call | `@tauri-apps/api` |
-| OS access | None | Tauri commands (Rust) |
+| Capability    | Web (`apps/web`)                   | Desktop (`apps/desktop`) |
+| ------------- | ---------------------------------- | ------------------------ |
+| HTTP requests | Via NestJS proxy (CORS bypass)     | Native Tauri HTTP plugin |
+| File storage  | File System Access API / IndexedDB | OS filesystem via Tauri  |
+| App version   | API call                           | `@tauri-apps/api`        |
+| OS access     | None                               | Tauri commands (Rust)    |
 
 `packages/components` is consumed by **both** — never put platform-specific code there.
 Use the `http-executor` context to inject the right executor per platform.
@@ -148,8 +159,8 @@ a new generator. Expected shape (inferred from the generator files):
 ```typescript
 // types.ts (verify actual interface before implementing)
 export interface CodeGenerator {
-  id: string;           // e.g. "python-requests"
-  label: string;        // e.g. "Python (requests)"
+  id: string; // e.g. "python-requests"
+  label: string; // e.g. "Python (requests)"
   generate(request: HttpRequest): string;
 }
 ```
@@ -166,6 +177,7 @@ Each generator file in `src/generators/` exports one object/class matching this 
 `apps/api/prisma.config.ts` — Prisma client config.
 
 After any schema change:
+
 ```bash
 cd apps/api
 npx prisma generate          # regenerate client
@@ -173,6 +185,7 @@ npx prisma migrate dev       # create & apply migration (dev only)
 ```
 
 NestJS module anatomy (follow `apps/api/src/proxy/` as the canonical example):
+
 ```
 proxy.module.ts     ← @Module({ controllers, providers })
 proxy.controller.ts ← @Controller, @Get/@Post, uses DTOs
@@ -186,6 +199,7 @@ proxy.dto.ts        ← class-validator DTOs for request bodies
 
 `scripts/sync-version.js` synchronises the version field across all `package.json` files.
 Run it after bumping the root version:
+
 ```bash
 node scripts/sync-version.js
 ```
