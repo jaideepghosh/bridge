@@ -59,19 +59,19 @@ function parsePathname(pathname: string) {
 }
 
 function DeepLinkSync() {
-  const isLoaded = useStore(s => s.isLoaded);
-  const collections = useStore(s => s.collections);
-  const folders = useStore(s => s.folders);
-  const requests = useStore(s => s.requests);
-  const activeTabs = useStore(s => s.activeTabs);
-  const selectedTabId = useStore(s => s.selectedTabId);
-  const selectedSidebarItem = useStore(s => s.selectedSidebarItem);
+  const isLoaded = useStore((s) => s.isLoaded);
+  const collections = useStore((s) => s.collections);
+  const folders = useStore((s) => s.folders);
+  const requests = useStore((s) => s.requests);
+  const activeTabs = useStore((s) => s.activeTabs);
+  const selectedTabId = useStore((s) => s.selectedTabId);
+  const selectedSidebarItem = useStore((s) => s.selectedSidebarItem);
 
-  const openTab = useStore(s => s.openTab);
-  const selectTab = useStore(s => s.selectTab);
-  const selectSidebarItem = useStore(s => s.selectSidebarItem);
-  const setCollectionCollapsed = useStore(s => s.setCollectionCollapsed);
-  const setFolderExpanded = useStore(s => s.setFolderExpanded);
+  const openTab = useStore((s) => s.openTab);
+  const selectTab = useStore((s) => s.selectTab);
+  const selectSidebarItem = useStore((s) => s.selectSidebarItem);
+  const setCollectionCollapsed = useStore((s) => s.setCollectionCollapsed);
+  const setFolderExpanded = useStore((s) => s.setFolderExpanded);
 
   const startUrlProcessedRef = useRef(false);
   const stateRef = useRef({
@@ -122,11 +122,15 @@ function DeepLinkSync() {
 
       // Sync Request Tab
       if (requestId) {
-        const req = state.requests.find(r => r.id === requestId);
+        const req = state.requests.find((r) => r.id === requestId);
         if (req) {
-          const activeTab = state.activeTabs.find(t => t.id === state.selectedTabId);
+          const activeTab = state.activeTabs.find(
+            (t) => t.id === state.selectedTabId,
+          );
           if (activeTab?.requestId !== requestId) {
-            const existingTab = state.activeTabs.find(t => t.requestId === requestId);
+            const existingTab = state.activeTabs.find(
+              (t) => t.requestId === requestId,
+            );
             if (existingTab) {
               state.selectTab(existingTab.id);
             } else {
@@ -135,9 +139,11 @@ function DeepLinkSync() {
           }
         }
       } else {
-        const activeTab = state.activeTabs.find(t => t.id === state.selectedTabId);
+        const activeTab = state.activeTabs.find(
+          (t) => t.id === state.selectedTabId,
+        );
         if (activeTab?.requestId) {
-          const blankTab = state.activeTabs.find(t => !t.requestId);
+          const blankTab = state.activeTabs.find((t) => !t.requestId);
           if (blankTab) {
             state.selectTab(blankTab.id);
           } else {
@@ -148,11 +154,17 @@ function DeepLinkSync() {
 
       // Sync Sidebar selection
       if (folderId) {
-        if (state.selectedSidebarItem?.kind !== "folder" || state.selectedSidebarItem?.id !== folderId) {
+        if (
+          state.selectedSidebarItem?.kind !== "folder" ||
+          state.selectedSidebarItem?.id !== folderId
+        ) {
           state.selectSidebarItem({ kind: "folder", id: folderId });
         }
       } else if (workspaceId && !requestId) {
-        if (state.selectedSidebarItem?.kind !== "collection" || state.selectedSidebarItem?.id !== workspaceId) {
+        if (
+          state.selectedSidebarItem?.kind !== "collection" ||
+          state.selectedSidebarItem?.id !== workspaceId
+        ) {
           state.selectSidebarItem({ kind: "collection", id: workspaceId });
         }
       } else {
@@ -206,11 +218,11 @@ function DeepLinkSync() {
 }
 
 function AppLayout() {
-  const selectedSidebarItem = useStore(s => s.selectedSidebarItem);
-  const activeTabs = useStore(s => s.activeTabs);
-  const selectedTabId = useStore(s => s.selectedTabId);
+  const selectedSidebarItem = useStore((s) => s.selectedSidebarItem);
+  const activeTabs = useStore((s) => s.activeTabs);
+  const selectedTabId = useStore((s) => s.selectedTabId);
 
-  const activeTab = activeTabs.find(t => t.id === selectedTabId);
+  const activeTab = activeTabs.find((t) => t.id === selectedTabId);
   const hasActiveRequest = !!activeTab?.requestId;
   const showConfigPanel = selectedSidebarItem && !hasActiveRequest;
 
@@ -219,7 +231,12 @@ function AppLayout() {
       <TopBar />
       <div className="flex-1 min-h-0">
         <ResizablePanelGroup direction="horizontal">
-          <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className="border-r">
+          <ResizablePanel
+            defaultSize={20}
+            minSize={15}
+            maxSize={30}
+            className="border-r"
+          >
             <Sidebar />
           </ResizablePanel>
           <ResizableHandle />
@@ -232,7 +249,11 @@ function AppLayout() {
                   <RequestBuilder />
                 </ResizablePanel>
                 <ResizableHandle />
-                <ResizablePanel defaultSize={40} minSize={20} className="border-t bg-card">
+                <ResizablePanel
+                  defaultSize={40}
+                  minSize={20}
+                  className="border-t bg-card"
+                >
                   <ResponseViewer />
                 </ResizablePanel>
               </ResizablePanelGroup>
@@ -261,4 +282,3 @@ export default function App() {
     </ThemeProvider>
   );
 }
-

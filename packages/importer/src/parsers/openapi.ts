@@ -1,4 +1,12 @@
-import { HttpMethod, KeyValuePair, RequestBody, AuthConfig, ImportedRequest, ImportedFolder, ImportedCollection } from "../types";
+import {
+  HttpMethod,
+  KeyValuePair,
+  RequestBody,
+  AuthConfig,
+  ImportedRequest,
+  ImportedFolder,
+  ImportedCollection,
+} from "../types";
 import { v4 as uuidv4 } from "uuid";
 import { parse as parseYaml } from "yaml";
 
@@ -151,9 +159,19 @@ export function parseOpenApi(input: string): ImportedCollection | null {
     if (!pathItem || typeof pathItem !== "object") continue;
 
     // Parameters defined at path-level
-    const pathParamsList = Array.isArray(pathItem.parameters) ? pathItem.parameters : [];
+    const pathParamsList = Array.isArray(pathItem.parameters)
+      ? pathItem.parameters
+      : [];
 
-    const methods: HttpMethod[] = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"];
+    const methods: HttpMethod[] = [
+      "GET",
+      "POST",
+      "PUT",
+      "PATCH",
+      "DELETE",
+      "OPTIONS",
+      "HEAD",
+    ];
     for (const m of methods) {
       const methodKey = m.toLowerCase();
       const op = pathItem[methodKey];
@@ -183,7 +201,10 @@ export function parseOpenApi(input: string): ImportedCollection | null {
         const kv: KeyValuePair = {
           id: uuidv4(),
           key: param.name,
-          value: param.schema?.default !== undefined ? String(param.schema.default) : "",
+          value:
+            param.schema?.default !== undefined
+              ? String(param.schema.default)
+              : "",
           enabled: param.required === true,
         };
 
@@ -213,13 +234,16 @@ export function parseOpenApi(input: string): ImportedCollection | null {
               defaultBody = JSON.stringify(schema.example, null, 2);
             } else if (schema.properties) {
               const mock: Record<string, any> = {};
-              Object.keys(schema.properties).forEach(prop => {
+              Object.keys(schema.properties).forEach((prop) => {
                 const propSchema = schema.properties[prop];
                 if (propSchema.default !== undefined) {
                   mock[prop] = propSchema.default;
                 } else if (propSchema.type === "string") {
                   mock[prop] = "";
-                } else if (propSchema.type === "number" || propSchema.type === "integer") {
+                } else if (
+                  propSchema.type === "number" ||
+                  propSchema.type === "integer"
+                ) {
                   mock[prop] = 0;
                 } else if (propSchema.type === "boolean") {
                   mock[prop] = false;
@@ -232,15 +256,19 @@ export function parseOpenApi(input: string): ImportedCollection | null {
           }
           body = { type: "json", content: defaultBody || "{}" };
         } else if (content["application/x-www-form-urlencoded"]) {
-          const urlencSchema = content["application/x-www-form-urlencoded"]?.schema || {};
+          const urlencSchema =
+            content["application/x-www-form-urlencoded"]?.schema || {};
           const pairs: KeyValuePair[] = [];
           if (urlencSchema.properties) {
-            Object.keys(urlencSchema.properties).forEach(prop => {
+            Object.keys(urlencSchema.properties).forEach((prop) => {
               const propSchema = urlencSchema.properties[prop];
               pairs.push({
                 id: uuidv4(),
                 key: prop,
-                value: propSchema.default !== undefined ? String(propSchema.default) : "",
+                value:
+                  propSchema.default !== undefined
+                    ? String(propSchema.default)
+                    : "",
                 enabled: true,
               });
             });
@@ -250,12 +278,15 @@ export function parseOpenApi(input: string): ImportedCollection | null {
           const fdSchema = content["multipart/form-data"]?.schema || {};
           const pairs: KeyValuePair[] = [];
           if (fdSchema.properties) {
-            Object.keys(fdSchema.properties).forEach(prop => {
+            Object.keys(fdSchema.properties).forEach((prop) => {
               const propSchema = fdSchema.properties[prop];
               pairs.push({
                 id: uuidv4(),
                 key: prop,
-                value: propSchema.default !== undefined ? String(propSchema.default) : "",
+                value:
+                  propSchema.default !== undefined
+                    ? String(propSchema.default)
+                    : "",
                 enabled: true,
               });
             });
@@ -271,9 +302,10 @@ export function parseOpenApi(input: string): ImportedCollection | null {
             defaultBody = JSON.stringify(bodyParam.schema.example, null, 2);
           } else if (bodyParam.schema?.properties) {
             const mock: Record<string, any> = {};
-            Object.keys(bodyParam.schema.properties).forEach(prop => {
+            Object.keys(bodyParam.schema.properties).forEach((prop) => {
               const propSchema = bodyParam.schema.properties[prop];
-              mock[prop] = propSchema.default !== undefined ? propSchema.default : "";
+              mock[prop] =
+                propSchema.default !== undefined ? propSchema.default : "";
             });
             defaultBody = JSON.stringify(mock, null, 2);
           }
@@ -287,13 +319,19 @@ export function parseOpenApi(input: string): ImportedCollection | null {
 
       // Determine folder (folder is first tag, if any)
       let folderId: string | null = null;
-      if (Array.isArray(op.tags) && op.tags.length > 0 && typeof op.tags[0] === "string") {
+      if (
+        Array.isArray(op.tags) &&
+        op.tags.length > 0 &&
+        typeof op.tags[0] === "string"
+      ) {
         folderId = getFolderIdForTag(op.tags[0]);
       }
 
       // Format URL path as relative using collection-level variable: `{{baseUrl}}/path`
       const normalizedPathString = normalizePath(pathKey);
-      const url = baseUrl ? `{{baseUrl}}${normalizedPathString}` : normalizedPathString;
+      const url = baseUrl
+        ? `{{baseUrl}}${normalizedPathString}`
+        : normalizedPathString;
 
       requests.push({
         name,

@@ -1,10 +1,22 @@
 import { useState, useEffect } from "react";
 import { useStore } from "../context/app-store";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@bridge/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@bridge/ui/dialog";
 import { Button } from "@bridge/ui/button";
 import { Input } from "@bridge/ui/input";
 import { Label } from "@bridge/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@bridge/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@bridge/ui/select";
 import { Folder } from "../types";
 import { v4 as uuidv4 } from "uuid";
 
@@ -15,7 +27,10 @@ type Props = {
 };
 
 export function NewFolderDialog({ open, onClose, defaultCollectionId }: Props) {
-  const { collections, saveFolder } = useStore(s => ({ collections: s.collections, saveFolder: s.saveFolder }));
+  const { collections, saveFolder } = useStore((s) => ({
+    collections: s.collections,
+    saveFolder: s.saveFolder,
+  }));
   const [name, setName] = useState("");
   const [collectionId, setCollectionId] = useState(defaultCollectionId ?? "");
 
@@ -47,15 +62,17 @@ export function NewFolderDialog({ open, onClose, defaultCollectionId }: Props) {
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
-            <Label htmlFor="folder-name" className="text-xs font-semibold">Folder Name</Label>
+            <Label htmlFor="folder-name" className="text-xs font-semibold">
+              Folder Name
+            </Label>
             <Input
               id="folder-name"
               value={name}
-              onChange={e => setName(e.target.value)}
+              onChange={(e) => setName(e.target.value)}
               placeholder="Auth, Payments, Users…"
               className="h-9"
               autoFocus
-              onKeyDown={e => e.key === "Enter" && handleCreate()}
+              onKeyDown={(e) => e.key === "Enter" && handleCreate()}
             />
           </div>
           {collections.length > 1 && (
@@ -66,8 +83,10 @@ export function NewFolderDialog({ open, onClose, defaultCollectionId }: Props) {
                   <SelectValue placeholder="Select collection" />
                 </SelectTrigger>
                 <SelectContent>
-                  {collections.map(c => (
-                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  {collections.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -75,8 +94,15 @@ export function NewFolderDialog({ open, onClose, defaultCollectionId }: Props) {
           )}
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleCreate} disabled={!name.trim() || !collectionId}>Create</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleCreate}
+            disabled={!name.trim() || !collectionId}
+          >
+            Create
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

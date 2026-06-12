@@ -40,8 +40,13 @@ function tokenize(input: string): string[] {
         const nextChar = input[i] ?? "";
         if (nextChar === "\\" && i + 1 < input.length) {
           i++;
-          const esc: Record<string, string> = { n: "\n", t: "\t", r: "\r", "\\": "\\" };
-          str += esc[input[i] ?? ""] ?? (input[i] ?? "");
+          const esc: Record<string, string> = {
+            n: "\n",
+            t: "\t",
+            r: "\r",
+            "\\": "\\",
+          };
+          str += esc[input[i] ?? ""] ?? input[i] ?? "";
         } else {
           str += nextChar;
         }
@@ -60,7 +65,10 @@ function tokenize(input: string): string[] {
   return tokens;
 }
 
-function parseUrl(raw: string): { baseUrl: string; queryParams: KeyValuePair[] } {
+function parseUrl(raw: string): {
+  baseUrl: string;
+  queryParams: KeyValuePair[];
+} {
   try {
     const url = new URL(raw);
     const queryParams: KeyValuePair[] = [];
@@ -73,16 +81,24 @@ function parseUrl(raw: string): { baseUrl: string; queryParams: KeyValuePair[] }
     const qIdx = raw.indexOf("?");
     if (qIdx === -1) return { baseUrl: raw, queryParams: [] };
     const qs = raw.slice(qIdx + 1);
-    const queryParams: KeyValuePair[] = qs.split("&").map(pair => {
+    const queryParams: KeyValuePair[] = qs.split("&").map((pair) => {
       const [k, v] = pair.split("=");
-      return { id: uuidv4(), key: decodeURIComponent(k || ""), value: decodeURIComponent(v || ""), enabled: true };
+      return {
+        id: uuidv4(),
+        key: decodeURIComponent(k || ""),
+        value: decodeURIComponent(v || ""),
+        enabled: true,
+      };
     });
     return { baseUrl: raw.slice(0, qIdx), queryParams };
   }
 }
 
 export function parseCurl(input: string): ParsedCurl | null {
-  const cleaned = input.trim().replace(/\\\n/g, " ").replace(/\\\r\n/g, " ");
+  const cleaned = input
+    .trim()
+    .replace(/\\\n/g, " ")
+    .replace(/\\\r\n/g, " ");
   const tokens = tokenize(cleaned);
 
   if (!tokens.length || tokens[0]?.toLowerCase() !== "curl") return null;
@@ -111,7 +127,12 @@ export function parseCurl(input: string): ParsedCurl | null {
           enabled: true,
         });
       }
-    } else if (tok === "-d" || tok === "--data" || tok === "--data-raw" || tok === "--data-binary") {
+    } else if (
+      tok === "-d" ||
+      tok === "--data" ||
+      tok === "--data-raw" ||
+      tok === "--data-binary"
+    ) {
       bodyStr = tokens[++i] || "";
     } else if (tok === "-u" || tok === "--user") {
       const creds = tokens[++i] || "";
@@ -122,9 +143,21 @@ export function parseCurl(input: string): ParsedCurl | null {
       } else {
         username = creds;
       }
-    } else if (tok === "--compressed" || tok === "-s" || tok === "--silent" || tok === "-L" || tok === "--location" || tok === "--insecure" || tok === "-k") {
+    } else if (
+      tok === "--compressed" ||
+      tok === "-s" ||
+      tok === "--silent" ||
+      tok === "-L" ||
+      tok === "--location" ||
+      tok === "--insecure" ||
+      tok === "-k"
+    ) {
       // skip flags
-    } else if (tok.startsWith("http://") || tok.startsWith("https://") || tok.startsWith("{{")) {
+    } else if (
+      tok.startsWith("http://") ||
+      tok.startsWith("https://") ||
+      tok.startsWith("{{")
+    ) {
       rawUrl = tok;
     } else if (!tok.startsWith("-") && !rawUrl) {
       rawUrl = tok;
@@ -137,19 +170,33 @@ export function parseCurl(input: string): ParsedCurl | null {
 
   let body: RequestBody = { type: "none" };
   if (bodyStr !== null) {
-    const ctHeader = headers.find(h => h.key.toLowerCase() === "content-type");
+    const ctHeader = headers.find(
+      (h) => h.key.toLowerCase() === "content-type",
+    );
     const ct = ctHeader?.value?.toLowerCase() || "";
-    if (ct.includes("application/json") || (bodyStr.trim().startsWith("{") || bodyStr.trim().startsWith("["))) {
+    if (
+      ct.includes("application/json") ||
+      bodyStr.trim().startsWith("{") ||
+      bodyStr.trim().startsWith("[")
+    ) {
       try {
         JSON.parse(bodyStr);
-        body = { type: "json", content: JSON.stringify(JSON.parse(bodyStr), null, 2) };
+        body = {
+          type: "json",
+          content: JSON.stringify(JSON.parse(bodyStr), null, 2),
+        };
       } catch {
         body = { type: "raw", content: bodyStr };
       }
     } else if (ct.includes("application/x-www-form-urlencoded")) {
-      const pairs: KeyValuePair[] = bodyStr.split("&").map(pair => {
+      const pairs: KeyValuePair[] = bodyStr.split("&").map((pair) => {
         const [k, v] = pair.split("=");
-        return { id: uuidv4(), key: decodeURIComponent(k || ""), value: decodeURIComponent(v || ""), enabled: true };
+        return {
+          id: uuidv4(),
+          key: decodeURIComponent(k || ""),
+          value: decodeURIComponent(v || ""),
+          enabled: true,
+        };
       });
       body = { type: "form-urlencoded", pairs };
     } else {
@@ -165,7 +212,9 @@ export function parseCurl(input: string): ParsedCurl | null {
   if (username) {
     auth = { type: "basic", username, password };
   } else {
-    const authHeader = headers.find(h => h.key.toLowerCase() === "authorization");
+    const authHeader = headers.find(
+      (h) => h.key.toLowerCase() === "authorization",
+    );
     if (authHeader) {
       const val = authHeader.value;
       if (val.toLowerCase().startsWith("bearer ")) {
@@ -175,7 +224,11 @@ export function parseCurl(input: string): ParsedCurl | null {
         try {
           const decoded = atob(val.slice(6).trim());
           const ci = decoded.indexOf(":");
-          auth = { type: "basic", username: decoded.slice(0, ci), password: decoded.slice(ci + 1) };
+          auth = {
+            type: "basic",
+            username: decoded.slice(0, ci),
+            password: decoded.slice(ci + 1),
+          };
           headers.splice(headers.indexOf(authHeader), 1);
         } catch {
           // keep as header

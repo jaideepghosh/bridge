@@ -1,6 +1,21 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, Button, Input, Label } from "@bridge/ui";
-import { Folder, Sparkles, Database, ArrowRight, FolderOpen } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  Button,
+  Input,
+  Label,
+} from "@bridge/ui";
+import {
+  Folder,
+  Sparkles,
+  Database,
+  ArrowRight,
+  FolderOpen,
+} from "lucide-react";
 import { StorageProvider } from "../services/storage/types";
 import { saveDirectoryHandle } from "../services/storage/indexedDb";
 
@@ -11,7 +26,12 @@ type Props = {
   storage: StorageProvider;
 };
 
-export function StorageDirectoryModal({ open, onClose, forcePrompt = false, storage }: Props) {
+export function StorageDirectoryModal({
+  open,
+  onClose,
+  forcePrompt = false,
+  storage,
+}: Props) {
   const [path, setPath] = useState("");
   const [loading, setLoading] = useState(false);
   const [isTauriEnv, setIsTauriEnv] = useState(false);
@@ -19,25 +39,33 @@ export function StorageDirectoryModal({ open, onClose, forcePrompt = false, stor
 
   useEffect(() => {
     // Detect environment using both provider properties and comprehensive window inspections
-    const tauri = !!storage.isNative || (typeof window !== "undefined" && (
-      (window as any).__TAURI_IPC__ !== undefined ||
-      (window as any).__TAURI_INTERNALS__ !== undefined ||
-      (window as any).__TAURI__ !== undefined
-    ));
+    const tauri =
+      !!storage.isNative ||
+      (typeof window !== "undefined" &&
+        ((window as any).__TAURI_IPC__ !== undefined ||
+          (window as any).__TAURI_INTERNALS__ !== undefined ||
+          (window as any).__TAURI__ !== undefined));
     setIsTauriEnv(tauri);
 
     // Get current saved directory, or load default recommendation
-    const currentSaved = typeof window !== "undefined" ? localStorage.getItem("bridge_storage_directory") : null;
+    const currentSaved =
+      typeof window !== "undefined"
+        ? localStorage.getItem("bridge_storage_directory")
+        : null;
     if (currentSaved) {
       setPath(currentSaved);
     } else if (storage.getDefaultDirectory) {
       setLoading(true);
-      storage.getDefaultDirectory()
+      storage
+        .getDefaultDirectory()
         .then((def) => {
           setPath(def);
         })
         .catch((err) => {
-          console.error("[StorageDirectoryModal] Failed to get default directory:", err);
+          console.error(
+            "[StorageDirectoryModal] Failed to get default directory:",
+            err,
+          );
           setPath(tauri ? "/Users/username/Documents/Bridge" : "");
         })
         .finally(() => {
@@ -52,17 +80,19 @@ export function StorageDirectoryModal({ open, onClose, forcePrompt = false, stor
     setError(null);
     try {
       if (typeof window === "undefined" || !("showDirectoryPicker" in window)) {
-        throw new Error("Your browser does not support the File System Access API. Please use a modern chromium-based browser (Chrome, Edge) to select folders directly.");
+        throw new Error(
+          "Your browser does not support the File System Access API. Please use a modern chromium-based browser (Chrome, Edge) to select folders directly.",
+        );
       }
-      
+
       const dirHandle = await (window as any).showDirectoryPicker({
-        mode: "readwrite"
+        mode: "readwrite",
       });
-      
+
       setLoading(true);
       await saveDirectoryHandle(dirHandle);
       localStorage.setItem("bridge_storage_directory", dirHandle.name);
-      
+
       if (onClose) onClose();
       window.location.reload();
     } catch (err: any) {
@@ -81,13 +111,16 @@ export function StorageDirectoryModal({ open, onClose, forcePrompt = false, stor
       const selected = await open({
         directory: true,
         multiple: false,
-        defaultPath: path || undefined
+        defaultPath: path || undefined,
       });
       if (selected && typeof selected === "string") {
         setPath(selected);
       }
     } catch (err: any) {
-      console.error("[StorageDirectoryModal] Tauri directory selection failed:", err);
+      console.error(
+        "[StorageDirectoryModal] Tauri directory selection failed:",
+        err,
+      );
       setError(err.message || "Failed to select directory");
     }
   };
@@ -122,7 +155,8 @@ export function StorageDirectoryModal({ open, onClose, forcePrompt = false, stor
             </DialogTitle>
           </div>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Bridge needs to know where to read and write your collections, folders, environment variables, and request histories.
+            Bridge needs to know where to read and write your collections,
+            folders, environment variables, and request histories.
           </p>
         </DialogHeader>
 
@@ -134,7 +168,9 @@ export function StorageDirectoryModal({ open, onClose, forcePrompt = false, stor
             </div>
             <div className="space-y-1">
               <h4 className="text-xs font-semibold text-foreground">
-                {isTauriEnv ? "Local Directory Mode" : "Native FileSystem Access"}
+                {isTauriEnv
+                  ? "Local Directory Mode"
+                  : "Native FileSystem Access"}
               </h4>
               <p className="text-[11px] text-muted-foreground leading-relaxed">
                 {isTauriEnv
@@ -154,7 +190,9 @@ export function StorageDirectoryModal({ open, onClose, forcePrompt = false, stor
             /* Web Flow: Native Folder Selector */
             <div className="space-y-4 py-2 flex flex-col items-center">
               <div className="w-full space-y-2">
-                <Label className="text-xs font-semibold text-foreground">Selected Local Folder</Label>
+                <Label className="text-xs font-semibold text-foreground">
+                  Selected Local Folder
+                </Label>
                 <div className="flex items-center justify-between gap-3 p-3 rounded-lg border bg-muted/30">
                   <div className="flex items-center gap-2 min-w-0">
                     <Folder className="h-4 w-4 text-primary shrink-0" />
@@ -194,9 +232,16 @@ export function StorageDirectoryModal({ open, onClose, forcePrompt = false, stor
               </Button>
 
               <div className="space-y-2">
-                <Label htmlFor="storage-path" className="text-xs font-semibold tracking-tight text-foreground flex items-center justify-between">
+                <Label
+                  htmlFor="storage-path"
+                  className="text-xs font-semibold tracking-tight text-foreground flex items-center justify-between"
+                >
                   <span>Folder Directory Path</span>
-                  {loading && <span className="text-[10px] text-muted-foreground animate-pulse">Detecting...</span>}
+                  {loading && (
+                    <span className="text-[10px] text-muted-foreground animate-pulse">
+                      Detecting...
+                    </span>
+                  )}
                 </Label>
                 <div className="relative flex items-center">
                   <span className="absolute left-3 text-muted-foreground/60">
@@ -209,7 +254,9 @@ export function StorageDirectoryModal({ open, onClose, forcePrompt = false, stor
                     placeholder="/Users/username/Documents/Bridge"
                     className="pl-9 h-10 border-border/80 focus:border-primary/50 focus:ring-1 focus:ring-primary/20 text-sm font-medium tracking-normal"
                     disabled={loading}
-                    onKeyDown={(e) => e.key === "Enter" && path.trim() && handleSaveTauri()}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && path.trim() && handleSaveTauri()
+                    }
                   />
                 </div>
                 <p className="text-[10px] text-muted-foreground leading-relaxed">
@@ -222,7 +269,12 @@ export function StorageDirectoryModal({ open, onClose, forcePrompt = false, stor
 
         <DialogFooter className="mt-6 flex items-center gap-2 pt-2 border-t shrink-0">
           {!forcePrompt && onClose && (
-            <Button variant="ghost" size="sm" className="h-9 text-xs" onClick={onClose}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-9 text-xs"
+              onClick={onClose}
+            >
               Cancel
             </Button>
           )}

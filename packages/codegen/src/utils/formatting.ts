@@ -1,6 +1,8 @@
 import type { RequestDefinition, KeyValuePair, AuthConfig } from "../types";
 
-export function getEnabledHeaders(request: RequestDefinition): Record<string, string> {
+export function getEnabledHeaders(
+  request: RequestDefinition,
+): Record<string, string> {
   const headers: Record<string, string> = {};
   for (const h of request.headers) {
     if (h.enabled && h.key) {
@@ -20,7 +22,7 @@ export function buildUrl(request: RequestDefinition): string {
 
   const separator = request.url.includes("?") ? "&" : "?";
   const qs = params
-    .map(p => `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`)
+    .map((p) => `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`)
     .join("&");
   return `${request.url}${separator}${qs}`;
 }
@@ -59,23 +61,31 @@ export function buildFullUrl(request: RequestDefinition): string {
 
   const separator = request.url.includes("?") ? "&" : "?";
   const qs = params
-    .map(p => `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`)
+    .map((p) => `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`)
     .join("&");
   return `${request.url}${separator}${qs}`;
 }
 
-export function getAllHeaders(request: RequestDefinition): Record<string, string> {
+export function getAllHeaders(
+  request: RequestDefinition,
+): Record<string, string> {
   return { ...getEnabledHeaders(request), ...getAuthHeaders(request.auth) };
 }
 
-export function escapeString(str: string, quote: "single" | "double" = "double"): string {
+export function escapeString(
+  str: string,
+  quote: "single" | "double" = "double",
+): string {
   if (quote === "single") {
     return str.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
   }
   return str.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
-export function getBodyContent(request: RequestDefinition): { contentType?: string; body: string | null } {
+export function getBodyContent(request: RequestDefinition): {
+  contentType?: string;
+  body: string | null;
+} {
   switch (request.body.type) {
     case "none":
       return { body: null };
@@ -84,15 +94,28 @@ export function getBodyContent(request: RequestDefinition): { contentType?: stri
     case "raw":
       return { body: request.body.content };
     case "form-urlencoded": {
-      const pairs = request.body.pairs.filter((p: KeyValuePair) => p.enabled && p.key);
+      const pairs = request.body.pairs.filter(
+        (p: KeyValuePair) => p.enabled && p.key,
+      );
       const encoded = pairs
-        .map((p: KeyValuePair) => `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`)
+        .map(
+          (p: KeyValuePair) =>
+            `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`,
+        )
         .join("&");
-      return { contentType: "application/x-www-form-urlencoded", body: encoded };
+      return {
+        contentType: "application/x-www-form-urlencoded",
+        body: encoded,
+      };
     }
     case "form-data": {
-      const pairs = request.body.pairs.filter((p: KeyValuePair) => p.enabled && p.key);
-      return { contentType: "multipart/form-data", body: JSON.stringify(pairs) };
+      const pairs = request.body.pairs.filter(
+        (p: KeyValuePair) => p.enabled && p.key,
+      );
+      return {
+        contentType: "multipart/form-data",
+        body: JSON.stringify(pairs),
+      };
     }
   }
 }
@@ -101,6 +124,6 @@ export function indent(code: string, spaces: number): string {
   const pad = " ".repeat(spaces);
   return code
     .split("\n")
-    .map(line => (line.trim() ? pad + line : line))
+    .map((line) => (line.trim() ? pad + line : line))
     .join("\n");
 }

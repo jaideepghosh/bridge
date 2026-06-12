@@ -1,4 +1,10 @@
-import { Collection, Folder, SavedRequest, ApiExample, Environment } from "../../types";
+import {
+  Collection,
+  Folder,
+  SavedRequest,
+  ApiExample,
+  Environment,
+} from "../../types";
 
 export interface StorageProvider {
   isNative?: boolean;

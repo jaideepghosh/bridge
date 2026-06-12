@@ -3,7 +3,7 @@ import { Exporter, ExportResult } from "./types";
 
 function mapRequestToPostman(req: ImportedRequest): any {
   const method = req.method;
-  const header = req.headers.map(h => ({
+  const header = req.headers.map((h) => ({
     key: h.key,
     value: h.value,
     disabled: !h.enabled,
@@ -13,11 +13,11 @@ function mapRequestToPostman(req: ImportedRequest): any {
   if (req.queryParams.length > 0) {
     urlObj = {
       raw: req.url,
-      query: req.queryParams.map(q => ({
+      query: req.queryParams.map((q) => ({
         key: q.key,
         value: q.value,
-        disabled: !q.enabled
-      }))
+        disabled: !q.enabled,
+      })),
     };
   }
 
@@ -29,33 +29,33 @@ function mapRequestToPostman(req: ImportedRequest): any {
         raw: req.body.content,
         options: {
           raw: {
-            language: "json"
-          }
-        }
+            language: "json",
+          },
+        },
       };
     } else if (req.body.type === "raw") {
       body = {
         mode: "raw",
-        raw: req.body.content
+        raw: req.body.content,
       };
     } else if (req.body.type === "form-urlencoded") {
       body = {
         mode: "urlencoded",
-        urlencoded: req.body.pairs.map(p => ({
+        urlencoded: req.body.pairs.map((p) => ({
           key: p.key,
           value: p.value,
-          disabled: !p.enabled
-        }))
+          disabled: !p.enabled,
+        })),
       };
     } else if (req.body.type === "form-data") {
       body = {
         mode: "formdata",
-        formdata: req.body.pairs.map(p => ({
+        formdata: req.body.pairs.map((p) => ({
           key: p.key,
           value: p.value,
           disabled: !p.enabled,
-          type: "text"
-        }))
+          type: "text",
+        })),
       };
     }
   }
@@ -65,17 +65,15 @@ function mapRequestToPostman(req: ImportedRequest): any {
     if (req.auth.type === "bearer") {
       auth = {
         type: "bearer",
-        bearer: [
-          { key: "token", value: req.auth.token, type: "string" }
-        ]
+        bearer: [{ key: "token", value: req.auth.token, type: "string" }],
       };
     } else if (req.auth.type === "basic") {
       auth = {
         type: "basic",
         basic: [
           { key: "username", value: req.auth.username, type: "string" },
-          { key: "password", value: req.auth.password, type: "string" }
-        ]
+          { key: "password", value: req.auth.password, type: "string" },
+        ],
       };
     } else if (req.auth.type === "apiKey") {
       auth = {
@@ -83,8 +81,8 @@ function mapRequestToPostman(req: ImportedRequest): any {
         apikey: [
           { key: "key", value: req.auth.key, type: "string" },
           { key: "value", value: req.auth.value, type: "string" },
-          { key: "in", value: req.auth.in, type: "string" }
-        ]
+          { key: "in", value: req.auth.in, type: "string" },
+        ],
       };
     }
   }
@@ -98,18 +96,20 @@ function mapRequestToPostman(req: ImportedRequest): any {
       body,
       auth,
       description: req.description,
-    }
+    },
   };
 }
 
 function buildPostmanItems(
   folders: ImportedFolder[],
   requests: (ImportedRequest & { folderId?: string | null })[],
-  parentFolderId: string | null = null
+  parentFolderId: string | null = null,
 ): any[] {
   const items: any[] = [];
 
-  const currentFolders = folders.filter(f => f.parentFolderId === parentFolderId);
+  const currentFolders = folders.filter(
+    (f) => f.parentFolderId === parentFolderId,
+  );
   for (const f of currentFolders) {
     let folderAuth: any = undefined;
     if (f.config?.auth && f.config.auth.type !== "none") {
@@ -117,15 +117,15 @@ function buildPostmanItems(
       if (a.type === "bearer") {
         folderAuth = {
           type: "bearer",
-          bearer: [{ key: "token", value: a.token, type: "string" }]
+          bearer: [{ key: "token", value: a.token, type: "string" }],
         };
       } else if (a.type === "basic") {
         folderAuth = {
           type: "basic",
           basic: [
             { key: "username", value: a.username, type: "string" },
-            { key: "password", value: a.password, type: "string" }
-          ]
+            { key: "password", value: a.password, type: "string" },
+          ],
         };
       } else if (a.type === "apiKey") {
         folderAuth = {
@@ -133,8 +133,8 @@ function buildPostmanItems(
           apikey: [
             { key: "key", value: a.key, type: "string" },
             { key: "value", value: a.value, type: "string" },
-            { key: "in", value: a.in, type: "string" }
-          ]
+            { key: "in", value: a.in, type: "string" },
+          ],
         };
       }
     }
@@ -143,11 +143,11 @@ function buildPostmanItems(
       name: f.name,
       description: f.description,
       auth: folderAuth,
-      item: buildPostmanItems(folders, requests, f.id)
+      item: buildPostmanItems(folders, requests, f.id),
     });
   }
 
-  const currentRequests = requests.filter(r => r.folderId === parentFolderId);
+  const currentRequests = requests.filter((r) => r.folderId === parentFolderId);
   for (const r of currentRequests) {
     items.push(mapRequestToPostman(r));
   }
@@ -167,15 +167,15 @@ export class PostmanExporter implements Exporter {
       if (a.type === "bearer") {
         collectionAuth = {
           type: "bearer",
-          bearer: [{ key: "token", value: a.token, type: "string" }]
+          bearer: [{ key: "token", value: a.token, type: "string" }],
         };
       } else if (a.type === "basic") {
         collectionAuth = {
           type: "basic",
           basic: [
             { key: "username", value: a.username, type: "string" },
-            { key: "password", value: a.password, type: "string" }
-          ]
+            { key: "password", value: a.password, type: "string" },
+          ],
         };
       } else if (a.type === "apiKey") {
         collectionAuth = {
@@ -183,40 +183,45 @@ export class PostmanExporter implements Exporter {
           apikey: [
             { key: "key", value: a.key, type: "string" },
             { key: "value", value: a.value, type: "string" },
-            { key: "in", value: a.in, type: "string" }
-          ]
+            { key: "in", value: a.in, type: "string" },
+          ],
         };
       }
     }
 
-    const variables = (collection.config?.variables || collection.variables || []).map(v => ({
+    const variables = (
+      collection.config?.variables ||
+      collection.variables ||
+      []
+    ).map((v) => ({
       key: v.key,
       value: v.value,
-      type: "string"
+      type: "string",
     }));
 
     const postmanCollection = {
       info: {
         name: collection.name || "Bridge Exported Collection",
         description: collection.description || "",
-        schema: "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+        schema:
+          "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
       },
       auth: collectionAuth,
       variable: variables.length > 0 ? variables : undefined,
-      item: buildPostmanItems(collection.folders, collection.requests, null)
+      item: buildPostmanItems(collection.folders, collection.requests, null),
     };
 
     return {
       filename: `${collection.name || "collection"}.postman_collection.json`,
       content: JSON.stringify(postmanCollection, null, 2),
-      mimeType: "application/json"
+      mimeType: "application/json",
     };
   }
 
   exportFolder(
     folder: ImportedFolder,
     subfolders: ImportedFolder[],
-    requests: (ImportedRequest & { folderId?: string | null })[]
+    requests: (ImportedRequest & { folderId?: string | null })[],
   ): ExportResult {
     let folderAuth: any = undefined;
     if (folder.config?.auth && folder.config.auth.type !== "none") {
@@ -224,15 +229,15 @@ export class PostmanExporter implements Exporter {
       if (a.type === "bearer") {
         folderAuth = {
           type: "bearer",
-          bearer: [{ key: "token", value: a.token, type: "string" }]
+          bearer: [{ key: "token", value: a.token, type: "string" }],
         };
       } else if (a.type === "basic") {
         folderAuth = {
           type: "basic",
           basic: [
             { key: "username", value: a.username, type: "string" },
-            { key: "password", value: a.password, type: "string" }
-          ]
+            { key: "password", value: a.password, type: "string" },
+          ],
         };
       } else if (a.type === "apiKey") {
         folderAuth = {
@@ -240,8 +245,8 @@ export class PostmanExporter implements Exporter {
           apikey: [
             { key: "key", value: a.key, type: "string" },
             { key: "value", value: a.value, type: "string" },
-            { key: "in", value: a.in, type: "string" }
-          ]
+            { key: "in", value: a.in, type: "string" },
+          ],
         };
       }
     }
@@ -250,22 +255,23 @@ export class PostmanExporter implements Exporter {
       info: {
         name: folder.name || "Bridge Exported Folder",
         description: folder.description || "",
-        schema: "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+        schema:
+          "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
       },
       item: [
         {
           name: folder.name,
           description: folder.description,
           auth: folderAuth,
-          item: buildPostmanItems(subfolders, requests, folder.id)
-        }
-      ]
+          item: buildPostmanItems(subfolders, requests, folder.id),
+        },
+      ],
     };
 
     return {
       filename: `${folder.name || "folder"}.postman_collection.json`,
       content: JSON.stringify(postmanCollection, null, 2),
-      mimeType: "application/json"
+      mimeType: "application/json",
     };
   }
 
@@ -273,17 +279,16 @@ export class PostmanExporter implements Exporter {
     const postmanCollection = {
       info: {
         name: request.name || "Bridge Exported Request",
-        schema: "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+        schema:
+          "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
       },
-      item: [
-        mapRequestToPostman(request)
-      ]
+      item: [mapRequestToPostman(request)],
     };
 
     return {
       filename: `${request.name || "request"}.postman_collection.json`,
       content: JSON.stringify(postmanCollection, null, 2),
-      mimeType: "application/json"
+      mimeType: "application/json",
     };
   }
 }

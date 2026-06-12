@@ -12,10 +12,17 @@ export { BrowserFileSystemStorageProvider } from "./services/storage/browserFile
 export { ApiStorageProvider } from "./services/storage/apiStorage";
 
 // Context + Store
-export { AppStoreProvider, useStore, createAppStore } from "./context/app-store";
+export {
+  AppStoreProvider,
+  useStore,
+  createAppStore,
+} from "./context/app-store";
 export type { AppState } from "./context/app-store";
 export { HttpExecutorProvider, useHttpExecutor } from "./context/http-executor";
-export type { ExecuteRequestFn } from "./context/http-executor";
+export type {
+  ExecuteRequestFn,
+  ExecuteRequestOptions,
+} from "./context/http-executor";
 
 // Components
 export { ThemeProvider } from "./components/theme-provider";

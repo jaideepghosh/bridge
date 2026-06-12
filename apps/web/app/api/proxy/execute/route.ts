@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
         error: "Invalid request body",
         details: parsed.error.message,
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -30,6 +30,16 @@ export async function POST(req: NextRequest) {
   const start = Date.now();
 
   const controller = new AbortController();
+
+  if (req.signal) {
+    if (req.signal.aborted) {
+      controller.abort();
+    } else {
+      req.signal.addEventListener("abort", () => {
+        controller.abort();
+      });
+    }
+  }
 
   const timer = setTimeout(() => {
     controller.abort();
@@ -50,29 +60,29 @@ export async function POST(req: NextRequest) {
 
     const response = await fetch(url, fetchOptions);
 
-    const durationMs = Date.now() - start;
-
-    const responseHeaders: Record<string, string> = {};
-
+    const resHeaders = new Headers();
     response.headers.forEach((value, key) => {
-      responseHeaders[key] = value;
+      const lower = key.toLowerCase();
+      if (
+        lower === "content-encoding" ||
+        lower === "transfer-encoding" ||
+        lower === "connection" ||
+        lower === "keep-alive" ||
+        lower === "content-length"
+      ) {
+        return;
+      }
+      resHeaders.set(key, value);
     });
 
-    const responseBody = await response.text();
+    resHeaders.set("Connection", "keep-alive");
+    resHeaders.set("Cache-Control", "no-cache, no-transform");
+    resHeaders.set("X-Accel-Buffering", "no");
 
-    const size = Buffer.byteLength(responseBody, "utf8");
-
-    const contentType =
-      response.headers.get("content-type") ?? null;
-
-    return NextResponse.json({
+    return new NextResponse(response.body, {
       status: response.status,
       statusText: response.statusText,
-      headers: responseHeaders,
-      body: responseBody,
-      durationMs,
-      size,
-      contentType,
+      headers: resHeaders,
     });
   } catch (err: unknown) {
     const durationMs = Date.now() - start;
@@ -83,12 +93,11 @@ export async function POST(req: NextRequest) {
           error: "Request timed out",
           details: `Exceeded ${timeout}ms timeout`,
         },
-        { status: 408 }
+        { status: 408 },
       );
     }
 
-    const message =
-      err instanceof Error ? err.message : String(err);
+    const message = err instanceof Error ? err.message : String(err);
 
     return NextResponse.json(
       {
@@ -96,7 +105,7 @@ export async function POST(req: NextRequest) {
         details: message,
         durationMs,
       },
-      { status: 502 }
+      { status: 502 },
     );
   } finally {
     clearTimeout(timer);

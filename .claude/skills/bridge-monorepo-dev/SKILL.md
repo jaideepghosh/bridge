@@ -73,18 +73,20 @@ If it doesn't exist, you will create it at the end of this session.
 
 ### 1.1 Understand where it lives
 
-| Kind | Directory | Examples |
-|------|-----------|---------|
-| Shared library / utility | `packages/<name>/` | `codegen`, `components`, `ui` |
-| Full application | `apps/<name>/` | `api`, `web`, `desktop` |
-| Config-only | `packages/<name>/` | `eslint-config`, `typescript-config` |
+| Kind                     | Directory          | Examples                             |
+| ------------------------ | ------------------ | ------------------------------------ |
+| Shared library / utility | `packages/<name>/` | `codegen`, `components`, `ui`        |
+| Full application         | `apps/<name>/`     | `api`, `web`, `desktop`              |
+| Config-only              | `packages/<name>/` | `eslint-config`, `typescript-config` |
 
 ### 1.2 Determine the package name
 
 Look at existing packages to get the exact scope:
+
 ```bash
 grep '"name"' packages/*/package.json apps/*/package.json
 ```
+
 Match the naming pattern exactly. Never invent a new scope.
 
 ### 1.3 Scaffold — minimum required files
@@ -100,6 +102,7 @@ packages/<name>/
 ```
 
 **`package.json` template for a library:**
+
 ```json
 {
   "name": "@bridge/<name>",
@@ -118,10 +121,12 @@ packages/<name>/
   }
 }
 ```
+
 > Note: Check `packages/components/package.json` and `packages/codegen/package.json` for the
 > exact scope string and `"catalog:"` usage before writing — match them exactly.
 
 **`tsconfig.json` template:**
+
 ```json
 {
   "extends": "@bridge/typescript-config/base.json",
@@ -133,6 +138,7 @@ packages/<name>/
   "exclude": ["node_modules", "dist"]
 }
 ```
+
 > Cross-check against `packages/typescript-config/base.json` and
 > `packages/typescript-config/react-library.json` — use `react-library.json` if the
 > package contains JSX/TSX.
@@ -143,6 +149,7 @@ packages/<name>/
    If not, add it. Typical pattern: `"packages/*"` and `"apps/*"` cover most cases.
 
 2. **Consumer packages** — add the dependency:
+
    ```json
    "@bridge/<name>": "*"
    ```
@@ -168,14 +175,14 @@ npm run lint --workspace=packages/<name>
 
 ### 2.1 Know the app boundaries
 
-| App / Package | Stack | Key constraint |
-|---------------|-------|---------------|
-| `apps/api` | NestJS + Prisma + TypeScript | Module/Controller/Service pattern; Prisma for DB |
-| `apps/web` | Next.js 14 App Router + React | Server components by default; `"use client"` only when needed |
-| `apps/desktop` | Tauri + React + Vite + Tailwind | Runs offline; uses Tauri APIs for OS access |
-| `packages/components` | React + TypeScript (no framework) | Consumed by both `web` and `desktop`; no Next.js imports |
-| `packages/codegen` | Pure TypeScript | Each generator in `src/generators/<lang>.ts`; registered in `registry.ts` |
-| `packages/ui` | shadcn/ui + Tailwind | Primitives only; no business logic |
+| App / Package         | Stack                             | Key constraint                                                            |
+| --------------------- | --------------------------------- | ------------------------------------------------------------------------- |
+| `apps/api`            | NestJS + Prisma + TypeScript      | Module/Controller/Service pattern; Prisma for DB                          |
+| `apps/web`            | Next.js 14 App Router + React     | Server components by default; `"use client"` only when needed             |
+| `apps/desktop`        | Tauri + React + Vite + Tailwind   | Runs offline; uses Tauri APIs for OS access                               |
+| `packages/components` | React + TypeScript (no framework) | Consumed by both `web` and `desktop`; no Next.js imports                  |
+| `packages/codegen`    | Pure TypeScript                   | Each generator in `src/generators/<lang>.ts`; registered in `registry.ts` |
+| `packages/ui`         | shadcn/ui + Tailwind              | Primitives only; no business logic                                        |
 
 ### 2.2 The components package — primary UI workhorse
 
@@ -200,6 +207,7 @@ packages/components/src/
 ```
 
 **Rules when adding to `packages/components`:**
+
 - New feature → new subdirectory under `components/` (e.g. `components/my-feature/`)
 - New shared type → `types/index.ts`
 - New service → `services/<name>.ts`
@@ -217,6 +225,7 @@ packages/codegen/src/
 ```
 
 Steps:
+
 1. Create `src/generators/<lang>.ts` implementing the `CodeGenerator` interface from `types.ts`
 2. Register it in `registry.ts`
 3. Export from `src/index.ts` if the generator class/function is part of the public API
@@ -224,6 +233,7 @@ Steps:
 ### 2.4 NestJS API (`apps/api`)
 
 Follow NestJS module pattern:
+
 ```
 src/
 └── <feature>/
@@ -232,6 +242,7 @@ src/
     ├── <feature>.service.ts
     └── <feature>.dto.ts
 ```
+
 Import the new module into `app.module.ts`.
 For DB changes: update `prisma/schema.prisma`, then run `npx prisma generate`.
 
@@ -278,25 +289,31 @@ Use this exact template:
 ## [YYYY-MM-DD] <Short title>
 
 ### What changed
+
 - <bullet: file or package created/modified and what it does>
 
 ### Why
+
 <One paragraph: motivation, requirement, or problem solved.>
 
 ### Architecture decisions
+
 - **Decision**: <what>  
   **Rationale**: <why this over alternatives>
 
 ### Package graph delta
-| Package | Before | After |
-|---------|--------|-------|
-| `@bridge/foo` | — | New package, exports `FooService` |
-| `apps/web`    | no X | imports `@bridge/foo` |
+
+| Package       | Before | After                             |
+| ------------- | ------ | --------------------------------- |
+| `@bridge/foo` | —      | New package, exports `FooService` |
+| `apps/web`    | no X   | imports `@bridge/foo`             |
 
 ### Breaking changes
+
 <"None." or description + migration steps>
 
 ### Follow-ups / known gaps
+
 - <anything deferred or TODO>
 ```
 
@@ -304,6 +321,7 @@ Use this exact template:
 
 If you created a new package or changed a public API, update (or create)
 `packages/<name>/README.md`:
+
 - One-paragraph description
 - Import example
 - Minimal usage snippet

@@ -23,12 +23,22 @@ export function parseImportContent(input: string): ImportResult | null {
       const parsedJson = JSON.parse(trimmed);
 
       // Check if Bridge Collection
-      if (parsedJson && parsedJson.type === "collection" && Array.isArray(parsedJson.folders) && Array.isArray(parsedJson.requests)) {
+      if (
+        parsedJson &&
+        parsedJson.type === "collection" &&
+        Array.isArray(parsedJson.folders) &&
+        Array.isArray(parsedJson.requests)
+      ) {
         return { type: "collection", data: parsedJson };
       }
 
       // Check if Bridge Request
-      if (parsedJson && parsedJson.type === "request" && parsedJson.method && parsedJson.url) {
+      if (
+        parsedJson &&
+        parsedJson.type === "request" &&
+        parsedJson.method &&
+        parsedJson.url
+      ) {
         return { type: "request", data: parsedJson };
       }
 
@@ -51,7 +61,11 @@ export function parseImportContent(input: string): ImportResult | null {
   // 3. Detect YAML / OpenAPI YAML
   try {
     const parsedYaml = parseYaml(trimmed);
-    if (parsedYaml && typeof parsedYaml === "object" && (parsedYaml.openapi || parsedYaml.swagger)) {
+    if (
+      parsedYaml &&
+      typeof parsedYaml === "object" &&
+      (parsedYaml.openapi || parsedYaml.swagger)
+    ) {
       const col = parseOpenApi(trimmed);
       if (col) return { type: "collection", data: col };
     }
@@ -69,4 +83,3 @@ export function parseImportContent(input: string): ImportResult | null {
 
   return null;
 }
-

@@ -1,6 +1,14 @@
 import { create } from "zustand";
 import { v4 as uuidv4 } from "uuid";
-import { ActiveTab, Collection, Folder, SavedRequest, Environment, HttpMethod, ApiExample } from "@/types";
+import {
+  ActiveTab,
+  Collection,
+  Folder,
+  SavedRequest,
+  Environment,
+  HttpMethod,
+  ApiExample,
+} from "@/types";
 import { storage } from "@/services/storage";
 
 interface AppState {
@@ -10,22 +18,31 @@ interface AppState {
   examples: ApiExample[];
   environments: Environment[];
   activeEnvironmentId: string | null;
-  
+
   activeTabs: ActiveTab[];
   selectedTabId: string | null;
 
   loadStorage: () => void;
   setActiveEnvironmentId: (id: string | null) => void;
-  
-  openTab: (request?: SavedRequest, draft?: Partial<ActiveTab["draft"]>) => void;
+
+  openTab: (
+    request?: SavedRequest,
+    draft?: Partial<ActiveTab["draft"]>,
+  ) => void;
   openExampleTab: (exampleId: string) => void;
   closeTab: (tabId: string) => void;
   selectTab: (tabId: string) => void;
   updateTabDraft: (tabId: string, updates: Partial<ActiveTab["draft"]>) => void;
-  setTabResponse: (tabId: string, response: any | null, isLoading: boolean) => void;
-  
+  setTabResponse: (
+    tabId: string,
+    response: any | null,
+    isLoading: boolean,
+  ) => void;
+
   selectedSidebarItem: { kind: "collection" | "folder"; id: string } | null;
-  selectSidebarItem: (item: { kind: "collection" | "folder"; id: string } | null) => void;
+  selectSidebarItem: (
+    item: { kind: "collection" | "folder"; id: string } | null,
+  ) => void;
 
   // Just basic syncing to storage
   saveEnvironment: (env: Environment) => void;
@@ -50,8 +67,8 @@ const createBlankTab = (): ActiveTab => ({
     headers: [],
     queryParams: [],
     body: { type: "none" },
-    auth: { type: "none" }
-  }
+    auth: { type: "none" },
+  },
 });
 
 const reqToTab = (req: SavedRequest): ActiveTab => ({
@@ -65,8 +82,8 @@ const reqToTab = (req: SavedRequest): ActiveTab => ({
     headers: JSON.parse(JSON.stringify(req.headers)),
     queryParams: JSON.parse(JSON.stringify(req.queryParams)),
     body: JSON.parse(JSON.stringify(req.body)),
-    auth: JSON.parse(JSON.stringify(req.auth))
-  }
+    auth: JSON.parse(JSON.stringify(req.auth)),
+  },
 });
 
 export const useStore = create<AppState>((set, get) => ({
@@ -76,7 +93,7 @@ export const useStore = create<AppState>((set, get) => ({
   examples: [],
   environments: [],
   activeEnvironmentId: null,
-  
+
   activeTabs: [createBlankTab()],
   selectedTabId: null,
   selectedSidebarItem: null,
@@ -88,7 +105,7 @@ export const useStore = create<AppState>((set, get) => ({
       requests: storage.getRequests(),
       examples: storage.getExamples(),
       environments: storage.getEnvironments(),
-      activeEnvironmentId: storage.getActiveEnvironmentId()
+      activeEnvironmentId: storage.getActiveEnvironmentId(),
     });
     const state = get();
     if (state.activeTabs.length > 0 && !state.selectedTabId) {
@@ -103,10 +120,10 @@ export const useStore = create<AppState>((set, get) => ({
 
   openExampleTab: (exampleId) => {
     const { examples, requests } = get();
-    const ex = examples.find(e => e.id === exampleId);
+    const ex = examples.find((e) => e.id === exampleId);
     if (!ex) return;
-    const req = requests.find(r => r.id === ex.requestId) ?? ex.request;
-    set(state => {
+    const req = requests.find((r) => r.id === ex.requestId) ?? ex.request;
+    set((state) => {
       const newTab: ActiveTab = {
         id: uuidv4(),
         requestId: req.id,
@@ -123,14 +140,20 @@ export const useStore = create<AppState>((set, get) => ({
         response: { ...ex.response },
         isLoading: false,
       };
-      return { activeTabs: [...state.activeTabs, newTab], selectedTabId: newTab.id, selectedSidebarItem: null };
+      return {
+        activeTabs: [...state.activeTabs, newTab],
+        selectedTabId: newTab.id,
+        selectedSidebarItem: null,
+      };
     });
   },
 
   openTab: (request, draftOverride) => {
-    set(state => {
+    set((state) => {
       if (request) {
-        const existing = state.activeTabs.find(t => t.requestId === request.id);
+        const existing = state.activeTabs.find(
+          (t) => t.requestId === request.id,
+        );
         if (existing) return { selectedTabId: existing.id };
       }
       const newTab = request ? reqToTab(request) : createBlankTab();
@@ -138,20 +161,24 @@ export const useStore = create<AppState>((set, get) => ({
         newTab.draft = { ...newTab.draft, ...draftOverride };
         newTab.isDirty = true;
       }
-      return { activeTabs: [...state.activeTabs, newTab], selectedTabId: newTab.id, selectedSidebarItem: null };
+      return {
+        activeTabs: [...state.activeTabs, newTab],
+        selectedTabId: newTab.id,
+        selectedSidebarItem: null,
+      };
     });
   },
 
   closeTab: (tabId) => {
-    set(state => {
-      const filtered = state.activeTabs.filter(t => t.id !== tabId);
+    set((state) => {
+      const filtered = state.activeTabs.filter((t) => t.id !== tabId);
       if (filtered.length === 0) {
         const newTab = createBlankTab();
         return { activeTabs: [newTab], selectedTabId: newTab.id };
       }
       let nextSelected = state.selectedTabId;
       if (state.selectedTabId === tabId) {
-        const idx = state.activeTabs.findIndex(t => t.id === tabId);
+        const idx = state.activeTabs.findIndex((t) => t.id === tabId);
         nextSelected = filtered[Math.max(0, idx - 1)]?.id || null;
       }
       return { activeTabs: filtered, selectedTabId: nextSelected };
@@ -162,17 +189,21 @@ export const useStore = create<AppState>((set, get) => ({
 
   selectTab: (tabId) => set({ selectedTabId: tabId }),
 
-  updateTabDraft: (tabId, updates) => set(state => ({
-    activeTabs: state.activeTabs.map(t => 
-      t.id === tabId ? { ...t, isDirty: true, draft: { ...t.draft, ...updates } } : t
-    )
-  })),
+  updateTabDraft: (tabId, updates) =>
+    set((state) => ({
+      activeTabs: state.activeTabs.map((t) =>
+        t.id === tabId
+          ? { ...t, isDirty: true, draft: { ...t.draft, ...updates } }
+          : t,
+      ),
+    })),
 
-  setTabResponse: (tabId, response, isLoading) => set(state => ({
-    activeTabs: state.activeTabs.map(t => 
-      t.id === tabId ? { ...t, response, isLoading } : t
-    )
-  })),
+  setTabResponse: (tabId, response, isLoading) =>
+    set((state) => ({
+      activeTabs: state.activeTabs.map((t) =>
+        t.id === tabId ? { ...t, response, isLoading } : t,
+      ),
+    })),
 
   saveEnvironment: (env) => {
     storage.saveEnvironment(env);
@@ -191,10 +222,12 @@ export const useStore = create<AppState>((set, get) => ({
     storage.saveRequest(req);
     set({ requests: storage.getRequests() });
     // Update matching tab if open
-    set(state => ({
-      activeTabs: state.activeTabs.map(t => 
-        t.requestId === req.id ? { ...t, isDirty: false, draft: { ...reqToTab(req).draft } } : t
-      )
+    set((state) => ({
+      activeTabs: state.activeTabs.map((t) =>
+        t.requestId === req.id
+          ? { ...t, isDirty: false, draft: { ...reqToTab(req).draft } }
+          : t,
+      ),
     }));
   },
 

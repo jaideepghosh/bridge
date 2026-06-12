@@ -1,4 +1,11 @@
-export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS" | "HEAD";
+export type HttpMethod =
+  | "GET"
+  | "POST"
+  | "PUT"
+  | "PATCH"
+  | "DELETE"
+  | "OPTIONS"
+  | "HEAD";
 
 export interface KeyValuePair {
   id: string;
@@ -59,4 +66,3 @@ export interface ImportedCollection {
 export type ImportResult =
   | { type: "request"; data: ImportedRequest }
   | { type: "collection"; data: ImportedCollection };
-

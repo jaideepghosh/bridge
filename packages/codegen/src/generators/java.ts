@@ -24,29 +24,45 @@ export const javaGenerator: CodeGenerator = {
     let bodyPublisher = "HttpRequest.BodyPublishers.noBody()";
     switch (request.body.type) {
       case "json": {
-        const escaped = request.body.content.replace(/"/g, '\\"').replace(/\n/g, "\\n");
+        const escaped = request.body.content
+          .replace(/"/g, '\\"')
+          .replace(/\n/g, "\\n");
         lines.push(`String body = "${escaped}";`);
         bodyPublisher = "HttpRequest.BodyPublishers.ofString(body)";
-        if (!headers["Content-Type"]) headers["Content-Type"] = "application/json";
+        if (!headers["Content-Type"])
+          headers["Content-Type"] = "application/json";
         break;
       }
       case "raw": {
-        const escaped = request.body.content.replace(/"/g, '\\"').replace(/\n/g, "\\n");
+        const escaped = request.body.content
+          .replace(/"/g, '\\"')
+          .replace(/\n/g, "\\n");
         lines.push(`String body = "${escaped}";`);
         bodyPublisher = "HttpRequest.BodyPublishers.ofString(body)";
         break;
       }
       case "form-urlencoded": {
-        const pairs = request.body.pairs.filter(p => p.enabled && p.key);
-        const formStr = pairs.map(p => `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`).join("&");
+        const pairs = request.body.pairs.filter((p) => p.enabled && p.key);
+        const formStr = pairs
+          .map(
+            (p) =>
+              `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`,
+          )
+          .join("&");
         lines.push(`String body = "${formStr}";`);
         bodyPublisher = "HttpRequest.BodyPublishers.ofString(body)";
-        if (!headers["Content-Type"]) headers["Content-Type"] = "application/x-www-form-urlencoded";
+        if (!headers["Content-Type"])
+          headers["Content-Type"] = "application/x-www-form-urlencoded";
         break;
       }
       case "form-data": {
-        const pairs = request.body.pairs.filter(p => p.enabled && p.key);
-        const formStr = pairs.map(p => `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`).join("&");
+        const pairs = request.body.pairs.filter((p) => p.enabled && p.key);
+        const formStr = pairs
+          .map(
+            (p) =>
+              `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`,
+          )
+          .join("&");
         lines.push(`// Note: For true multipart, use a multipart body builder`);
         lines.push(`String body = "${formStr}";`);
         bodyPublisher = "HttpRequest.BodyPublishers.ofString(body)";
@@ -65,7 +81,9 @@ export const javaGenerator: CodeGenerator = {
 
     lines.push(`    .build();`);
     lines.push(``);
-    lines.push(`HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());`);
+    lines.push(
+      `HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());`,
+    );
     lines.push(`System.out.println(response.body());`);
 
     return lines.join("\n");

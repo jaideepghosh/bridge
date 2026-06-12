@@ -1,5 +1,9 @@
 import type { CodeGenerator, RequestDefinition } from "../types";
-import { getAllHeaders, getEnabledParams, getAuthQueryParams } from "../utils/formatting";
+import {
+  getAllHeaders,
+  getEnabledParams,
+  getAuthQueryParams,
+} from "../utils/formatting";
 
 export const goGenerator: CodeGenerator = {
   id: "go",
@@ -8,7 +12,10 @@ export const goGenerator: CodeGenerator = {
 
   generate(request: RequestDefinition): string {
     const headers = getAllHeaders(request);
-    const params = [...getEnabledParams(request), ...getAuthQueryParams(request.auth)];
+    const params = [
+      ...getEnabledParams(request),
+      ...getAuthQueryParams(request.auth),
+    ];
     const lines: string[] = [];
 
     lines.push(`package main`);
@@ -18,7 +25,8 @@ export const goGenerator: CodeGenerator = {
     lines.push(`\t"io"`);
     lines.push(`\t"net/http"`);
 
-    const needsStrings = request.body.type === "json" || request.body.type === "raw";
+    const needsStrings =
+      request.body.type === "json" || request.body.type === "raw";
     const needsUrl = params.length > 0;
 
     if (needsStrings) lines.push(`\t"strings"`);
@@ -44,32 +52,36 @@ export const goGenerator: CodeGenerator = {
     let bodyVar = "nil";
     switch (request.body.type) {
       case "json": {
-        const escaped = request.body.content.replace(/`/g, "` + \"`\" + `");
+        const escaped = request.body.content.replace(/`/g, '` + "`" + `');
         lines.push(`\tbody := strings.NewReader(\`${escaped}\`)`);
         bodyVar = "body";
-        if (!headers["Content-Type"]) headers["Content-Type"] = "application/json";
+        if (!headers["Content-Type"])
+          headers["Content-Type"] = "application/json";
         break;
       }
       case "raw": {
-        const escaped = request.body.content.replace(/`/g, "` + \"`\" + `");
+        const escaped = request.body.content.replace(/`/g, '` + "`" + `');
         lines.push(`\tbody := strings.NewReader(\`${escaped}\`)`);
         bodyVar = "body";
         break;
       }
       case "form-urlencoded": {
-        const pairs = request.body.pairs.filter(p => p.enabled && p.key);
+        const pairs = request.body.pairs.filter((p) => p.enabled && p.key);
         lines.push(`\tformData := url.Values{}`);
         for (const p of pairs) {
           lines.push(`\tformData.Set("${p.key}", "${p.value}")`);
         }
         lines.push(`\tbody := strings.NewReader(formData.Encode())`);
         bodyVar = "body";
-        if (!headers["Content-Type"]) headers["Content-Type"] = "application/x-www-form-urlencoded";
+        if (!headers["Content-Type"])
+          headers["Content-Type"] = "application/x-www-form-urlencoded";
         break;
       }
       case "form-data": {
-        const pairs = request.body.pairs.filter(p => p.enabled && p.key);
-        lines.push(`\t// Note: For multipart form data, use mime/multipart package`);
+        const pairs = request.body.pairs.filter((p) => p.enabled && p.key);
+        lines.push(
+          `\t// Note: For multipart form data, use mime/multipart package`,
+        );
         lines.push(`\tformData := url.Values{}`);
         for (const p of pairs) {
           lines.push(`\tformData.Set("${p.key}", "${p.value}")`);
@@ -81,7 +93,9 @@ export const goGenerator: CodeGenerator = {
     }
 
     lines.push(``);
-    lines.push(`\treq, err := http.NewRequest("${request.method}", ${urlVar}, ${bodyVar})`);
+    lines.push(
+      `\treq, err := http.NewRequest("${request.method}", ${urlVar}, ${bodyVar})`,
+    );
     lines.push(`\tif err != nil {`);
     lines.push(`\t\tpanic(err)`);
     lines.push(`\t}`);

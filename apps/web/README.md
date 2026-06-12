@@ -1,6 +1,6 @@
 # 🌐 Bridge Web Client (Next.js)
 
-This directory houses the **Next.js Web Application** for Bridge, a premium, browser-based REST API testing workbench. 
+This directory houses the **Next.js Web Application** for Bridge, a premium, browser-based REST API testing workbench.
 
 ---
 
@@ -20,11 +20,15 @@ This directory houses the **Next.js Web Application** for Bridge, a premium, bro
 ## 🚀 Getting Started
 
 ### Run the development server
+
 From the root workspace directory, run:
+
 ```bash
 npx turbo dev --filter=web
 ```
+
 Or directly inside this folder:
+
 ```bash
 npm run dev
 ```
@@ -36,7 +40,9 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to launch 
 ## 📦 Production Builds
 
 To compile the production Next.js application, run:
+
 ```bash
 npx turbo build --filter=web
 ```
+
 This performs a type-safe static site generation (SSG) and build trace optimization.

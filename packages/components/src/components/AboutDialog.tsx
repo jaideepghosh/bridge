@@ -1,5 +1,11 @@
 import { Rainbow, ShieldCheck } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@bridge/ui";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@bridge/ui";
 import { AppVersion } from "./AppVersion";
 
 export function AboutDialog() {
@@ -28,7 +34,8 @@ export function AboutDialog() {
 
         <div className="space-y-4">
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Lightweight REST API testing and documentation workbench built for developers. Test local and remote APIs without CORS limits.
+            Lightweight REST API testing and documentation workbench built for
+            developers. Test local and remote APIs without CORS limits.
           </p>
 
           <div className="h-px bg-border/60 w-full" />
@@ -39,7 +46,9 @@ export function AboutDialog() {
               <span>CORS Sandbox Disabled</span>
             </div>
             <div>Copyright © 2026 Jaideep Ghosh</div>
-            <div className="text-[9px] text-muted-foreground/60">All rights reserved.</div>
+            <div className="text-[9px] text-muted-foreground/60">
+              All rights reserved.
+            </div>
           </div>
         </div>
       </DialogContent>

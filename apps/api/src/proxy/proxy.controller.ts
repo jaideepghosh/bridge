@@ -12,4 +12,3 @@ export class ProxyController {
     return this.proxyService.execute(dto);
   }
 }
-

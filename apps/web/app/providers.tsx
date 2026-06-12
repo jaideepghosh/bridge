@@ -45,20 +45,20 @@ function RouteSync() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const isLoaded = useStore(s => s.isLoaded);
-  const collections = useStore(s => s.collections);
-  const folders = useStore(s => s.folders);
-  const requests = useStore(s => s.requests);
-  const activeTabs = useStore(s => s.activeTabs);
-  const selectedTabId = useStore(s => s.selectedTabId);
-  const selectedSidebarItem = useStore(s => s.selectedSidebarItem);
+  const isLoaded = useStore((s) => s.isLoaded);
+  const collections = useStore((s) => s.collections);
+  const folders = useStore((s) => s.folders);
+  const requests = useStore((s) => s.requests);
+  const activeTabs = useStore((s) => s.activeTabs);
+  const selectedTabId = useStore((s) => s.selectedTabId);
+  const selectedSidebarItem = useStore((s) => s.selectedSidebarItem);
 
-  const openTab = useStore(s => s.openTab);
-  const selectTab = useStore(s => s.selectTab);
-  const selectSidebarItem = useStore(s => s.selectSidebarItem);
-  const setCollectionCollapsed = useStore(s => s.setCollectionCollapsed);
-  const setFolderExpanded = useStore(s => s.setFolderExpanded);
-  const setNavigate = useStore(s => s.setNavigate);
+  const openTab = useStore((s) => s.openTab);
+  const selectTab = useStore((s) => s.selectTab);
+  const selectSidebarItem = useStore((s) => s.selectSidebarItem);
+  const setCollectionCollapsed = useStore((s) => s.setCollectionCollapsed);
+  const setFolderExpanded = useStore((s) => s.setFolderExpanded);
+  const setNavigate = useStore((s) => s.setNavigate);
 
   // 1. Initialize navigate function in the store
   useEffect(() => {
@@ -84,11 +84,13 @@ function RouteSync() {
 
       // Sync Request Tab
       if (requestId) {
-        const req = requests.find(r => r.id === requestId);
+        const req = requests.find((r) => r.id === requestId);
         if (req) {
-          const activeTab = activeTabs.find(t => t.id === selectedTabId);
+          const activeTab = activeTabs.find((t) => t.id === selectedTabId);
           if (activeTab?.requestId !== requestId) {
-            const existingTab = activeTabs.find(t => t.requestId === requestId);
+            const existingTab = activeTabs.find(
+              (t) => t.requestId === requestId,
+            );
             if (existingTab) {
               selectTab(existingTab.id);
             } else {
@@ -97,9 +99,9 @@ function RouteSync() {
           }
         }
       } else {
-        const activeTab = activeTabs.find(t => t.id === selectedTabId);
+        const activeTab = activeTabs.find((t) => t.id === selectedTabId);
         if (activeTab?.requestId) {
-          const blankTab = activeTabs.find(t => !t.requestId);
+          const blankTab = activeTabs.find((t) => !t.requestId);
           if (blankTab) {
             selectTab(blankTab.id);
           } else {
@@ -110,11 +112,17 @@ function RouteSync() {
 
       // Sync Sidebar selection
       if (folderId) {
-        if (selectedSidebarItem?.kind !== "folder" || selectedSidebarItem?.id !== folderId) {
+        if (
+          selectedSidebarItem?.kind !== "folder" ||
+          selectedSidebarItem?.id !== folderId
+        ) {
           selectSidebarItem({ kind: "folder", id: folderId });
         }
       } else if (workspaceId && !requestId) {
-        if (selectedSidebarItem?.kind !== "collection" || selectedSidebarItem?.id !== workspaceId) {
+        if (
+          selectedSidebarItem?.kind !== "collection" ||
+          selectedSidebarItem?.id !== workspaceId
+        ) {
           selectSidebarItem({ kind: "collection", id: workspaceId });
         }
       } else {
@@ -135,11 +143,11 @@ function RouteSync() {
       lastNavigatedUrlRef.current = pathname;
     } else {
       // Store changed -> Sync to URL
-      const activeTab = activeTabs.find(t => t.id === selectedTabId);
+      const activeTab = activeTabs.find((t) => t.id === selectedTabId);
       let targetUrl = "/";
 
       if (activeTab?.requestId) {
-        const req = requests.find(r => r.id === activeTab.requestId);
+        const req = requests.find((r) => r.id === activeTab.requestId);
         if (req) {
           if (req.folderId) {
             targetUrl = `/workspace/${req.collectionId}/folder/${req.folderId}/request/${req.id}`;
@@ -151,7 +159,7 @@ function RouteSync() {
         if (selectedSidebarItem.kind === "collection") {
           targetUrl = `/workspace/${selectedSidebarItem.id}`;
         } else if (selectedSidebarItem.kind === "folder") {
-          const folder = folders.find(f => f.id === selectedSidebarItem.id);
+          const folder = folders.find((f) => f.id === selectedSidebarItem.id);
           if (folder) {
             targetUrl = `/workspace/${folder.collectionId}/folder/${folder.id}`;
           }

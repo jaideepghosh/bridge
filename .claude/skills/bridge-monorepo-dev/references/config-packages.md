@@ -11,6 +11,7 @@ typescript-config/
 ```
 
 **`package.json`:**
+
 ```json
 {
   "name": "@bridge/typescript-config",
@@ -21,6 +22,7 @@ typescript-config/
 ```
 
 **How consumers extend:**
+
 ```json
 { "extends": "@bridge/typescript-config/base.json" }
 { "extends": "@bridge/typescript-config/react-library.json" }
@@ -28,6 +30,7 @@ typescript-config/
 ```
 
 Adding a new base variant (e.g. `node-esm.json`):
+
 1. Create the file in `packages/typescript-config/`
 2. Add it to the `"files"` array in `package.json`
 3. Document which packages should use it in this file
@@ -45,6 +48,7 @@ eslint-config/
 ```
 
 **How consumers use it:**
+
 ```js
 // eslint.config.mjs or eslint.config.js
 import baseConfig from "@bridge/eslint-config/base.js";
@@ -52,6 +56,7 @@ export default [...baseConfig];
 ```
 
 Adding a new config variant:
+
 1. Create `<name>.js` in `packages/eslint-config/`
 2. Export a flat config array (ESLint v9 format used in `apps/api/eslint.config.mjs` and
    `apps/desktop` — check `apps/web/eslint.config.js` for the exact export shape)
@@ -73,10 +78,12 @@ ui/src/
 ```
 
 **Adding a new shadcn component:**
+
 ```bash
 # From packages/ui:
 npx shadcn@latest add <component-name>
 ```
+
 This places the file under `src/components/ui/`. Then re-export from `src/index.ts`.
 
 **`packages/ui` must NOT contain business logic.** Business logic and composition goes

@@ -15,7 +15,7 @@ export interface Exporter {
   exportFolder(
     folder: ImportedFolder,
     subfolders: ImportedFolder[],
-    requests: (ImportedRequest & { folderId?: string | null })[]
+    requests: (ImportedRequest & { folderId?: string | null })[],
   ): ExportResult;
   exportRequest(request: ImportedRequest): ExportResult;
 }

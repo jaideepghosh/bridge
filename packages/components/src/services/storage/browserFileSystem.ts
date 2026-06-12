@@ -1,4 +1,10 @@
-import { Collection, Folder, SavedRequest, ApiExample, Environment } from "../../types";
+import {
+  Collection,
+  Folder,
+  SavedRequest,
+  ApiExample,
+  Environment,
+} from "../../types";
 import { StorageProvider } from "./types";
 import { loadDirectoryHandle } from "./indexedDb";
 
@@ -44,7 +50,9 @@ export class BrowserFileSystemStorageProvider implements StorageProvider {
   async checkPermissionStatus(): Promise<boolean> {
     if (!this.handle) return false;
     try {
-      const status = await (this.handle as any).queryPermission({ mode: "readwrite" });
+      const status = await (this.handle as any).queryPermission({
+        mode: "readwrite",
+      });
       this.hasPermission = status === "granted";
       return this.hasPermission;
     } catch {
@@ -59,14 +67,19 @@ export class BrowserFileSystemStorageProvider implements StorageProvider {
   async requestPermission(): Promise<boolean> {
     if (!this.handle) return false;
     try {
-      const status = await (this.handle as any).requestPermission({ mode: "readwrite" });
+      const status = await (this.handle as any).requestPermission({
+        mode: "readwrite",
+      });
       this.hasPermission = status === "granted";
       if (this.hasPermission) {
         await this.loadData();
       }
       return this.hasPermission;
     } catch (err) {
-      console.error("[BrowserFileSystemStorageProvider] Permission request failed:", err);
+      console.error(
+        "[BrowserFileSystemStorageProvider] Permission request failed:",
+        err,
+      );
       return false;
     }
   }
@@ -77,21 +90,30 @@ export class BrowserFileSystemStorageProvider implements StorageProvider {
     try {
       const handle = await loadDirectoryHandle();
       if (!handle) {
-        console.info("[BrowserFileSystemStorageProvider] No directory handle stored in IndexedDB.");
+        console.info(
+          "[BrowserFileSystemStorageProvider] No directory handle stored in IndexedDB.",
+        );
         return;
       }
 
       this.handle = handle;
-      
-      const status = await (handle as any).queryPermission({ mode: "readwrite" });
+
+      const status = await (handle as any).queryPermission({
+        mode: "readwrite",
+      });
       if (status === "granted") {
         this.hasPermission = true;
         await this.loadData();
       } else {
-        console.info("[BrowserFileSystemStorageProvider] Directory handle exists but requires user authorization.");
+        console.info(
+          "[BrowserFileSystemStorageProvider] Directory handle exists but requires user authorization.",
+        );
       }
     } catch (err) {
-      console.error("[BrowserFileSystemStorageProvider] Initialization failed:", err);
+      console.error(
+        "[BrowserFileSystemStorageProvider] Initialization failed:",
+        err,
+      );
     }
   }
 
@@ -100,7 +122,9 @@ export class BrowserFileSystemStorageProvider implements StorageProvider {
     try {
       let fileHandle: FileSystemFileHandle;
       try {
-        fileHandle = await this.handle.getFileHandle("bridge-data.json", { create: false });
+        fileHandle = await this.handle.getFileHandle("bridge-data.json", {
+          create: false,
+        });
       } catch {
         // File does not exist yet — we will start with empty data
         this.data = { ...EMPTY };
@@ -115,7 +139,10 @@ export class BrowserFileSystemStorageProvider implements StorageProvider {
         this.data = { ...EMPTY };
       }
     } catch (err) {
-      console.error("[BrowserFileSystemStorageProvider] Failed to load data file:", err);
+      console.error(
+        "[BrowserFileSystemStorageProvider] Failed to load data file:",
+        err,
+      );
       this.data = { ...EMPTY };
     }
   }
@@ -123,7 +150,9 @@ export class BrowserFileSystemStorageProvider implements StorageProvider {
   private async flush(): Promise<void> {
     if (!this.handle || !this.hasPermission) return;
     try {
-      const fileHandle = await this.handle.getFileHandle("bridge-data.json", { create: true });
+      const fileHandle = await this.handle.getFileHandle("bridge-data.json", {
+        create: true,
+      });
       const writable = await fileHandle.createWritable();
       await writable.write(JSON.stringify(this.data, null, 2));
       await writable.close();
@@ -138,13 +167,14 @@ export class BrowserFileSystemStorageProvider implements StorageProvider {
   }
   saveCollection(collection: Collection): void {
     const items = [...this.data.collections];
-    const index = items.findIndex(i => i.id === collection.id);
-    if (index >= 0) items[index] = collection; else items.push(collection);
+    const index = items.findIndex((i) => i.id === collection.id);
+    if (index >= 0) items[index] = collection;
+    else items.push(collection);
     this.data.collections = items;
     this.flush();
   }
   deleteCollection(id: string): void {
-    this.data.collections = this.data.collections.filter(i => i.id !== id);
+    this.data.collections = this.data.collections.filter((i) => i.id !== id);
     this.flush();
   }
 
@@ -154,13 +184,14 @@ export class BrowserFileSystemStorageProvider implements StorageProvider {
   }
   saveFolder(folder: Folder): void {
     const items = [...this.data.folders];
-    const index = items.findIndex(i => i.id === folder.id);
-    if (index >= 0) items[index] = folder; else items.push(folder);
+    const index = items.findIndex((i) => i.id === folder.id);
+    if (index >= 0) items[index] = folder;
+    else items.push(folder);
     this.data.folders = items;
     this.flush();
   }
   deleteFolder(id: string): void {
-    this.data.folders = this.data.folders.filter(i => i.id !== id);
+    this.data.folders = this.data.folders.filter((i) => i.id !== id);
     this.flush();
   }
 
@@ -170,13 +201,14 @@ export class BrowserFileSystemStorageProvider implements StorageProvider {
   }
   saveRequest(request: SavedRequest): void {
     const items = [...this.data.requests];
-    const index = items.findIndex(i => i.id === request.id);
-    if (index >= 0) items[index] = request; else items.push(request);
+    const index = items.findIndex((i) => i.id === request.id);
+    if (index >= 0) items[index] = request;
+    else items.push(request);
     this.data.requests = items;
     this.flush();
   }
   deleteRequest(id: string): void {
-    this.data.requests = this.data.requests.filter(i => i.id !== id);
+    this.data.requests = this.data.requests.filter((i) => i.id !== id);
     this.flush();
   }
 
@@ -186,13 +218,14 @@ export class BrowserFileSystemStorageProvider implements StorageProvider {
   }
   saveExample(example: ApiExample): void {
     const items = [...this.data.examples];
-    const index = items.findIndex(i => i.id === example.id);
-    if (index >= 0) items[index] = example; else items.push(example);
+    const index = items.findIndex((i) => i.id === example.id);
+    if (index >= 0) items[index] = example;
+    else items.push(example);
     this.data.examples = items;
     this.flush();
   }
   deleteExample(id: string): void {
-    this.data.examples = this.data.examples.filter(i => i.id !== id);
+    this.data.examples = this.data.examples.filter((i) => i.id !== id);
     this.flush();
   }
 
@@ -202,13 +235,14 @@ export class BrowserFileSystemStorageProvider implements StorageProvider {
   }
   saveEnvironment(env: Environment): void {
     const items = [...this.data.environments];
-    const index = items.findIndex(i => i.id === env.id);
-    if (index >= 0) items[index] = env; else items.push(env);
+    const index = items.findIndex((i) => i.id === env.id);
+    if (index >= 0) items[index] = env;
+    else items.push(env);
     this.data.environments = items;
     this.flush();
   }
   deleteEnvironment(id: string): void {
-    this.data.environments = this.data.environments.filter(i => i.id !== id);
+    this.data.environments = this.data.environments.filter((i) => i.id !== id);
     this.flush();
   }
 

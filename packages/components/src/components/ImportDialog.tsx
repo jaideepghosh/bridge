@@ -1,8 +1,20 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useStore } from "../context/app-store";
-import { Badge, Button, Dialog, DialogContent, DialogHeader, DialogTitle } from "@bridge/ui";
+import {
+  Badge,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@bridge/ui";
 import { MonacoEditor } from "./MonacoEditor";
-import { parseImportContent, ImportResult, ImportedRequest, ImportedCollection } from "@bridge/importer";
+import {
+  parseImportContent,
+  ImportResult,
+  ImportedRequest,
+  ImportedCollection,
+} from "@bridge/importer";
 import { Environment, Collection, Folder, SavedRequest } from "../types";
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -41,8 +53,11 @@ function detectEnvCandidates(curl: string): EnvVarCandidate[] {
   return candidates;
 }
 
-function applyEnvConversions(parsed: ImportedRequest, candidates: EnvVarCandidate[]): ImportedRequest {
-  const toConvert = candidates.filter(c => c.convert);
+function applyEnvConversions(
+  parsed: ImportedRequest,
+  candidates: EnvVarCandidate[],
+): ImportedRequest {
+  const toConvert = candidates.filter((c) => c.convert);
   if (toConvert.length === 0) return parsed;
 
   const replace = (s: string) =>
@@ -51,8 +66,11 @@ function applyEnvConversions(parsed: ImportedRequest, candidates: EnvVarCandidat
   return {
     ...parsed,
     url: replace(parsed.url),
-    headers: parsed.headers.map(h => ({ ...h, value: replace(h.value) })),
-    queryParams: parsed.queryParams.map(p => ({ ...p, value: replace(p.value) })),
+    headers: parsed.headers.map((h) => ({ ...h, value: replace(h.value) })),
+    queryParams: parsed.queryParams.map((p) => ({
+      ...p,
+      value: replace(p.value),
+    })),
     body:
       parsed.body.type === "json" || parsed.body.type === "raw"
         ? { ...parsed.body, content: replace(parsed.body.content) }
@@ -61,10 +79,14 @@ function applyEnvConversions(parsed: ImportedRequest, candidates: EnvVarCandidat
       parsed.auth.type === "bearer"
         ? { ...parsed.auth, token: replace(parsed.auth.token) }
         : parsed.auth.type === "basic"
-        ? { ...parsed.auth, username: replace(parsed.auth.username), password: replace(parsed.auth.password) }
-        : parsed.auth.type === "apiKey"
-        ? { ...parsed.auth, value: replace(parsed.auth.value) }
-        : parsed.auth,
+          ? {
+              ...parsed.auth,
+              username: replace(parsed.auth.username),
+              password: replace(parsed.auth.password),
+            }
+          : parsed.auth.type === "apiKey"
+            ? { ...parsed.auth, value: replace(parsed.auth.value) }
+            : parsed.auth,
   };
 }
 
@@ -84,25 +106,37 @@ type Props = {
 };
 
 // Tree-like collection list preview component
-function CollectionPreviewTree({ collection }: { collection: ImportedCollection }) {
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(collection.folders.map(f => f.id)));
+function CollectionPreviewTree({
+  collection,
+}: {
+  collection: ImportedCollection;
+}) {
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(
+    new Set(collection.folders.map((f) => f.id)),
+  );
 
   const toggleFolder = (id: string) => {
-    setExpandedFolders(prev => {
+    setExpandedFolders((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };
 
-  const rootRequests = collection.requests.filter(r => !r.folderId);
+  const rootRequests = collection.requests.filter((r) => !r.folderId);
 
   return (
     <div className="border border-border rounded-lg bg-card overflow-hidden flex flex-col h-full max-h-[300px] sm:max-h-[360px] shadow-sm animate-in fade-in-50 duration-200">
       <div className="bg-muted/40 px-4 py-2.5 border-b border-border flex items-center justify-between text-xs font-semibold">
-        <span className="text-foreground font-medium truncate pr-4">{collection.name}</span>
+        <span className="text-foreground font-medium truncate pr-4">
+          {collection.name}
+        </span>
         <span className="text-[10px] text-muted-foreground shrink-0 bg-muted px-2 py-0.5 rounded border">
-          {collection.folders.length} Folder{collection.folders.length !== 1 ? "s" : ""} • {collection.requests.length} Request{collection.requests.length !== 1 ? "s" : ""}
+          {collection.folders.length} Folder
+          {collection.folders.length !== 1 ? "s" : ""} •{" "}
+          {collection.requests.length} Request
+          {collection.requests.length !== 1 ? "s" : ""}
         </span>
       </div>
       {collection.description && (
@@ -112,8 +146,10 @@ function CollectionPreviewTree({ collection }: { collection: ImportedCollection 
       )}
       <div className="flex-1 overflow-y-auto p-3 space-y-1.5 font-mono text-xs select-none">
         {/* Folders */}
-        {collection.folders.map(folder => {
-          const folderRequests = collection.requests.filter(r => r.folderId === folder.id);
+        {collection.folders.map((folder) => {
+          const folderRequests = collection.requests.filter(
+            (r) => r.folderId === folder.id,
+          );
           const isExpanded = expandedFolders.has(folder.id);
           return (
             <div key={folder.id} className="space-y-1">
@@ -121,7 +157,9 @@ function CollectionPreviewTree({ collection }: { collection: ImportedCollection 
                 className="w-full flex items-center gap-1.5 py-1 px-1.5 rounded hover:bg-muted/50 text-left font-medium text-foreground transition-colors cursor-pointer"
                 onClick={() => toggleFolder(folder.id)}
               >
-                <ChevronDown className={`h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform ${isExpanded ? "" : "-rotate-90"}`} />
+                <ChevronDown
+                  className={`h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform ${isExpanded ? "" : "-rotate-90"}`}
+                />
                 <FolderIcon className="h-4 w-4 text-amber-500 shrink-0 fill-amber-500/20" />
                 <span className="truncate flex-1">{folder.name}</span>
                 <span className="text-[10px] text-muted-foreground font-sans bg-muted/30 px-1.5 py-0.2 rounded">
@@ -131,15 +169,27 @@ function CollectionPreviewTree({ collection }: { collection: ImportedCollection 
               {isExpanded && (
                 <div className="pl-3.5 border-l border-border/50 ml-3.5 space-y-1 animate-in slide-in-from-top-1 duration-100">
                   {folderRequests.length === 0 && (
-                    <div className="text-[10px] text-muted-foreground italic px-2 py-0.5">Empty folder</div>
+                    <div className="text-[10px] text-muted-foreground italic px-2 py-0.5">
+                      Empty folder
+                    </div>
                   )}
                   {folderRequests.map((req, idx) => (
-                    <div key={idx} className="flex items-center gap-2 py-1 px-2 rounded hover:bg-muted/30 text-[11px] group transition-colors">
-                      <Badge className={`text-[9px] font-bold border-0 px-1 py-0.5 rounded-sm shrink-0 font-mono tracking-wider ${METHOD_COLORS[req.method] ?? ""}`}>
+                    <div
+                      key={idx}
+                      className="flex items-center gap-2 py-1 px-2 rounded hover:bg-muted/30 text-[11px] group transition-colors"
+                    >
+                      <Badge
+                        className={`text-[9px] font-bold border-0 px-1 py-0.5 rounded-sm shrink-0 font-mono tracking-wider ${METHOD_COLORS[req.method] ?? ""}`}
+                      >
                         {req.method}
                       </Badge>
-                      <span className="truncate text-foreground/80 flex-1 font-sans font-medium">{req.name}</span>
-                      <span className="text-[10px] text-muted-foreground truncate max-w-[150px] sm:max-w-[280px]" title={req.url}>
+                      <span className="truncate text-foreground/80 flex-1 font-sans font-medium">
+                        {req.name}
+                      </span>
+                      <span
+                        className="text-[10px] text-muted-foreground truncate max-w-[150px] sm:max-w-[280px]"
+                        title={req.url}
+                      >
                         {req.url}
                       </span>
                     </div>
@@ -154,12 +204,22 @@ function CollectionPreviewTree({ collection }: { collection: ImportedCollection 
         {rootRequests.length > 0 && (
           <div className="space-y-1 pt-1.5 border-t border-border/40 mt-1.5">
             {rootRequests.map((req, idx) => (
-              <div key={idx} className="flex items-center gap-2 py-1 px-2 rounded hover:bg-muted/30 text-[11px] transition-colors">
-                <Badge className={`text-[9px] font-bold border-0 px-1 py-0.5 rounded-sm shrink-0 font-mono tracking-wider ${METHOD_COLORS[req.method] ?? ""}`}>
+              <div
+                key={idx}
+                className="flex items-center gap-2 py-1 px-2 rounded hover:bg-muted/30 text-[11px] transition-colors"
+              >
+                <Badge
+                  className={`text-[9px] font-bold border-0 px-1 py-0.5 rounded-sm shrink-0 font-mono tracking-wider ${METHOD_COLORS[req.method] ?? ""}`}
+                >
                   {req.method}
                 </Badge>
-                <span className="truncate text-foreground/80 flex-1 font-sans font-medium">{req.name}</span>
-                <span className="text-[10px] text-muted-foreground truncate max-w-[150px] sm:max-w-[280px]" title={req.url}>
+                <span className="truncate text-foreground/80 flex-1 font-sans font-medium">
+                  {req.name}
+                </span>
+                <span
+                  className="text-[10px] text-muted-foreground truncate max-w-[150px] sm:max-w-[280px]"
+                  title={req.url}
+                >
                   {req.url}
                 </span>
               </div>
@@ -172,7 +232,15 @@ function CollectionPreviewTree({ collection }: { collection: ImportedCollection 
 }
 
 export function ImportDialog({ open, onClose }: Props) {
-  const { openTab, environments, activeEnvironmentId, saveEnvironment, saveCollection, saveFolder, saveRequest } = useStore(s => ({
+  const {
+    openTab,
+    environments,
+    activeEnvironmentId,
+    saveEnvironment,
+    saveCollection,
+    saveFolder,
+    saveRequest,
+  } = useStore((s) => ({
     openTab: s.openTab,
     environments: s.environments,
     activeEnvironmentId: s.activeEnvironmentId,
@@ -215,18 +283,24 @@ export function ImportDialog({ open, onClose }: Props) {
       setParsed(null);
       setEnvCandidates([]);
       if (trimmed.toLowerCase().startsWith("curl")) {
-        setParseError("Could not fully parse this cURL command. Check for unbalanced quotes or missing URL.");
+        setParseError(
+          "Could not fully parse this cURL command. Check for unbalanced quotes or missing URL.",
+        );
       } else if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
-        setParseError("Could not parse JSON. Check syntax or ensure it matches Postman/OpenAPI format.");
+        setParseError(
+          "Could not parse JSON. Check syntax or ensure it matches Postman/OpenAPI format.",
+        );
       } else {
-        setParseError("Unrecognized format. Paste a valid cURL command, OpenAPI JSON/YAML, or Postman Collection.");
+        setParseError(
+          "Unrecognized format. Paste a valid cURL command, OpenAPI JSON/YAML, or Postman Collection.",
+        );
       }
     }
   }, [importText]);
 
   const toggleCandidate = (name: string) => {
-    setEnvCandidates(prev =>
-      prev.map(c => (c.name === name ? { ...c, convert: !c.convert } : c))
+    setEnvCandidates((prev) =>
+      prev.map((c) => (c.name === name ? { ...c, convert: !c.convert } : c)),
     );
   };
 
@@ -267,18 +341,19 @@ export function ImportDialog({ open, onClose }: Props) {
       const parsedReq = parsed.data;
       let finalParsed = parsedReq;
 
-      const toConvert = envCandidates.filter(c => c.convert);
+      const toConvert = envCandidates.filter((c) => c.convert);
       if (toConvert.length > 0) {
         finalParsed = applyEnvConversions(parsedReq, envCandidates);
 
         const targetEnv: Environment | undefined =
-          environments.find(e => e.id === activeEnvironmentId) ?? environments[0];
+          environments.find((e) => e.id === activeEnvironmentId) ??
+          environments[0];
 
         if (targetEnv) {
-          const existingKeys = new Set(targetEnv.variables.map(v => v.key));
+          const existingKeys = new Set(targetEnv.variables.map((v) => v.key));
           const newVars = toConvert
-            .filter(c => !existingKeys.has(c.name))
-            .map(c => ({
+            .filter((c) => !existingKeys.has(c.name))
+            .map((c) => ({
               id: uuidv4(),
               key: c.name,
               initialValue: "",
@@ -340,7 +415,9 @@ export function ImportDialog({ open, onClose }: Props) {
           name: f.name,
           description: f.description || "",
           collectionId,
-          parentFolderId: f.parentFolderId ? folderIdMap.get(f.parentFolderId) : null,
+          parentFolderId: f.parentFolderId
+            ? folderIdMap.get(f.parentFolderId)
+            : null,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
@@ -359,11 +436,12 @@ export function ImportDialog({ open, onClose }: Props) {
           headers: r.headers,
           queryParams: r.queryParams,
           pathParams: r.pathParams,
-          body: r.body.type === "none"
-            ? { type: "none" }
-            : r.body.type === "json" || r.body.type === "raw"
-            ? { type: r.body.type, content: r.body.content || "" }
-            : { type: r.body.type, pairs: r.body.pairs || [] },
+          body:
+            r.body.type === "none"
+              ? { type: "none" }
+              : r.body.type === "json" || r.body.type === "raw"
+                ? { type: r.body.type, content: r.body.content || "" }
+                : { type: r.body.type, pairs: r.body.pairs || [] },
           auth: r.auth,
           collectionId,
           folderId: r.folderId ? folderIdMap.get(r.folderId) : null,
@@ -378,7 +456,18 @@ export function ImportDialog({ open, onClose }: Props) {
     setParsed(null);
     setEnvCandidates([]);
     onClose();
-  }, [parsed, envCandidates, environments, activeEnvironmentId, saveEnvironment, saveCollection, saveFolder, saveRequest, openTab, onClose]);
+  }, [
+    parsed,
+    envCandidates,
+    environments,
+    activeEnvironmentId,
+    saveEnvironment,
+    saveCollection,
+    saveFolder,
+    saveRequest,
+    openTab,
+    onClose,
+  ]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -387,13 +476,13 @@ export function ImportDialog({ open, onClose }: Props) {
         handleImport();
       }
     },
-    [parsed, handleImport]
+    [parsed, handleImport],
   );
 
   const handlePaste = useCallback(() => {
     navigator.clipboard
       .readText()
-      .then(text => {
+      .then((text) => {
         if (text.trim()) setImportText(text.trim());
       })
       .catch(() => {});
@@ -402,16 +491,23 @@ export function ImportDialog({ open, onClose }: Props) {
   const getFormatLabel = () => {
     if (!parsed) return "";
     if (parsed.type === "request") return "cURL Command";
-    const isYaml = !importText.trim().startsWith("{") && !importText.trim().startsWith("[");
-    const isPostman = importText.includes('"info"') && importText.includes('"item"');
+    const isYaml =
+      !importText.trim().startsWith("{") && !importText.trim().startsWith("[");
+    const isPostman =
+      importText.includes('"info"') && importText.includes('"item"');
     if (isPostman) return "Postman Collection";
-    return isYaml ? "OpenAPI Specification (YAML)" : "OpenAPI Specification (JSON)";
+    return isYaml
+      ? "OpenAPI Specification (YAML)"
+      : "OpenAPI Specification (JSON)";
   };
 
   const getFormatIcon = () => {
-    if (!parsed) return <HelpCircle className="h-4 w-4 text-muted-foreground" />;
-    if (parsed.type === "request") return <FileCode className="h-4 w-4 text-sky-500" />;
-    const isPostman = importText.includes('"info"') && importText.includes('"item"');
+    if (!parsed)
+      return <HelpCircle className="h-4 w-4 text-muted-foreground" />;
+    if (parsed.type === "request")
+      return <FileCode className="h-4 w-4 text-sky-500" />;
+    const isPostman =
+      importText.includes('"info"') && importText.includes('"item"');
     if (isPostman) return <FileJson className="h-4 w-4 text-orange-500" />;
     return <FileText className="h-4 w-4 text-emerald-500" />;
   };
@@ -448,9 +544,12 @@ export function ImportDialog({ open, onClose }: Props) {
             onDrop={handleDrop}
           >
             <Upload className="h-14 w-14 text-primary mb-4 animate-bounce" />
-            <h2 className="text-lg font-bold text-foreground">Drop File to Import</h2>
+            <h2 className="text-lg font-bold text-foreground">
+              Drop File to Import
+            </h2>
             <p className="text-xs text-muted-foreground mt-1 text-center">
-              Drop JSON or YAML files here to automatically analyze and extract requests
+              Drop JSON or YAML files here to automatically analyze and extract
+              requests
             </p>
           </div>
         )}
@@ -481,24 +580,35 @@ export function ImportDialog({ open, onClose }: Props) {
                 Paste from Clipboard
               </Button>
               <kbd className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded font-mono border">
-                {typeof navigator !== "undefined" && navigator.platform?.includes("Mac") ? "⌘↵" : "Ctrl+↵"} to import
+                {typeof navigator !== "undefined" &&
+                navigator.platform?.includes("Mac")
+                  ? "⌘↵"
+                  : "Ctrl+↵"}{" "}
+                to import
               </kbd>
             </div>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Paste a cURL command or drop/select a Postman Collection JSON, OpenAPI JSON, or OpenAPI YAML spec.
+            Paste a cURL command or drop/select a Postman Collection JSON,
+            OpenAPI JSON, or OpenAPI YAML spec.
           </p>
         </DialogHeader>
 
-        <div className="flex flex-col flex-1 min-h-0 overflow-hidden" onDragOver={handleDragOver}>
+        <div
+          className="flex flex-col flex-1 min-h-0 overflow-hidden"
+          onDragOver={handleDragOver}
+        >
           {/* Editor block */}
           <div className="flex-1 min-h-[200px] border-b border-border relative">
             {!importText && (
               <div className="absolute inset-0 flex flex-col items-center justify-center p-6 border-2 border-dashed border-border/50 m-4 rounded-xl bg-muted/5 pointer-events-none select-none">
                 <Upload className="h-10 w-10 text-muted-foreground/40 mb-3 animate-pulse" />
-                <h3 className="text-xs font-semibold text-foreground mb-1">Drag & drop files here</h3>
+                <h3 className="text-xs font-semibold text-foreground mb-1">
+                  Drag & drop files here
+                </h3>
                 <p className="text-[11px] text-muted-foreground text-center max-w-[280px] mb-4 leading-relaxed">
-                  Supports OpenAPI Specification (JSON/YAML), Swagger 2.0, Postman Collection, or raw cURL scripts
+                  Supports OpenAPI Specification (JSON/YAML), Swagger 2.0,
+                  Postman Collection, or raw cURL scripts
                 </p>
                 <Button
                   variant="outline"
@@ -515,7 +625,7 @@ export function ImportDialog({ open, onClose }: Props) {
             )}
             <MonacoEditor
               value={importText}
-              onChange={v => setImportText(v ?? "")}
+              onChange={(v) => setImportText(v ?? "")}
               language={getMonacoLanguage()}
               minimal
               options={{
@@ -536,7 +646,9 @@ export function ImportDialog({ open, onClose }: Props) {
             {parseError && (
               <div className="flex items-start gap-2.5 px-5 py-3.5 bg-destructive/5 border-b border-border/80">
                 <AlertCircle className="h-4.5 w-4.5 text-destructive shrink-0 mt-0.5" />
-                <p className="text-xs text-destructive leading-normal">{parseError}</p>
+                <p className="text-xs text-destructive leading-normal">
+                  {parseError}
+                </p>
               </div>
             )}
 
@@ -557,7 +669,9 @@ export function ImportDialog({ open, onClose }: Props) {
                   /* Single Request (cURL) preview */
                   <div className="space-y-3.5 animate-in fade-in-50 duration-200">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <Badge className={`text-[10px] font-mono font-bold border-0 px-2 py-0.5 rounded-sm ${METHOD_COLORS[parsed.data.method] ?? ""}`}>
+                      <Badge
+                        className={`text-[10px] font-mono font-bold border-0 px-2 py-0.5 rounded-sm ${METHOD_COLORS[parsed.data.method] ?? ""}`}
+                      >
                         {parsed.data.method}
                       </Badge>
                       <span className="font-mono text-xs text-foreground break-all bg-muted/50 px-2 py-0.5 rounded border">
@@ -569,32 +683,49 @@ export function ImportDialog({ open, onClose }: Props) {
                       <div className="border border-border rounded-lg overflow-hidden bg-card shadow-sm">
                         <button
                           className="w-full flex items-center justify-between px-4 py-2.5 text-xs font-semibold hover:bg-muted/30 transition-colors cursor-pointer"
-                          onClick={() => setShowEnvPanel(p => !p)}
+                          onClick={() => setShowEnvPanel((p) => !p)}
                         >
                           <span className="flex items-center gap-1.5">
                             <span className="text-amber-500">
-                              {envCandidates.length} environment variable{envCandidates.length > 1 ? "s" : ""} detected
+                              {envCandidates.length} environment variable
+                              {envCandidates.length > 1 ? "s" : ""} detected
                             </span>
-                            <span className="text-muted-foreground font-normal">— click to {showEnvPanel ? "collapse" : "configure"}</span>
+                            <span className="text-muted-foreground font-normal">
+                              — click to{" "}
+                              {showEnvPanel ? "collapse" : "configure"}
+                            </span>
                           </span>
-                          {showEnvPanel ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />}
+                          {showEnvPanel ? (
+                            <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
+                          ) : (
+                            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                          )}
                         </button>
 
                         {showEnvPanel && (
                           <div className="px-4 pb-3.5 space-y-2 border-t pt-2.5 bg-muted/5 animate-in slide-in-from-top-1 duration-150">
                             <p className="text-xs text-muted-foreground mb-1 leading-relaxed">
-                              Select variables to convert from inline values to <span className="font-mono text-amber-500 font-medium">{"{{VAR}}"}</span> tokens.
-                              They will be automatically added to your active environment variables configuration.
+                              Select variables to convert from inline values to{" "}
+                              <span className="font-mono text-amber-500 font-medium">
+                                {"{{VAR}}"}
+                              </span>{" "}
+                              tokens. They will be automatically added to your
+                              active environment variables configuration.
                             </p>
-                            {envCandidates.map(c => (
-                              <label key={c.name} className="flex items-center gap-2.5 cursor-pointer group py-0.5 select-none">
+                            {envCandidates.map((c) => (
+                              <label
+                                key={c.name}
+                                className="flex items-center gap-2.5 cursor-pointer group py-0.5 select-none"
+                              >
                                 <input
                                   type="checkbox"
                                   checked={c.convert}
                                   onChange={() => toggleCandidate(c.name)}
                                   className="rounded border-border text-primary focus:ring-primary h-3.5 w-3.5 cursor-pointer"
                                 />
-                                <span className="font-mono text-xs text-amber-500">{c.raw}</span>
+                                <span className="font-mono text-xs text-amber-500">
+                                  {c.raw}
+                                </span>
                                 <ArrowRight className="h-3 w-3 text-muted-foreground shrink-0" />
                                 <span className="font-mono text-xs text-foreground font-semibold">{`{{${c.name}}}`}</span>
                               </label>
@@ -621,13 +752,20 @@ export function ImportDialog({ open, onClose }: Props) {
             {parsed ? (
               <span>Ready to import into workspace</span>
             ) : importText ? (
-              <span className="text-destructive font-medium">Please fix the file structure or format to continue</span>
+              <span className="text-destructive font-medium">
+                Please fix the file structure or format to continue
+              </span>
             ) : (
               <span>Upload a file or paste content to get started</span>
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={onClose} className="cursor-pointer">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onClose}
+              className="cursor-pointer"
+            >
               Cancel
             </Button>
             <Button
@@ -636,7 +774,12 @@ export function ImportDialog({ open, onClose }: Props) {
               disabled={!parsed}
               className="gap-1.5 cursor-pointer"
             >
-              Import {parsed ? (parsed.type === "request" ? "Request" : "Collection") : "Content"}
+              Import{" "}
+              {parsed
+                ? parsed.type === "request"
+                  ? "Request"
+                  : "Collection"
+                : "Content"}
               <ArrowRight className="h-3.5 w-3.5" />
             </Button>
           </div>

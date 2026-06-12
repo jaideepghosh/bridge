@@ -1,9 +1,22 @@
 import { createStore, StoreApi, useStore as useZustandStore } from "zustand";
 import { useShallow } from "zustand/react/shallow";
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { v4 as uuidv4 } from "uuid";
 import {
-  ActiveTab, Collection, Folder, SavedRequest, Environment, HttpMethod, ApiExample,
+  ActiveTab,
+  Collection,
+  Folder,
+  SavedRequest,
+  Environment,
+  HttpMethod,
+  ApiExample,
 } from "../types";
 import { StorageProvider } from "../services/storage/types";
 import { StorageDirectoryModal } from "../components/StorageDirectoryModal";
@@ -34,14 +47,23 @@ export interface AppState {
   loadStorage: () => void;
   setActiveEnvironmentId: (id: string | null) => void;
 
-  openTab: (request?: SavedRequest, draft?: Partial<ActiveTab["draft"]>) => void;
+  openTab: (
+    request?: SavedRequest,
+    draft?: Partial<ActiveTab["draft"]>,
+  ) => void;
   openExampleTab: (exampleId: string) => void;
   closeTab: (tabId: string) => void;
   reopenLastClosedTab: () => void;
   selectTab: (tabId: string) => void;
   updateTabDraft: (tabId: string, updates: Partial<ActiveTab["draft"]>) => void;
-  setTabResponse: (tabId: string, response: any | null, isLoading: boolean) => void;
-  selectSidebarItem: (item: { kind: "collection" | "folder"; id: string } | null) => void;
+  setTabResponse: (
+    tabId: string,
+    response: any | null,
+    isLoading: boolean,
+  ) => void;
+  selectSidebarItem: (
+    item: { kind: "collection" | "folder"; id: string } | null,
+  ) => void;
 
   toggleCollection: (id: string) => void;
   toggleFolder: (id: string) => void;
@@ -137,10 +159,10 @@ export function createAppStore(storage: StorageProvider): StoreApi<AppState> {
 
     openExampleTab: (exampleId) => {
       const { examples, requests } = get();
-      const ex = examples.find(e => e.id === exampleId);
+      const ex = examples.find((e) => e.id === exampleId);
       if (!ex) return;
-      const req = requests.find(r => r.id === ex.requestId) ?? ex.request;
-      set(state => {
+      const req = requests.find((r) => r.id === ex.requestId) ?? ex.request;
+      set((state) => {
         const newTab: ActiveTab = {
           id: uuidv4(),
           requestId: req.id,
@@ -158,14 +180,20 @@ export function createAppStore(storage: StorageProvider): StoreApi<AppState> {
           response: { ...ex.response },
           isLoading: false,
         };
-        return { activeTabs: [...state.activeTabs, newTab], selectedTabId: newTab.id, selectedSidebarItem: null };
+        return {
+          activeTabs: [...state.activeTabs, newTab],
+          selectedTabId: newTab.id,
+          selectedSidebarItem: null,
+        };
       });
     },
 
     openTab: (request, draftOverride) => {
-      set(state => {
+      set((state) => {
         if (request) {
-          const existing = state.activeTabs.find(t => t.requestId === request.id);
+          const existing = state.activeTabs.find(
+            (t) => t.requestId === request.id,
+          );
           if (existing) return { selectedTabId: existing.id };
         }
         const newTab = request ? reqToTab(request) : createBlankTab();
@@ -173,36 +201,52 @@ export function createAppStore(storage: StorageProvider): StoreApi<AppState> {
           newTab.draft = { ...newTab.draft, ...draftOverride };
           newTab.isDirty = true;
         }
-        return { activeTabs: [...state.activeTabs, newTab], selectedTabId: newTab.id, selectedSidebarItem: null };
+        return {
+          activeTabs: [...state.activeTabs, newTab],
+          selectedTabId: newTab.id,
+          selectedSidebarItem: null,
+        };
       });
     },
 
     closeTab: (tabId) => {
-      const tabToClose = get().activeTabs.find(t => t.id === tabId);
-      set(state => {
-        const filtered = state.activeTabs.filter(t => t.id !== tabId);
-        const closedHistory = tabToClose ? [...state.closedTabsHistory, tabToClose] : state.closedTabsHistory;
+      const tabToClose = get().activeTabs.find((t) => t.id === tabId);
+      set((state) => {
+        const filtered = state.activeTabs.filter((t) => t.id !== tabId);
+        const closedHistory = tabToClose
+          ? [...state.closedTabsHistory, tabToClose]
+          : state.closedTabsHistory;
         if (filtered.length === 0) {
           const newTab = createBlankTab();
-          return { activeTabs: [newTab], selectedTabId: newTab.id, closedTabsHistory: closedHistory };
+          return {
+            activeTabs: [newTab],
+            selectedTabId: newTab.id,
+            closedTabsHistory: closedHistory,
+          };
         }
         let nextSelected = state.selectedTabId;
         if (state.selectedTabId === tabId) {
-          const idx = state.activeTabs.findIndex(t => t.id === tabId);
+          const idx = state.activeTabs.findIndex((t) => t.id === tabId);
           nextSelected = filtered[Math.max(0, idx - 1)]?.id || null;
         }
-        return { activeTabs: filtered, selectedTabId: nextSelected, closedTabsHistory: closedHistory };
+        return {
+          activeTabs: filtered,
+          selectedTabId: nextSelected,
+          closedTabsHistory: closedHistory,
+        };
       });
     },
 
     reopenLastClosedTab: () => {
       const history = get().closedTabsHistory;
       if (history.length === 0) return;
-      set(state => {
+      set((state) => {
         const nextHistory = [...state.closedTabsHistory];
         const lastTab = nextHistory.pop()!;
-        const alreadyActive = state.activeTabs.some(t => t.id === lastTab.id);
-        const newActiveTabs = alreadyActive ? state.activeTabs : [...state.activeTabs, lastTab];
+        const alreadyActive = state.activeTabs.some((t) => t.id === lastTab.id);
+        const newActiveTabs = alreadyActive
+          ? state.activeTabs
+          : [...state.activeTabs, lastTab];
         return {
           activeTabs: newActiveTabs,
           selectedTabId: lastTab.id,
@@ -214,53 +258,61 @@ export function createAppStore(storage: StorageProvider): StoreApi<AppState> {
     selectSidebarItem: (item) => set({ selectedSidebarItem: item }),
     selectTab: (tabId) => set({ selectedTabId: tabId }),
 
-    toggleCollection: (id) => set(state => {
-      const isCollapsed = state.collapsedCollections.includes(id);
-      return {
-        collapsedCollections: isCollapsed
-          ? state.collapsedCollections.filter(cid => cid !== id)
-          : [...state.collapsedCollections, id]
-      };
-    }),
-    toggleFolder: (id) => set(state => {
-      const isExpanded = state.expandedFolders.includes(id);
-      return {
-        expandedFolders: isExpanded
-          ? state.expandedFolders.filter(fid => fid !== id)
-          : [...state.expandedFolders, id]
-      };
-    }),
-    setCollectionCollapsed: (id, collapsed) => set(state => {
-      const isCollapsed = state.collapsedCollections.includes(id);
-      if (collapsed === isCollapsed) return {};
-      return {
-        collapsedCollections: collapsed
-          ? [...state.collapsedCollections, id]
-          : state.collapsedCollections.filter(cid => cid !== id)
-      };
-    }),
-    setFolderExpanded: (id, expanded) => set(state => {
-      const isExpanded = state.expandedFolders.includes(id);
-      if (expanded === isExpanded) return {};
-      return {
-        expandedFolders: expanded
-          ? [...state.expandedFolders, id]
-          : state.expandedFolders.filter(fid => fid !== id)
-      };
-    }),
+    toggleCollection: (id) =>
+      set((state) => {
+        const isCollapsed = state.collapsedCollections.includes(id);
+        return {
+          collapsedCollections: isCollapsed
+            ? state.collapsedCollections.filter((cid) => cid !== id)
+            : [...state.collapsedCollections, id],
+        };
+      }),
+    toggleFolder: (id) =>
+      set((state) => {
+        const isExpanded = state.expandedFolders.includes(id);
+        return {
+          expandedFolders: isExpanded
+            ? state.expandedFolders.filter((fid) => fid !== id)
+            : [...state.expandedFolders, id],
+        };
+      }),
+    setCollectionCollapsed: (id, collapsed) =>
+      set((state) => {
+        const isCollapsed = state.collapsedCollections.includes(id);
+        if (collapsed === isCollapsed) return {};
+        return {
+          collapsedCollections: collapsed
+            ? [...state.collapsedCollections, id]
+            : state.collapsedCollections.filter((cid) => cid !== id),
+        };
+      }),
+    setFolderExpanded: (id, expanded) =>
+      set((state) => {
+        const isExpanded = state.expandedFolders.includes(id);
+        if (expanded === isExpanded) return {};
+        return {
+          expandedFolders: expanded
+            ? [...state.expandedFolders, id]
+            : state.expandedFolders.filter((fid) => fid !== id),
+        };
+      }),
     setNavigate: (navigate) => set({ navigate }),
 
-    updateTabDraft: (tabId, updates) => set(state => ({
-      activeTabs: state.activeTabs.map(t =>
-        t.id === tabId ? { ...t, isDirty: true, draft: { ...t.draft, ...updates } } : t
-      ),
-    })),
+    updateTabDraft: (tabId, updates) =>
+      set((state) => ({
+        activeTabs: state.activeTabs.map((t) =>
+          t.id === tabId
+            ? { ...t, isDirty: true, draft: { ...t.draft, ...updates } }
+            : t,
+        ),
+      })),
 
-    setTabResponse: (tabId, response, isLoading) => set(state => ({
-      activeTabs: state.activeTabs.map(t =>
-        t.id === tabId ? { ...t, response, isLoading } : t
-      ),
-    })),
+    setTabResponse: (tabId, response, isLoading) =>
+      set((state) => ({
+        activeTabs: state.activeTabs.map((t) =>
+          t.id === tabId ? { ...t, response, isLoading } : t,
+        ),
+      })),
 
     saveEnvironment: (env) => {
       storage.saveEnvironment(env);
@@ -276,9 +328,11 @@ export function createAppStore(storage: StorageProvider): StoreApi<AppState> {
     saveRequest: (req) => {
       storage.saveRequest(req);
       set({ requests: storage.getRequests() });
-      set(state => ({
-        activeTabs: state.activeTabs.map(t =>
-          t.requestId === req.id ? { ...t, isDirty: false, draft: { ...reqToTab(req).draft } } : t
+      set((state) => ({
+        activeTabs: state.activeTabs.map((t) =>
+          t.requestId === req.id
+            ? { ...t, isDirty: false, draft: { ...reqToTab(req).draft } }
+            : t,
         ),
       }));
     },
@@ -344,7 +398,8 @@ export function AppStoreProvider({
   // After storage.initialize() completes, load data into the store.
   // For localStorage this resolves immediately; for file-based storage it awaits the file read.
   useEffect(() => {
-    storage.initialize()
+    storage
+      .initialize()
       .then(() => {
         if (storage.requiresPermissionGesture) {
           setNeedsPermission(true);
@@ -355,11 +410,14 @@ export function AppStoreProvider({
       .catch((err) => {
         console.error("[AppStoreProvider] storage.initialize() failed:", err);
       });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (needsPermission) {
-    const workspaceName = typeof window !== "undefined" ? localStorage.getItem("bridge_storage_directory") : "";
+    const workspaceName =
+      typeof window !== "undefined"
+        ? localStorage.getItem("bridge_storage_directory")
+        : "";
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-md">
         <div className="max-w-md w-full p-8 rounded-2xl border border-border/80 bg-card/95 shadow-2xl space-y-6 animate-in fade-in zoom-in duration-200">
@@ -371,13 +429,15 @@ export function AppStoreProvider({
               Authorize Folder Access
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Bridge is configured to save all REST collections, environments, folders, and request histories inside your local folder:
+              Bridge is configured to save all REST collections, environments,
+              folders, and request histories inside your local folder:
             </p>
             <div className="px-4 py-2 rounded-lg bg-muted text-foreground font-semibold text-xs border truncate max-w-full">
               {workspaceName || "Selected Folder"}
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed pt-1">
-              To respect your privacy, the browser requires you to re-authorize read/write access to this folder for this session.
+              To respect your privacy, the browser requires you to re-authorize
+              read/write access to this folder for this session.
             </p>
           </div>
 
@@ -402,11 +462,13 @@ export function AppStoreProvider({
               onClick={() => {
                 if (typeof window !== "undefined") {
                   localStorage.removeItem("bridge_storage_directory");
-                  import("../services/storage/indexedDb").then(({ clearDirectoryHandle }) => {
-                    clearDirectoryHandle().then(() => {
-                      window.location.reload();
-                    });
-                  });
+                  import("../services/storage/indexedDb").then(
+                    ({ clearDirectoryHandle }) => {
+                      clearDirectoryHandle().then(() => {
+                        window.location.reload();
+                      });
+                    },
+                  );
                 }
               }}
               className="w-full h-10 text-xs text-muted-foreground border-border/60 hover:text-foreground cursor-pointer"

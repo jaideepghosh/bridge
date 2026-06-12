@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
 import { CircleHelp, ExternalLink } from "lucide-react";
-import { Badge, cn, Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@bridge/ui";
+import {
+  Badge,
+  cn,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@bridge/ui";
 import { AboutDialog } from "../AboutDialog";
 import { AppVersion } from "../AppVersion";
 
@@ -23,14 +31,23 @@ export function Footer() {
   const shortcuts = [
     { keys: ["⌘ + Enter", "Ctrl + Enter"], desc: "Send active request" },
     { keys: ["⌘ + S", "Ctrl + S"], desc: "Save active request" },
-    { keys: ["⌘ + Shift + I", "Ctrl + Shift + I"], desc: "Import cURL command" },
+    {
+      keys: ["⌘ + Shift + I", "Ctrl + Shift + I"],
+      desc: "Import cURL command",
+    },
     { keys: ["Double-click Tab"], desc: "Rename request tab" },
     { keys: ["⌘ + T", "Ctrl + T"], desc: "Create and activate new tab" },
     { keys: ["⌘ + W", "Ctrl + W"], desc: "Close active tab (asks if dirty)" },
     { keys: ["⌥ + ⌘ + W", "Ctrl + Alt + W"], desc: "Force close active tab" },
-    { keys: ["⌘ + Shift + T", "Ctrl + Shift + T"], desc: "Reopen last closed tab" },
+    {
+      keys: ["⌘ + Shift + T", "Ctrl + Shift + T"],
+      desc: "Reopen last closed tab",
+    },
     { keys: ["⌘ + Shift + ]", "Ctrl + Shift + ]"], desc: "Switch to next tab" },
-    { keys: ["⌘ + Shift + [", "Ctrl + Shift + ["], desc: "Switch to previous tab" },
+    {
+      keys: ["⌘ + Shift + [", "Ctrl + Shift + ["],
+      desc: "Switch to previous tab",
+    },
     { keys: ["⌘ + 1-8", "Ctrl + 1-8"], desc: "Go to tab position 1 to 8" },
     { keys: ["⌘ + 9", "Ctrl + 9"], desc: "Go to last tab" },
   ];
@@ -43,7 +60,7 @@ export function Footer() {
           <span
             className={cn(
               "h-2 w-2 rounded-full",
-              isOnline ? "bg-emerald-500" : "bg-red-500"
+              isOnline ? "bg-emerald-500" : "bg-red-500",
             )}
           />
           {isOnline ? "Connected" : "Offline"}
@@ -53,7 +70,7 @@ export function Footer() {
       {/* Right side: About, Help icon & Version */}
       <div className="flex items-center space-x-3">
         <AboutDialog />
-        
+
         <div className="h-3 w-px bg-border" />
 
         <Dialog>
@@ -74,7 +91,8 @@ export function Footer() {
             </DialogHeader>
             <div className="space-y-3">
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Improve your productivity with these built-in keyboard shortcuts and quick interactions:
+                Improve your productivity with these built-in keyboard shortcuts
+                and quick interactions:
               </p>
               <div className="border rounded-lg overflow-hidden bg-muted/20">
                 <table className="w-full text-xs text-left">
@@ -97,7 +115,9 @@ export function Footer() {
                             </kbd>
                           ))}
                         </td>
-                        <td className="px-3 py-2 text-muted-foreground font-medium">{s.desc}</td>
+                        <td className="px-3 py-2 text-muted-foreground font-medium">
+                          {s.desc}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
