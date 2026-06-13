@@ -45,25 +45,23 @@ export function CodeGeneratorDialog({ request }: CodeGeneratorDialogProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="h-9 px-3 border-dashed shrink-0"
-          title="Generate code snippet"
-        >
+        <Button variant="outline" size="sm" title="Generate code snippet">
           <Code2 className="h-4 w-4" />
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-full lg:max-w-4xl h-[520px] flex flex-col p-0 gap-0">
         <DialogHeader className="px-4 py-3 border-b shrink-0">
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-sm font-semibold">Generate Code</DialogTitle>
+            <DialogTitle className="text-sm font-semibold">
+              Generate Code
+            </DialogTitle>
             <div className="flex items-center gap-2 pr-8">
               <Select value={selectedId} onValueChange={setSelectedId}>
                 <SelectTrigger className="w-[180px] h-8 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {generators.map(gen => (
+                  {generators.map((gen) => (
                     <SelectItem key={gen.id} value={gen.id} className="text-xs">
                       {gen.name}
                     </SelectItem>
@@ -74,10 +72,12 @@ export function CodeGeneratorDialog({ request }: CodeGeneratorDialogProps) {
                 variant="ghost"
                 size="sm"
                 className="h-8 w-8 p-0"
-                onClick={() => setWordWrap(w => !w)}
+                onClick={() => setWordWrap((w) => !w)}
                 title={wordWrap ? "Disable word wrap" : "Enable word wrap"}
               >
-                <WrapText className={`h-3.5 w-3.5 ${wordWrap ? "text-primary" : "text-muted-foreground"}`} />
+                <WrapText
+                  className={`h-3.5 w-3.5 ${wordWrap ? "text-primary" : "text-muted-foreground"}`}
+                />
               </Button>
               <Button
                 variant="ghost"
