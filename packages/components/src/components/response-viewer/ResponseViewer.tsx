@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useStore } from "../../context/app-store";
 import { MonacoEditor } from "../MonacoEditor";
 import { Button, Tabs, TabsContent, TabsList, TabsTrigger } from "@bridge/ui";

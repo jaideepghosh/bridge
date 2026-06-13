@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { EnvironmentManager } from "../EnvironmentManager";
-import { Moon, Sun, Rainbow, Folder, Monitor, X } from "lucide-react";
+import { Moon, Sun, Rainbow, Folder, Monitor } from "lucide-react";
 import { StorageDirectoryModal } from "../StorageDirectoryModal";
 import { BrowserFileSystemStorageProvider } from "../../services/storage/browserFileSystem";
 import { Button } from "@bridge/ui";
