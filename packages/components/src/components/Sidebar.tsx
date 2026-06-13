@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import { useStore } from "../context/app-store";
-import { Input } from "@bridge/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,

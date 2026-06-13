@@ -31,7 +31,6 @@ import {
   HelpCircle,
   Terminal,
   Layers,
-  X,
   Sparkles,
 } from "lucide-react";
 
@@ -486,18 +485,6 @@ export function ImportDialog({ open, onClose }: Props) {
     [parsed, handleImport],
   );
 
-  const handlePaste = useCallback(() => {
-    navigator.clipboard
-      .readText()
-      .then((text) => {
-        if (text.trim()) {
-          setImportText(text.trim());
-          setActiveTab("paste");
-        }
-      })
-      .catch(() => {});
-  }, []);
-
   const getFormatLabel = () => {
     if (!parsed) return "";
     if (parsed.type === "request") return "cURL Command";
@@ -529,9 +516,6 @@ export function ImportDialog({ open, onClose }: Props) {
     if (trimmed.startsWith("{") || trimmed.startsWith("[")) return "json";
     return "yaml";
   };
-
-  const isMac =
-    typeof navigator !== "undefined" && navigator.platform?.includes("Mac");
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
