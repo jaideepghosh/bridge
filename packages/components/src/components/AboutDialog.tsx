@@ -1,17 +1,21 @@
 import { Rainbow, ShieldCheck } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@bridge/ui";
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@bridge/ui";
 import { AppVersion } from "./AppVersion";
 
 export function AboutDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button
-          className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors cursor-pointer outline-none font-medium"
-          title="About Bridge"
-        >
+        <Button variant="subtle" size="compact" title="About Bridge">
           <span>About</span>
-        </button>
+        </Button>
       </DialogTrigger>
       <DialogContent className="max-w-sm p-6 text-center select-none">
         <DialogHeader className="flex flex-col items-center space-y-2 mb-2">
@@ -28,7 +32,8 @@ export function AboutDialog() {
 
         <div className="space-y-4">
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Lightweight REST API testing and documentation workbench built for developers. Test local and remote APIs without CORS limits.
+            Lightweight REST API testing and documentation workbench built for
+            developers. Test local and remote APIs without CORS limits.
           </p>
 
           <div className="h-px bg-border/60 w-full" />
@@ -39,7 +44,9 @@ export function AboutDialog() {
               <span>CORS Sandbox Disabled</span>
             </div>
             <div>Copyright © 2026 Jaideep Ghosh</div>
-            <div className="text-[9px] text-muted-foreground/60">All rights reserved.</div>
+            <div className="text-[9px] text-muted-foreground/60">
+              All rights reserved.
+            </div>
           </div>
         </div>
       </DialogContent>

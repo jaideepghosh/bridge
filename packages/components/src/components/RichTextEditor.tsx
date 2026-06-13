@@ -219,9 +219,8 @@ export function RichTextEditor({
               {/* Heading Selection */}
               <div className="flex items-center gap-0.5 mr-2 border-r border-border/80 pr-2">
                 <Button
-                  variant="ghost"
+                  variant={activeBlock === "h1" ? "outline" : "subtle"}
                   size="icon"
-                  className={`h-7 w-7 rounded-md ${activeBlock === "h1" ? "bg-muted text-primary font-bold border" : "text-muted-foreground"}`}
                   onClick={() =>
                     executeCommand(
                       "formatBlock",
@@ -230,12 +229,12 @@ export function RichTextEditor({
                   }
                   title="Heading 1"
                 >
-                  <Heading1 className="h-4 w-4" />
+                  <Heading1 />
                 </Button>
+
                 <Button
-                  variant="ghost"
+                  variant={activeBlock === "h2" ? "outline" : "subtle"}
                   size="icon"
-                  className={`h-7 w-7 rounded-md ${activeBlock === "h2" ? "bg-muted text-primary font-bold border" : "text-muted-foreground"}`}
                   onClick={() =>
                     executeCommand(
                       "formatBlock",
@@ -244,12 +243,12 @@ export function RichTextEditor({
                   }
                   title="Heading 2"
                 >
-                  <Heading2 className="h-4 w-4" />
+                  <Heading2 />
                 </Button>
+
                 <Button
-                  variant="ghost"
+                  variant={activeBlock === "h3" ? "outline" : "subtle"}
                   size="icon"
-                  className={`h-7 w-7 rounded-md ${activeBlock === "h3" ? "bg-muted text-primary font-bold border" : "text-muted-foreground"}`}
                   onClick={() =>
                     executeCommand(
                       "formatBlock",
@@ -258,52 +257,51 @@ export function RichTextEditor({
                   }
                   title="Heading 3"
                 >
-                  <Heading3 className="h-4 w-4" />
+                  <Heading3 />
                 </Button>
               </div>
 
               {/* Text formatting */}
               <div className="flex items-center gap-0.5 mr-2 border-r border-border/80 pr-2">
                 <Button
-                  variant="ghost"
+                  variant={activeFormats.bold ? "outline" : "subtle"}
                   size="icon"
-                  className={`h-7 w-7 rounded-md ${activeFormats.bold ? "bg-muted text-primary font-bold border" : "text-muted-foreground"}`}
                   onClick={() => executeCommand("bold")}
                   title="Bold"
                 >
-                  <Bold className="h-4 w-4" />
+                  <Bold />
                 </Button>
+
                 <Button
-                  variant="ghost"
+                  variant={activeFormats.italic ? "outline" : "subtle"}
                   size="icon"
-                  className={`h-7 w-7 rounded-md ${activeFormats.italic ? "bg-muted text-primary font-bold border" : "text-muted-foreground"}`}
                   onClick={() => executeCommand("italic")}
                   title="Italic"
                 >
-                  <Italic className="h-4 w-4" />
+                  <Italic />
                 </Button>
+
                 <Button
-                  variant="ghost"
+                  variant={activeFormats.underline ? "outline" : "subtle"}
                   size="icon"
-                  className={`h-7 w-7 rounded-md ${activeFormats.underline ? "bg-muted text-primary font-bold border" : "text-muted-foreground"}`}
                   onClick={() => executeCommand("underline")}
                   title="Underline"
                 >
-                  <Underline className="h-4 w-4" />
+                  <Underline />
                 </Button>
+
                 <Button
-                  variant="ghost"
+                  variant={activeFormats.strikeThrough ? "outline" : "subtle"}
                   size="icon"
-                  className={`h-7 w-7 rounded-md ${activeFormats.strikeThrough ? "bg-muted text-primary font-bold border" : "text-muted-foreground"}`}
                   onClick={() => executeCommand("strikeThrough")}
                   title="Strikethrough"
                 >
-                  <Strikethrough className="h-4 w-4" />
+                  <Strikethrough />
                 </Button>
+
                 <Button
-                  variant="ghost"
+                  variant={activeBlock === "pre" ? "outline" : "subtle"}
                   size="icon"
-                  className={`h-7 w-7 rounded-md ${activeBlock === "pre" ? "bg-muted text-primary font-bold border" : "text-muted-foreground"}`}
                   onClick={() =>
                     executeCommand(
                       "formatBlock",
@@ -312,34 +310,37 @@ export function RichTextEditor({
                   }
                   title="Code block"
                 >
-                  <Code className="h-4 w-4" />
+                  <Code />
                 </Button>
               </div>
 
               {/* Lists & Blocks */}
               <div className="flex items-center gap-0.5 mr-2 border-r border-border/80 pr-2">
                 <Button
-                  variant="ghost"
+                  variant={
+                    activeFormats.insertUnorderedList ? "outline" : "subtle"
+                  }
                   size="icon"
-                  className={`h-7 w-7 rounded-md ${activeFormats.insertUnorderedList ? "bg-muted text-primary font-bold border" : "text-muted-foreground"}`}
                   onClick={() => executeCommand("insertUnorderedList")}
                   title="Bullet List"
                 >
-                  <List className="h-4 w-4" />
+                  <List />
                 </Button>
+
                 <Button
-                  variant="ghost"
+                  variant={
+                    activeFormats.insertOrderedList ? "outline" : "subtle"
+                  }
                   size="icon"
-                  className={`h-7 w-7 rounded-md ${activeFormats.insertOrderedList ? "bg-muted text-primary font-bold border" : "text-muted-foreground"}`}
                   onClick={() => executeCommand("insertOrderedList")}
                   title="Numbered List"
                 >
-                  <ListOrdered className="h-4 w-4" />
+                  <ListOrdered />
                 </Button>
+
                 <Button
-                  variant="ghost"
+                  variant={activeBlock === "blockquote" ? "outline" : "subtle"}
                   size="icon"
-                  className={`h-7 w-7 rounded-md ${activeBlock === "blockquote" ? "bg-muted text-primary font-bold border" : "text-muted-foreground"}`}
                   onClick={() =>
                     executeCommand(
                       "formatBlock",
@@ -348,96 +349,94 @@ export function RichTextEditor({
                   }
                   title="Quote block"
                 >
-                  <Quote className="h-4 w-4" />
+                  <Quote />
                 </Button>
               </div>
 
               {/* Alignments */}
               <div className="flex items-center gap-0.5 mr-2 border-r border-border/80 pr-2">
                 <Button
-                  variant="ghost"
+                  variant={activeFormats.justifyLeft ? "outline" : "subtle"}
                   size="icon"
-                  className={`h-7 w-7 rounded-md ${activeFormats.justifyLeft ? "bg-muted text-primary font-bold border" : "text-muted-foreground"}`}
                   onClick={() => executeCommand("justifyLeft")}
                   title="Align Left"
                 >
-                  <AlignLeft className="h-4 w-4" />
+                  <AlignLeft />
                 </Button>
+
                 <Button
-                  variant="ghost"
+                  variant={activeFormats.justifyCenter ? "outline" : "subtle"}
                   size="icon"
-                  className={`h-7 w-7 rounded-md ${activeFormats.justifyCenter ? "bg-muted text-primary font-bold border" : "text-muted-foreground"}`}
                   onClick={() => executeCommand("justifyCenter")}
                   title="Align Center"
                 >
-                  <AlignCenter className="h-4 w-4" />
+                  <AlignCenter />
                 </Button>
+
                 <Button
-                  variant="ghost"
+                  variant={activeFormats.justifyRight ? "outline" : "subtle"}
                   size="icon"
-                  className={`h-7 w-7 rounded-md ${activeFormats.justifyRight ? "bg-muted text-primary font-bold border" : "text-muted-foreground"}`}
                   onClick={() => executeCommand("justifyRight")}
                   title="Align Right"
                 >
-                  <AlignRight className="h-4 w-4" />
+                  <AlignRight />
                 </Button>
+
                 <Button
-                  variant="ghost"
+                  variant={activeFormats.justifyFull ? "outline" : "subtle"}
                   size="icon"
-                  className={`h-7 w-7 rounded-md ${activeFormats.justifyFull ? "bg-muted text-primary font-bold border" : "text-muted-foreground"}`}
                   onClick={() => executeCommand("justifyFull")}
                   title="Justify"
                 >
-                  <AlignJustify className="h-4 w-4" />
+                  <AlignJustify />
                 </Button>
               </div>
 
               {/* Insertion & Actions */}
               <div className="flex items-center gap-0.5">
                 <Button
-                  variant="ghost"
+                  variant="subtle"
                   size="icon"
-                  className="h-7 w-7 rounded-md text-muted-foreground"
                   onClick={insertLink}
                   title="Link"
                 >
-                  <LinkIcon className="h-4 w-4" />
+                  <LinkIcon />
                 </Button>
+
                 <Button
-                  variant="ghost"
+                  variant="subtle"
                   size="icon"
-                  className="h-7 w-7 rounded-md text-muted-foreground"
                   onClick={() => executeCommand("insertHorizontalRule")}
                   title="Horizontal Rule"
                 >
-                  <span className="text-xs font-bold font-mono">HR</span>
+                  <span className="text-[10px] font-bold font-mono">HR</span>
                 </Button>
+
                 <Button
-                  variant="ghost"
+                  variant="subtle"
                   size="icon"
-                  className="h-7 w-7 rounded-md text-muted-foreground"
                   onClick={clearFormatting}
                   title="Clear formatting"
                 >
-                  <Eraser className="h-4 w-4" />
+                  <Eraser />
                 </Button>
+
                 <Button
-                  variant="ghost"
+                  variant="subtle"
                   size="icon"
-                  className="h-7 w-7 rounded-md text-muted-foreground"
                   onClick={() => executeCommand("undo")}
                   title="Undo"
                 >
-                  <Undo className="h-4 w-4" />
+                  <Undo />
                 </Button>
+
                 <Button
-                  variant="ghost"
+                  variant="subtle"
                   size="icon"
-                  className="h-7 w-7 rounded-md text-muted-foreground"
                   onClick={() => executeCommand("redo")}
                   title="Redo"
                 >
-                  <Redo className="h-4 w-4" />
+                  <Redo />
                 </Button>
               </div>
             </>
@@ -451,29 +450,26 @@ export function RichTextEditor({
         </div>
 
         {/* View Mode Toggle */}
-        <div className="flex items-center bg-muted/60 p-0.5 rounded-lg border border-border">
+        <div className="flex gap-2">
           <Button
-            variant="ghost"
-            size="sm"
-            className={`h-7 px-2.5 text-xs font-medium rounded-md gap-1 cursor-pointer transition-all ${viewMode === "edit" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            size="compact"
+            variant={`${viewMode === "edit" ? "outline" : "subtle"}`}
             onClick={() => setViewMode("edit")}
           >
             <Edit3 className="h-3 w-3" />
             <span>Edit</span>
           </Button>
           <Button
-            variant="ghost"
-            size="sm"
-            className={`h-7 px-2.5 text-xs font-medium rounded-md gap-1 cursor-pointer transition-all ${viewMode === "preview" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            size="compact"
+            variant={`${viewMode === "preview" ? "outline" : "subtle"}`}
             onClick={() => setViewMode("preview")}
           >
             <Eye className="h-3 w-3" />
             <span>Preview</span>
           </Button>
           <Button
-            variant="ghost"
-            size="sm"
-            className={`h-7 px-2.5 text-xs font-medium rounded-md gap-1 cursor-pointer transition-all ${viewMode === "code" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            size="compact"
+            variant={`${viewMode === "code" ? "outline" : "subtle"}`}
             onClick={() => setViewMode("code")}
           >
             <Code2 className="h-3 w-3" />

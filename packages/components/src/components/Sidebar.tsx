@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useStore } from "../context/app-store";
 import { Input } from "@bridge/ui/input";
 import {
@@ -34,6 +34,12 @@ import { NewFolderDialog } from "./NewFolderDialog";
 import { ImportDialog } from "./ImportDialog";
 import { ExportConfirmationDialog } from "./ExportConfirmationDialog";
 import { getExporter } from "@bridge/importer";
+import {
+  Button,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@bridge/ui";
 
 const MethodColors: Record<HttpMethod, string> = {
   GET: "text-emerald-500",
@@ -936,29 +942,39 @@ export function Sidebar() {
     setExportTarget(null);
   };
 
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "i") {
+        e.preventDefault();
+        setShowImport(true);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
   return (
     <div className="h-full flex flex-col bg-sidebar text-sidebar-foreground">
       <div className="p-3 border-b border-sidebar-border space-y-2 shrink-0">
-        <div className="relative">
-          <Search className="absolute left-2 top-2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-          <Input
-            placeholder="Filter..."
-            className="h-7 pl-7 bg-sidebar-accent/40 border-sidebar-border text-xs"
+        <InputGroup className="max-w-xs">
+          <InputGroupAddon>
+            <Search />
+          </InputGroupAddon>
+          <InputGroupInput
+            placeholder="Search request"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             data-testid="input-sidebar-search"
           />
-        </div>
+        </InputGroup>
+
         <div className="flex gap-1.5">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button
-                className="flex-1 h-7 flex items-center justify-center gap-1.5 rounded-md border border-sidebar-border text-xs text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors cursor-pointer"
-                title="New…"
-              >
+              <Button size="sm" variant="outline" className="flex-1">
                 <Plus className="h-3.5 w-3.5" />
                 <span>New</span>
-              </button>
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-48">
               <DropdownMenuItem
@@ -988,13 +1004,14 @@ export function Sidebar() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <button
-            className="h-7 px-2 flex items-center rounded-md border border-sidebar-border text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors cursor-pointer"
+          <Button
+            size="sm"
+            variant="outline"
             onClick={() => setShowImport(true)}
-            title="Import cURL (Ctrl+Shift+I)"
+            title="Import Request (ctrl/cmd+Shift+I)"
           >
             <Download className="h-3.5 w-3.5" />
-          </button>
+          </Button>
         </div>
       </div>
 
