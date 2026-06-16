@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "@bridge/ui/globals.css";
 import Providers from "./providers";
+import { AnalyticsProvider } from "./AnalyticsProvider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -14,7 +15,8 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "Bridge",
-  description: "Lightweight REST API testing and documentation workbench built for developers. Test local and remote APIs without CORS issues using a fast desktop-grade client with collections, environments, auth, cURL import, and reusable examples.",
+  description:
+    "Lightweight REST API testing and documentation workbench built for developers. Test local and remote APIs without CORS issues using a fast desktop-grade client with collections, environments, auth, cURL import, and reusable examples.",
 };
 
 export default function RootLayout({
@@ -25,7 +27,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Providers>{children}</Providers>
+        <AnalyticsProvider>
+          <Providers>{children}</Providers>
+        </AnalyticsProvider>
       </body>
     </html>
   );

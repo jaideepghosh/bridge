@@ -11,6 +11,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@bridge/analytics": "*",
     "@bridge/components": "*",
     "@bridge/ui": "*",
     "@monaco-editor/react": "^4.7.0",
