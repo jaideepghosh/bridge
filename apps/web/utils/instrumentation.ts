@@ -8,10 +8,9 @@ import {
 export function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
     const exporter = new OTLPLogExporter({
-      url: "https://eu.i.posthog.com/otlp/v1/logs",
+      url: `${process.env.POSTHOG_HOST ?? "https://eu.i.posthog.com"}/otlp/v1/logs`,
       headers: {
-        Authorization:
-          "Bearer phc_waNmotUwBBLi8bbxUBvRYWthhPuoqo5TEiDtNHhyC6Zs",
+        Authorization: `Bearer ${process.env.POSTHOG_API_KEY ?? ""}`,
       },
     });
 

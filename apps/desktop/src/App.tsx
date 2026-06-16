@@ -21,6 +21,7 @@ import {
 } from "@bridge/components";
 import { tauriHttpExecutor } from "./services/http-executor";
 import { TauriStorageProvider } from "./services/storage";
+import { AnalyticsProvider } from "./AnalyticsProvider";
 
 const queryClient = new QueryClient();
 const storage = new TauriStorageProvider();
@@ -247,18 +248,20 @@ function AppLayout() {
 
 export default function App() {
   return (
-    <ThemeProvider defaultTheme="light" attribute="class">
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <AppStoreProvider storage={storage}>
-            <HttpExecutorProvider execute={tauriHttpExecutor}>
-              <DeepLinkSync />
-              <AppLayout />
-            </HttpExecutorProvider>
-          </AppStoreProvider>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <AnalyticsProvider>
+      <ThemeProvider defaultTheme="light" attribute="class">
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <AppStoreProvider storage={storage}>
+              <HttpExecutorProvider execute={tauriHttpExecutor}>
+                <DeepLinkSync />
+                <AppLayout />
+              </HttpExecutorProvider>
+            </AppStoreProvider>
+          </TooltipProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </AnalyticsProvider>
   );
 }
 

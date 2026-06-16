@@ -1,0 +1,22 @@
+{
+  "name": "@bridge/analytics",
+  "version": "0.1.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "posthog-js": "^1.386.8"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@bridge/typescript-config": "*",
+    "@types/react": "19.1.0",
+    "typescript": "5.9.2"
+  }
+}

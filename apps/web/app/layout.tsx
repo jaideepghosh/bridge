@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "@bridge/ui/globals.css";
 import Providers from "./providers";
-import { PostHogProvider } from "./PostHogProvider";
+import { AnalyticsProvider } from "./AnalyticsProvider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -27,9 +27,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <PostHogProvider>
+        <AnalyticsProvider>
           <Providers>{children}</Providers>
-        </PostHogProvider>
+        </AnalyticsProvider>
       </body>
     </html>
   );
