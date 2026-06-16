@@ -120,7 +120,7 @@ export function UrlInput({
           seg.isVar ? (
             <span
               key={i}
-              className="bg-amber-400/20 text-amber-400 border border-amber-400/40 rounded px-0.5 mx-[-3px] whitespace-pre"
+              className="bg-amber-400/20 text-amber-400 border border-amber-400/40 rounded whitespace-pre"
             >
               {seg.text}
             </span>
