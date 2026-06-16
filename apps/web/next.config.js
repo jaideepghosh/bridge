@@ -2,9 +2,6 @@
 const nextConfig = {
   // Ensure Next compiles and processes CSS from the local UI package
   transpilePackages: ["@bridge/ui"],
-  experimental: {
-    instrumentationHook: true,
-  },
 };
 
 export default nextConfig;
